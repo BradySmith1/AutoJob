@@ -1,0 +1,88 @@
+h2 {
+    margin: 0px;
+    text-align: left;
+    color: white;
+    margin-bottom: 3px;
+}
+
+.multiBoxWrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.inputAndLabel {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.half {
+    width: 48% !important;
+}
+
+.third {
+    width: 31% !important;
+}
+
+.inputBox {
+    width: 100%;
+    background-color: #191D23;
+    border-style: solid;
+    border-color: #0055FF;
+    border-radius: 5px;
+    border-width: 1px;
+    caret-color: white;
+    color: white;
+    font-size: 18px;
+}
+
+.singleLineInput {
+    height: 30px;
+}
+
+.multiLineInput {
+    height: 200px;
+}
+
+.seperator {
+    margin-bottom: 10px;
+}
+
+.placeholder {
+    height: 300px;
+    width: 100%;
+    background-color: #191D23;
+
+    color: white;
+    font-size: 30px;
+
+    border-style: solid;
+    border-color: #0055FF;
+    border-radius: 5px;
+    border-width: 1px;
+}
+
+#submitButton {
+    background-color: #0055FF;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    height: 60px;
+    width: 150px;
+    border-color: transparent;
+    border-style: solid;
+    border-radius: 25px;
+    transition-duration: 200ms;
+}
+
+#submitButton:hover {
+    background-color: #00A3FF;
+}
+
+#estimateForm {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 20px;
+    padding: 10px;
+}

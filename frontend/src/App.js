@@ -1,12 +1,14 @@
-import logo from './logo.svg';
+import { Form } from 'formik';
 import './App.css';
+import {default as EstimateForm} from './components/EstimateForm';
 
 function App() {
   return (
     <div className="App">
       <div className="TitleBar">
-        Automatic Job Estimator and Scheduler
+        <h1>Fill Out the Estimate Form Below</h1>
       </div>
+      <EstimateForm />
     </div>
   );
 }
