@@ -1,6 +1,7 @@
+use std::borrow::Borrow;
 use std::process::exit;
 use mongodb::{Client, Collection, Database, options::ClientOptions};
-use mongodb::bson::{doc, Document};
+use mongodb::bson::{Document};
 
 pub struct DbConnection {
     client: Client,
@@ -30,6 +31,10 @@ impl DbConnection {
         self.collection = Option::from(collection);
     }
 
+    pub async fn insert_document(&mut self, doc: impl Borrow<Document>){
+        self.collection.as_ref().expect("Collection never initialized").insert_one(doc, None).await.expect("Failed to insert");
+    }
+
     pub async fn print_databases(&self) {
         let database_names = self.client.list_database_names(None, None).await;
         let database_names = match database_names {
@@ -44,9 +49,17 @@ impl DbConnection {
         }
     }
 
-    pub fn get_client(&self) -> &Client {
+    /*pub fn get_client(&self) -> &Client {
         &self.client
     }
+
+    pub fn get_database(&self) -> &Database {
+        return self.database.as_ref().expect("Database was never initialized");
+    }
+
+    pub fn get_collection(&self) -> &Collection<Document> {
+        return self.collection.as_ref().expect("Database was never initialized");
+    }*/
 }
 
 async fn connect_mongodb(database_address: String) -> Client {
