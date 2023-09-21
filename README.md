@@ -1,4 +1,5 @@
 # AutomaticJobEstimatorAndScheduler
 Capstone Project
 
-Install formik
+npm install formik
+npm install yup
