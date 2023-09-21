@@ -1,10 +1,12 @@
 import './Form.css'
 import { useFormik } from 'formik';
-import React from "react";
+import React, { useRef } from "react";
 import * as Yup from "yup"
+import ReCAPTCHA from "react-google-recaptcha";
 
 function EstimateForm(){
 
+    const captchaRef = useRef(null);
 
     const formik = useFormik({
         initialValues: {
@@ -58,6 +60,9 @@ function EstimateForm(){
 
         onSubmit: (values) => {
             console.log(values)
+            const token = captchaRef.current.getValue();
+            captchaRef.current.reset();
+            console.log(token);
         }
     });
     
@@ -206,12 +211,16 @@ function EstimateForm(){
                 />
                 {formik.touched.details && formik.errors.details ? <p className="Error">{formik.errors.details}</p> : null}
             </div>
-
+            <div class="captcha">
+                <ReCAPTCHA 
+                    sitekey={process.env.REACT_APP_SITE_KEY}
+                    ref={captchaRef} 
+                />
+            </div>
             <input 
                 type="submit" 
                 id="submitButton"
             />
-
         </form>
     );
 }
