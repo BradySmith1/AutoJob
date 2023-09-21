@@ -24,6 +24,15 @@ h2 {
     width: 31% !important;
 }
 
+.Error {
+    width: 100%;
+    color: red;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-left: 5px;
+}
+
 .inputBox {
     width: 100%;
     background-color: #191D23;
@@ -60,6 +69,14 @@ h2 {
     border-color: #0055FF;
     border-radius: 5px;
     border-width: 1px;
+}
+
+.captcha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 #submitButton {
