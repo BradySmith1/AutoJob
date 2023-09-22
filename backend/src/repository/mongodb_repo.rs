@@ -9,10 +9,10 @@ use mongodb::{
 };
 use futures::stream::TryStreamExt; //add this
 use mongodb::results::{DeleteResult, UpdateResult};
-use crate::model::user_model::User;
+use crate::model::user_model::UserEstimate;
 
 pub struct MongoRepoUser {
-    col: Collection<User>,
+    col: Collection<UserEstimate>,
 }
 
 impl MongoRepoUser {
@@ -43,16 +43,22 @@ impl MongoRepoUser {
         };
         println!("Successfully connected to the database.");
         let db = client.database("ajseDB");
-        let col: Collection<User> = db.collection("users");
+        let col: Collection<UserEstimate> = db.collection("users");
         MongoRepoUser { col }
     }
 
-    pub async fn create_user(&self, new_user: User) -> Result<InsertOneResult, Error> {
-        let new_doc = User {
+    pub async fn create_user_estimate(&self, new_user: UserEstimate) -> Result<InsertOneResult, Error> {
+        let new_doc = UserEstimate {
             id: None,
-            name: new_user.name,
-            location: new_user.location,
-            title: new_user.title,
+            first_name: new_user.first_name.to_owned(),
+            last_name: new_user.last_name.to_owned(),
+            email: new_user.email.to_owned(),
+            street_address: new_user.street_address.to_owned(),
+            city: new_user.city.to_owned(),
+            state: new_user.state.to_owned(),
+            zip: new_user.zip.to_owned(),
+            surfaces_square_footage: new_user.surfaces_square_footage.to_owned(),
+            other_details: new_user.other_details.to_owned()
         };
         let user = self
             .col
@@ -63,7 +69,7 @@ impl MongoRepoUser {
         Ok(user)
     }
 
-    pub async fn get_user(&self, id: &String) -> Result<User, Error> {
+    pub async fn get_user_estimate(&self, id: &String) -> Result<UserEstimate, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -75,16 +81,23 @@ impl MongoRepoUser {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn update_user(&self, id: &String, new_user: User) -> Result<UpdateResult, Error> {
+    pub async fn update_user_estimate(&self, id: &String, new_user: UserEstimate) -> Result<UpdateResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let new_doc = doc! {
                 "$set":
                     {
                         "id": new_user.id,
-                        "name": new_user.name,
-                        "location": new_user.location,
-                        "title": new_user.title
+                        "first_name": new_user.first_name,
+                        "last_name": new_user.last_name,
+                        "email": new_user.email,
+                        "street_address": new_user.street_address,
+                        "city": new_user.city,
+                        "state": new_user.state,
+                        "zip": new_user.zip,
+                        "surfaces_square_footage": new_user.surfaces_square_footage,
+                        "other_details": new_user.other_details
+
                     },
             };
         let updated_doc = self
@@ -96,7 +109,7 @@ impl MongoRepoUser {
         Ok(updated_doc)
     }
 
-    pub async fn delete_user(&self, id: &String) -> Result<DeleteResult, Error> {
+    pub async fn delete_user_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -108,14 +121,14 @@ impl MongoRepoUser {
         Ok(user_detail)
     }
 
-    pub async fn get_all_users(&self) -> Result<Vec<User>, Error> {
+    pub async fn get_all_user_estimates(&self) -> Result<Vec<UserEstimate>, Error> {
         let mut cursors = self
             .col
             .find(None, None)
             .await
             .ok()
             .expect("Error getting list of users");
-        let mut users: Vec<User> = Vec::new();
+        let mut users: Vec<UserEstimate> = Vec::new();
         while let Some(user) = cursors
             .try_next()
             .await
