@@ -6,7 +6,7 @@ mod api;
 mod repository;
 mod model;
 
-use actix_web::{App, HttpServer, middleware::Logger,  Responder};
+use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
 use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user, get_all_users};
