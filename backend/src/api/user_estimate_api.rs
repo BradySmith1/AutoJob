@@ -37,15 +37,15 @@ pub async fn update_user(
     };
     let data = UserEstimate {
         id: Some(ObjectId::parse_str(&id).unwrap()),
-        first_name: new_user.first_name.to_owned(),
-        last_name: new_user.last_name.to_owned(),
+        fName: new_user.fName.to_owned(),
+        lName: new_user.lName.to_owned(),
         email: new_user.email.to_owned(),
-        street_address: new_user.street_address.to_owned(),
+        strAddr: new_user.strAddr.to_owned(),
         city: new_user.city.to_owned(),
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
-        surfaces_square_footage: new_user.surfaces_square_footage.to_owned(),
-        other_details: new_user.other_details.to_owned()
+        measurements: new_user.measurements.to_owned(),
+        details: new_user.details.to_owned()
     };
     let update_result = db.update_user_estimate(&id, data).await;
     match update_result {
@@ -100,14 +100,14 @@ async fn index() -> impl Responder {
 fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
     UserEstimate {
         id: None,
-        first_name: new_user.first_name.to_owned(),
-        last_name: new_user.last_name.to_owned(),
+        fName: new_user.fName.to_owned(),
+        lName: new_user.lName.to_owned(),
         email: new_user.email.to_owned(),
-        street_address: new_user.street_address.to_owned(),
+        strAddr: new_user.strAddr.to_owned(),
         city: new_user.city.to_owned(),
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
-        surfaces_square_footage: new_user.surfaces_square_footage.to_owned(),
-        other_details: new_user.other_details.to_owned()
+        measurements: new_user.measurements.to_owned(),
+        details: new_user.details.to_owned()
     }
 }
