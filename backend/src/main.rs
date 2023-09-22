@@ -23,7 +23,7 @@ pub async fn main() -> std::io::Result<()> {
         .blue();
 
     let prefix = "127.0.0.1:"; // // Use 0.0.0.0 instead of localhost or 127.0.0.1 to use Actix with docker
-    let port = 8080; // We will use 80 for aws with env variable.
+    let port = 3001; // We will use 80 for aws with env variable.
     let target = format!("{}{}", prefix, port);
 
     let db = MongoRepoUser::init().await;

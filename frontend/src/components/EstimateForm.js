@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import React, { useRef } from "react";
 import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
+import axios from 'axios';
 
 function EstimateForm(){
 
@@ -59,7 +60,7 @@ function EstimateForm(){
         }),
 
         onSubmit: (values) => {
-            console.log(values)
+            axios.post('/user', values).then(response => console.log(response))
             const token = captchaRef.current.getValue();
             captchaRef.current.reset();
             console.log(token);
