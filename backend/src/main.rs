@@ -10,7 +10,9 @@ use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
 use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user, get_all_users};
-use repository::mongodb_repo::MongoRepoUser;
+use repository::mongodb_user_repo::MongoRepoUser;
+use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate, update_estimate};
+use crate::repository::mongodb_estimate_repo::MongoRepoEstimate;
 
 
 #[actix_web::main]
@@ -26,8 +28,10 @@ pub async fn main() -> std::io::Result<()> {
     let port = 3001; // We will use 80 for aws with env variable.
     let target = format!("{}{}", prefix, port);
 
-    let db = MongoRepoUser::init().await;
-    let db_data = Data::new(db);
+    let db_user = MongoRepoUser::init().await;
+    let db_estimate = MongoRepoEstimate::init().await;
+    let db_user_data = Data::new(db_user);
+    let db_estimate_data = Data::new(db_estimate);
 
     println!("\nServer ready at {}", blue.apply_to(format!("http://{}",&target)));
 
@@ -35,12 +39,18 @@ pub async fn main() -> std::io::Result<()> {
         let logger = Logger::default();
         App::new()
             .wrap(logger)
-            .app_data(db_data.clone())
+            .app_data(db_user_data.clone())
+            .app_data(db_estimate_data.clone())
             .service(create_user)
             .service(get_user)
             .service(update_user)
             .service(delete_user)
             .service(get_all_users)
+            .service(create_estimate)
+            .service(get_estimate)
+            .service(update_estimate)
+            .service(delete_estimate)
+            .service(get_all_estimates)
             .service(index)
     })
         .bind(&target)?

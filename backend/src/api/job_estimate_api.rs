@@ -1,41 +1,41 @@
-use crate::{model::user_model::UserEstimate, repository::mongodb_user_repo::MongoRepoUser};
-use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
+use crate::{model::estimate_model::JobEstimate, repository::mongodb_estimate_repo::MongoRepoEstimate};
+use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 
-#[post("/user")]
-pub async fn create_user(db: Data<MongoRepoUser>, new_user: Json<UserEstimate>) -> HttpResponse {
+#[post("/estimate")]
+pub async fn create_estimate(db: Data<MongoRepoEstimate>, new_user: Json<JobEstimate>) -> HttpResponse {
     let data = build_user(&new_user);
-    let user_detail = db.create_user_estimate(data).await;
+    let user_detail = db.create_estimate(data).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
 }
 
-#[get("/user/{id}")]
-pub async fn get_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpResponse {
+#[get("/estimate/{id}")]
+pub async fn get_estimate(db: Data<MongoRepoEstimate>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     }
-    let user_detail = db.get_user_estimate(&id).await;
+    let user_detail = db.get_estimate(&id).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
 }
 
-#[put("/user/{id}")]
-pub async fn update_user(
-    db: Data<MongoRepoUser>,
+#[put("/estimate/{id}")]
+pub async fn update_estimate(
+    db: Data<MongoRepoEstimate>,
     path: Path<String>,
-    new_user: Json<UserEstimate>,
+    new_user: Json<JobEstimate>,
 ) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let data = UserEstimate {
+    let data = JobEstimate {
         id: Some(ObjectId::parse_str(&id).unwrap()),
         fName: new_user.fName.to_owned(),
         lName: new_user.lName.to_owned(),
@@ -45,13 +45,14 @@ pub async fn update_user(
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
         measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned()
+        details: new_user.details.to_owned(),
+        materials: new_user.materials.to_owned()
     };
-    let update_result = db.update_user_estimate(&id, data).await;
+    let update_result = db.update_estimate(&id, data).await;
     match update_result {
         Ok(update) => {
             if update.matched_count == 1 {
-                let updated_user_info = db.get_user_estimate(&id).await;
+                let updated_user_info = db.get_estimate(&id).await;
                 return match updated_user_info {
                     Ok(user) => HttpResponse::Ok().json(user),
                     Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -64,13 +65,13 @@ pub async fn update_user(
     }
 }
 
-#[delete("/user/{id}")]
-pub async fn delete_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpResponse {
+#[delete("/estimate/{id}")]
+pub async fn delete_estimate(db: Data<MongoRepoEstimate>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let result = db.delete_user_estimate(&id).await;
+    let result = db.delete_estimate(&id).await;
     match result {
         Ok(res) => {
             if res.deleted_count == 1 {
@@ -83,22 +84,17 @@ pub async fn delete_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpRes
     }
 }
 
-#[get("/users")]
-pub async fn get_all_users(db: Data<MongoRepoUser>) -> HttpResponse {
-    let users = db.get_all_user_estimates().await;
+#[get("/estimates")]
+pub async fn get_all_estimates(db: Data<MongoRepoEstimate>) -> HttpResponse {
+    let users = db.get_all_estimates().await;
     match users {
         Ok(users) => HttpResponse::Ok().json(users),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
 }
 
-#[get("/")]
-async fn index() -> impl Responder {
-    "Hello world!"
-}
-
-fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
-    UserEstimate {
+fn build_user(new_user: &Json<JobEstimate>) -> JobEstimate {
+    JobEstimate {
         id: None,
         fName: new_user.fName.to_owned(),
         lName: new_user.lName.to_owned(),
@@ -108,6 +104,7 @@ fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
         measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned()
+        details: new_user.details.to_owned(),
+        materials: new_user.materials.to_owned()
     }
 }

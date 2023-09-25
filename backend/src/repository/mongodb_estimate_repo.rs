@@ -1,21 +1,16 @@
 use std::env;
 use std::process::exit;
 use dotenv::dotenv;
-use mongodb::{
-    bson::{extjson::de::Error, doc, oid::ObjectId},
-    results::{ InsertOneResult},
-    options::ClientOptions,
-    Client, Collection,
-};
+use mongodb::{bson::{extjson::de::Error, doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
 use futures::stream::TryStreamExt; //add this
 use mongodb::results::{DeleteResult, UpdateResult};
-use crate::model::user_model::UserEstimate;
+use crate::model::estimate_model::JobEstimate;
 
-pub struct MongoRepoUser {
-    col: Collection<UserEstimate>,
+pub struct MongoRepoEstimate {
+    col: Collection<JobEstimate>,
 }
 
-impl MongoRepoUser {
+impl MongoRepoEstimate {
     pub async fn init() -> Self {
         dotenv().ok();
         let database_address = match env::var("MONGOURL") {
@@ -41,25 +36,16 @@ impl MongoRepoUser {
                 exit(1);
             }
         };
-        println!("Successfully connected to the database.");
+        println!("Successfully connected to the job estimate database.");
         let db = client.database("ajseDB");
-        let col: Collection<UserEstimate> = db.collection("userEstimates");
-        MongoRepoUser { col }
+        let col: Collection<JobEstimate> = db.collection("jobEstimates");
+        MongoRepoEstimate { col }
     }
+}
 
-    pub async fn create_user_estimate(&self, new_user: UserEstimate) -> Result<InsertOneResult, Error> {
-        let new_doc = UserEstimate {
-            id: None,
-            fName: new_user.fName.to_owned(),
-            lName: new_user.lName.to_owned(),
-            email: new_user.email.to_owned(),
-            strAddr: new_user.strAddr.to_owned(),
-            city: new_user.city.to_owned(),
-            state: new_user.state.to_owned(),
-            zip: new_user.zip.to_owned(),
-            measurements: new_user.measurements.to_owned(),
-            details: new_user.details.to_owned()
-        };
+impl MongoRepoEstimate {
+    pub async fn create_estimate(&self, new_user: JobEstimate) -> Result<InsertOneResult, Error> {
+        let new_doc = build_user(&new_user);
         let user = self
             .col
             .insert_one(new_doc, None)
@@ -69,7 +55,7 @@ impl MongoRepoUser {
         Ok(user)
     }
 
-    pub async fn get_user_estimate(&self, id: &String) -> Result<UserEstimate, Error> {
+    pub async fn get_estimate(&self, id: &String) -> Result<JobEstimate, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -81,35 +67,21 @@ impl MongoRepoUser {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn update_user_estimate(&self, id: &String, new_user: UserEstimate) -> Result<UpdateResult, Error> {
+    pub async fn update_estimate(&self, id: &String, new_user: JobEstimate) -> Result<UpdateResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
-        let new_doc = doc! {
-                "$set":
-                    {
-                        "id": new_user.id,
-                        "fName": new_user.fName,
-                        "lName": new_user.lName,
-                        "email": new_user.email,
-                        "strAddr": new_user.strAddr,
-                        "city": new_user.city,
-                        "state": new_user.state,
-                        "zip": new_user.zip,
-                        "measurements": new_user.measurements,
-                        "details": new_user.details
-
-                    },
-            };
+        let new_doc = build_user(&new_user);
+        let doc = bson::to_document(&new_doc).unwrap();
         let updated_doc = self
             .col
-            .update_one(filter, new_doc, None)
+            .update_one(filter, doc, None)
             .await
             .ok()
             .expect("Error updating user");
         Ok(updated_doc)
     }
 
-    pub async fn delete_user_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
+    pub async fn delete_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -121,14 +93,14 @@ impl MongoRepoUser {
         Ok(user_detail)
     }
 
-    pub async fn get_all_user_estimates(&self) -> Result<Vec<UserEstimate>, Error> {
+    pub async fn get_all_estimates(&self) -> Result<Vec<JobEstimate>, Error> {
         let mut cursors = self
             .col
             .find(None, None)
             .await
             .ok()
             .expect("Error getting list of users");
-        let mut users: Vec<UserEstimate> = Vec::new();
+        let mut users: Vec<JobEstimate> = Vec::new();
         while let Some(user) = cursors
             .try_next()
             .await
@@ -138,5 +110,21 @@ impl MongoRepoUser {
             users.push(user)
         }
         Ok(users)
+    }
+}
+
+fn build_user(new_user: &JobEstimate) -> JobEstimate {
+    JobEstimate {
+        id: None,
+        fName: new_user.fName.to_owned(),
+        lName: new_user.lName.to_owned(),
+        email: new_user.email.to_owned(),
+        strAddr: new_user.strAddr.to_owned(),
+        city: new_user.city.to_owned(),
+        state: new_user.state.to_owned(),
+        zip: new_user.zip.to_owned(),
+        measurements: new_user.measurements.to_owned(),
+        details: new_user.details.to_owned(),
+        materials: new_user.materials.to_owned()
     }
 }
