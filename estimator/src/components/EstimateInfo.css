@@ -1,0 +1,62 @@
+h2{
+   color: white; 
+   padding: none;
+   margin: 0px;
+   font-size: 30px;
+}
+
+.estimateInfo{
+    width: 100%;
+    text-align: left;
+}
+
+.dropDown{
+    text-align: center;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+#selectTitle{
+    width: 80%;
+}
+
+.select{
+    width: 80%;
+    margin-top: 30px;
+}
+
+.customerInfo{
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.infoContainer{
+    margin-top: 60px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.infoElement{
+    width: 50%;
+    border-left-style: solid;
+    border-left-color: #0055FF;
+    height: 200px;
+    padding-left: 10px;
+}
+
+.info{
+    color: white;
+    font-size: 20px;
+}
+
+.images{
+    text-align: center;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
