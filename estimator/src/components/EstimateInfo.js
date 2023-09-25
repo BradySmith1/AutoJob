@@ -1,7 +1,8 @@
-import "./EstimateInfo.css"
+import "./EstimateInfo.css";
 import axios from 'axios';
 import React, {useEffect, useState} from "react";
-import Select from 'react-select'
+import Select from 'react-select';
+import Estimator from './Estimator.js';
 
 var customerData = [{"fName": "Andrew", "lName": "Monroe", "email": "andrew@fakemail.com", "strAddr": "440 harris road", "city": "Murphy", "state": "NC", "zip": "28906", "measurements": "These are the measurements of the job", "details": "These are the details of the job"},
                     {"fName": "Brady", "lName": "Smith", "email": "brady@fakemail.com", "strAddr": "325 long road", "city": "Asheville", "state": "NC", "zip": "38567", "measurements": "These are the measurements of the job, but for brady", "details": "These are the details of the job, but for brady"},
@@ -52,7 +53,6 @@ function EstimateInfo(){
 
     const handleChange = (selectedOption) => {
         setCurrentCustomerData(selectedOption.value);
-        console.log(currentCustomerData);
     }
 
     return(
@@ -98,8 +98,11 @@ function EstimateInfo(){
                 </div>
             </div>
             <div className="images">
-                <h2>Images would display here</h2>
+                <div className="image">Image</div>
+                <div className="image">Image</div>
+                <div className="image">Image</div>
             </div>
+            <Estimator data={currentCustomerData} />
         </div>
     );
 }

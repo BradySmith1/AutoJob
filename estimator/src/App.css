@@ -5,6 +5,7 @@ h1{
 
 body{
   background-color: #2B303A;
+  overflow-x: hidden;
 }
 
 .TitleBar {

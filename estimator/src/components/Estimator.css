@@ -1,0 +1,82 @@
+#estimateCalcForm{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 20px;
+    padding: 10px;
+    margin-top: 50px;
+}
+
+.materialsForm{
+    margin-top: 50px;
+    text-align: center;
+    padding-bottom: 100px;
+}
+
+.col{
+    margin-top: 10px;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+.label{
+    text-align: left;
+    width: 10%;
+    color: white;
+    font-size: 18px;
+}
+
+.totalLabel{
+    text-align: left;
+    width: 15%;
+    color: white;
+    font-size: 18px;
+}
+
+.totalContainer{
+    width: 30%;
+    height: 30px;
+}
+
+.total{
+    background-color: #191D23;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    width: 60%;
+    height: 30px;
+}
+
+.multiBoxWrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+}
+
+.inputAndLabel {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.Error {
+    width: 100%;
+    color: red;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-left: 5px;
+}
+
+.inputBox {
+    background-color: #191D23;
+    border-style: solid;
+    border-color: #0055FF;
+    border-radius: 5px;
+    border-width: 1px;
+    caret-color: white;
+    color: white;
+    font-size: 18px;
+    width: 30%;
+    height: 30px;
+}
