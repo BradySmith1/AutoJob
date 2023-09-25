@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 
+//"/estimate"
 
 function populateDropDown(data){
     var outputData = []
@@ -31,7 +32,7 @@ function EstimateInfo(){
         } catch(error){
             console.log(error);
         }
-     })
+     }, [])
 
     const handleChange = (selectedOption) => {
         setCurrentCustomerData(selectedOption.value);
