@@ -90,6 +90,7 @@ h2 {
     border-style: solid;
     border-radius: 25px;
     transition-duration: 200ms;
+    margin-bottom: 200px;
 }
 
 #submitButton:hover {
