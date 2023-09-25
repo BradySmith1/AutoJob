@@ -43,7 +43,7 @@ impl MongoRepoUser {
         };
         println!("Successfully connected to the database.");
         let db = client.database("ajseDB");
-        let col: Collection<UserEstimate> = db.collection("users");
+        let col: Collection<UserEstimate> = db.collection("userEstimates");
         MongoRepoUser { col }
     }
 

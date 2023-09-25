@@ -10,18 +10,17 @@ var customerData = [{"fName": "Andrew", "lName": "Monroe", "email": "andrew@fake
 
 
 
-// async function getFormData(){
-//     var customerData = customerData;
-//     try {
-//         const axiosResponse = await axios.get('/users');
-//         customerData = axiosResponse.then((response) => response.data)
-//         //console.log(customerData);
-//     } catch(error) {
-//         //console.log(error);
-//     }
+ async function getFormData(){
+     var customerData = customerData;
+     try {
+         const axiosResponse = await axios.get('/users').then((response) => response.data);
+         console.log(axiosResponse);
+     } catch(error) {
+         console.log(error);
+     }
 
-//     return customerData;
-// }
+     return customerData;
+ }
 
 function populateDropDown(data){
     var outputData = []
@@ -47,9 +46,9 @@ function EstimateInfo(){
     
     const [currentCustomerData, setCurrentCustomerData] = useState({"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""});
     
-    // useEffect(() => {
-    //     customerData = getFormData();
-    // })
+     useEffect(() => {
+         customerData = getFormData();
+     })
 
     const handleChange = (selectedOption) => {
         setCurrentCustomerData(selectedOption.value);
