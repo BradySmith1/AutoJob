@@ -8,8 +8,8 @@ const initialValues = {
     materials: [
       {
         material_type: '',
-        price: '',
-        quantity: ''
+        price: 0.0,
+        quantity: 0.0
       },
     ],
 };
@@ -32,8 +32,6 @@ const materialsValidation = object({
 
 function Estimator(props){
 
-    const [total, setTotal] = useState(0);
-  
     return(
         <div className='materialsForm'>
             <h2>Add Materials</h2>
@@ -44,7 +42,7 @@ function Estimator(props){
                 const materialData = JSON.parse(JSON.stringify(values));
                 const estimateData = {...customerData, ...materialData};
                 console.log(estimateData);
-                axios.post('/estimate', estimateData).then(response => console.log(response))
+                //axios.post('/estimate', estimateData).then(response => console.log(response))
                 resetForm(initialValues);
             }}
             validationSchema={materialsValidation}
@@ -71,7 +69,7 @@ function Estimator(props){
                                     <Field
                                     name={`materials.${index}.price`}
                                     placeholder=""
-                                    type="text"
+                                    type="number"
                                     className="inputBox"
                                     />
                                 </div>
@@ -80,7 +78,7 @@ function Estimator(props){
                                     <Field
                                     name={`materials.${index}.quantity`}
                                     placeholder=""
-                                    type="text"
+                                    type="number"
                                     className="inputBox"
                                     />
                                 </div>
@@ -88,7 +86,7 @@ function Estimator(props){
                                     <div className='label'> Total </div>
                                     <div className='totalContainer'><div className='total'> 
                                     ${
-                                        Number(material.price) * Number(material.quantity)
+                                        material.price * material.quantity
                                     } 
                                     </div></div>
                                 </div>
@@ -110,7 +108,7 @@ function Estimator(props){
                         <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ material_type: '', price: '', quantity: ''})}
+                        onClick={() => push({ material_type: '', price: 0.0, quantity: 0.0})}
                         >
                         Add Material
                         </button>
