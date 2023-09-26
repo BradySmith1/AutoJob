@@ -42,7 +42,7 @@ function EstimateInfo(){
         <div className='estimateInfo'>
             <div className='dropDown'>
                 <h2 id="selectTitle">{customerData.length} Customers Waiting for an Estimate</h2>
-                {loading ? <h2>loading</h2> : <Select 
+                {loading ? <h2>loading...</h2> : <Select 
                     className="select" 
                     options={populateDropDown(customerData)}
                     onChange={handleChange} 

@@ -1,18 +1,34 @@
 import './Estimator.css'
 import { Formik, FieldArray, Field, Form, ErrorMessage} from 'formik';
 import React, { useState } from "react";
-import * as Yup from "yup"
+import {array, object, string, number, shape} from "yup";
 import axios from 'axios';
 
 const initialValues = {
     materials: [
       {
-        type: '',
+        material_type: '',
         price: '',
         quantity: ''
       },
     ],
-  };
+};
+
+const materialsValidation = object({
+    materials: array(object({
+        material_type: string()
+            .required('Required')
+            .max(20, "Must be less than 20 characters"),
+
+        price: number('Must be a number')
+            .required('Required'),
+
+        quantity: number('Must be a number')
+            .required('Required')
+
+    })).min(1)
+});
+
 
 function Estimator(props){
 
@@ -28,82 +44,73 @@ function Estimator(props){
                 const materialData = JSON.parse(JSON.stringify(values));
                 const estimateData = {...customerData, ...materialData};
                 console.log(estimateData);
+                axios.post('/estimate', estimateData).then(response => console.log(response))
                 resetForm(initialValues);
             }}
+            validationSchema={materialsValidation}
             >
             {({ values }) => (
                 <Form>
                 <FieldArray name="materials">
-                    {({ insert, remove, push }) => (
+                    {({ remove, push }) => (
                     <div>
                         {values.materials.length > 0 &&
                         values.materials.map((material, index) => (
                             <div className="row" key={index}>
-                            <div className="col">
-                                <div className='label' htmlFor={`material.${index}.type`}>Material</div>
-                                <Field
-                                name={`materials.${index}.type`}
-                                placeholder=""
-                                type="text"
-                                className="inputBox"
-                                />
-                                <ErrorMessage
-                                name={`materials.${index}.type`}
-                                component="div"
-                                className="field-error"
-                                />
-                            </div>
-                            <div className="col">
-                                <div className='label' htmlFor={`material.${index}.price`}>Price</div>
-                                <Field
-                                name={`materials.${index}.price`}
-                                placeholder=""
-                                type="text"
-                                className="inputBox"
-                                />
-                                <ErrorMessage
-                                name={`materials.${index}.price`}
-                                component="div"
-                                className="field-error"
-                                />
-                            </div>
-                            <div className="col">
-                                <div className='label' htmlFor={`material.${index}.quantity`}>Qty.</div>
-                                <Field
-                                name={`materials.${index}.quantity`}
-                                placeholder=""
-                                type="text"
-                                className="inputBox"
-                                />
-                                <ErrorMessage
-                                name={`materials.${index}.price`}
-                                component="div"
-                                className="field-error"
-                                />
-                            </div>
-                            <div className='col'>
-                                <div className='label'> Total </div>
-                                <div className='totalContainer'><div className='total'> 
-                                ${
-                                    Number(material.price) * Number(material.quantity)
-                                } 
-                                </div></div>
-                            </div>
-                            <div className="col">
-                                <button
-                                type="button"
-                                className="secondary"
-                                onClick={() => remove(index)}
-                                >
-                                X
-                                </button>
-                            </div>
+                                <div className="col">
+                                    <div className='label' htmlFor={`material.${index}.material_type`}>Material</div>
+                                    <Field
+                                    name={`materials.${index}.material_type`}
+                                    placeholder=""
+                                    type="text"
+                                    className="inputBox"
+                                    />
+                                </div>
+                                <div className="col">
+                                    <div className='label' htmlFor={`material.${index}.price`}>Price</div>
+                                    <Field
+                                    name={`materials.${index}.price`}
+                                    placeholder=""
+                                    type="text"
+                                    className="inputBox"
+                                    />
+                                </div>
+                                <div className="col">
+                                    <div className='label' htmlFor={`material.${index}.quantity`}>Qty.</div>
+                                    <Field
+                                    name={`materials.${index}.quantity`}
+                                    placeholder=""
+                                    type="text"
+                                    className="inputBox"
+                                    />
+                                </div>
+                                <div className='col'>
+                                    <div className='label'> Total </div>
+                                    <div className='totalContainer'><div className='total'> 
+                                    ${
+                                        Number(material.price) * Number(material.quantity)
+                                    } 
+                                    </div></div>
+                                </div>
+                                <div className="col">
+                                    <button
+                                    type="button"
+                                    className="secondary"
+                                    onClick={() => {
+                                        if(values.materials.length > 1){
+                                            remove(index)
+                                        }
+                                    }}
+                                    >
+                                    X
+                                    </button>
+                                </div>
                             </div>
                         ))}
                         <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ type: '', price: '', quantity: ''})}
+                        onClick={() => push({ material_type: '', price: '', quantity: ''})}
                         >
                         Add Material
                         </button>
