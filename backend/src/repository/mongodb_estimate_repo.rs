@@ -80,10 +80,9 @@ impl MongoRepoEstimate {
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
     pub async fn create_estimate(&self, new_user: JobEstimate) -> Result<InsertOneResult, Error> {
-        let new_doc = build_user(&new_user);
         let user = self
             .col
-            .insert_one(new_doc, None)
+            .insert_one(&new_user, None)
             .await
             .ok()
             .expect("Error creating user");
@@ -145,8 +144,7 @@ impl MongoRepoEstimate {
     pub async fn update_estimate(&self, id: &String, new_user: JobEstimate) -> Result<UpdateResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
-        let new_doc = build_user(&new_user);
-        let doc = bson::to_document(&new_doc).unwrap();
+        let doc = bson::to_document(&new_user).unwrap();
         let updated_doc = self
             .col
             .update_one(filter, doc, None)
@@ -210,31 +208,5 @@ impl MongoRepoEstimate {
             users.push(user)
         }
         Ok(users)
-    }
-}
-
-/// This function builds a new JobEstimate struct from the provided JobEstimate struct.
-///
-/// # Arguments
-///
-/// new_user: A reference to a JobEstimate struct that will be inserted into the MongoDB
-/// collection
-///
-/// # Returns
-///
-/// Returns a JobEstimate struct containing the data from the provided JobEstimate struct.
-fn build_user(new_user: &JobEstimate) -> JobEstimate {
-    JobEstimate {
-        id: None,
-        fName: new_user.fName.to_owned(),
-        lName: new_user.lName.to_owned(),
-        email: new_user.email.to_owned(),
-        strAddr: new_user.strAddr.to_owned(),
-        city: new_user.city.to_owned(),
-        state: new_user.state.to_owned(),
-        zip: new_user.zip.to_owned(),
-        measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned(),
-        materials: new_user.materials.to_owned()
     }
 }
