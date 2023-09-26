@@ -42,7 +42,8 @@ function Estimator(props){
                 const materialData = JSON.parse(JSON.stringify(values));
                 const estimateData = {...customerData, ...materialData};
                 console.log(estimateData);
-                //axios.post('/estimate', estimateData).then(response => console.log(response))
+                axios.post('/estimate', estimateData).then(response => console.log(response));
+                axios.delete('/user/${values.id}').then(response => console.log(response));
                 resetForm(initialValues);
             }}
             validationSchema={materialsValidation}
