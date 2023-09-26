@@ -4,7 +4,6 @@ use mongodb::bson::oid::ObjectId;
 
 #[post("/estimate")]
 pub async fn create_estimate(db: Data<MongoRepoEstimate>, new_user: Json<JobEstimate>) -> HttpResponse {
-    println!("{:?}", &new_user);
     let data = build_user(&new_user);
     let user_detail = db.create_estimate(data).await;
     match user_detail {
