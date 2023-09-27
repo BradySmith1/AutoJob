@@ -1,5 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
 
+/// Represents a material. This will be used to represent a material in the materials array.
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
