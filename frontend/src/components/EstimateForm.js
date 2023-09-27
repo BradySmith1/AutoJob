@@ -1,3 +1,14 @@
+/**
+ * @version 1, September 28th, 2023
+ * @author Andrew Monroe and Brady Smith
+ * 
+ * This component is the customer estimate form that populates
+ * our mongodb database with customer information.
+ * 
+ * Uses formkik and yup for form handling, axios for the post
+ * request to our backend, and react-google-captcha for the captcha.
+ */
+
 import './Form.css'
 import { useFormik } from 'formik';
 import React, { useRef } from "react";
@@ -5,11 +16,20 @@ import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
+/**
+ * This function returns the estimate form in a JSX object
+ * that is then used imported in App.js
+ * 
+ * @returns JSX object, the customer estimate form
+ */
 function EstimateForm(){
 
+    //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
 
+    //Formik data
     const formik = useFormik({
+        //Declare initial values for the form
         initialValues: {
             fName: "",
             lName: "",
@@ -22,6 +42,7 @@ function EstimateForm(){
             details: ""
         },
 
+        //Declare a validation schema for the form
         validationSchema: Yup.object({
             fName: Yup.string()
                 .max(20, "Must be 20 characters or less")
@@ -59,14 +80,21 @@ function EstimateForm(){
                 .max(400, "Must be 400 characters or less")
         }),
 
-        onSubmit: (values) => {
-            axios.post('/user', values).then(response => console.log(response))
+        //This function runs when the submit button is clicked
+        onSubmit: (values, {resetForm}) => {
+            //Post values to backend
+            axios.post('/user', values).then(response => console.log(response));
+            //Capture the captcha authentication token
             const token = captchaRef.current.getValue();
+            //Reset the captcha
             captchaRef.current.reset();
-            console.log(token);
+            //Reset the form
+            resetForm();
         }
     });
     
+    //JSX object, html for the form
+    //onChange, onBlur, and value fields of each input are handled by formik
     return (
         <form id="estimateForm" onSubmit={formik.handleSubmit}>
             <div className="multiBoxWrapper">
@@ -82,6 +110,7 @@ function EstimateForm(){
                         onBlur={formik.handleBlur}
                         value={formik.values.fName}
                     />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.fName && formik.errors.fName ? <p className="Error">{formik.errors.fName}</p> : null}
                 </div>
 
@@ -96,6 +125,7 @@ function EstimateForm(){
                         onBlur={formik.handleBlur}
                         value={formik.values.lName}
                     />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.lName && formik.errors.lName ? <p className="Error">{formik.errors.lName}</p> : null}
                 </div>
 
@@ -112,6 +142,7 @@ function EstimateForm(){
                     onBlur={formik.handleBlur}
                     value={formik.values.email}
                 />
+                {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.email && formik.errors.email ? <p className="Error">{formik.errors.email}</p> : null}
             </div>
 
@@ -126,6 +157,7 @@ function EstimateForm(){
                     onBlur={formik.handleBlur}
                     value={formik.values.strAddr}
                 />
+                {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.strAddr && formik.errors.strAddr ? <p className="Error">{formik.errors.strAddr}</p> : null}
             </div>
 
@@ -142,6 +174,7 @@ function EstimateForm(){
                         onBlur={formik.handleBlur}
                         value={formik.values.city}
                     />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.city && formik.errors.city ? <p className="Error">{formik.errors.city}</p> : null}
                 </div>
 
@@ -156,6 +189,7 @@ function EstimateForm(){
                         onBlur={formik.handleBlur}
                         value={formik.values.state}
                     />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.state && formik.errors.state ? <p className="Error">{formik.errors.state}</p> : null}
                 </div>
 
@@ -170,6 +204,7 @@ function EstimateForm(){
                         onBlur={formik.handleBlur}
                         value={formik.values.zip}
                     />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.zip && formik.errors.zip ? <p className="Error">{formik.errors.zip}</p> : null}
                 </div>
 
@@ -186,12 +221,13 @@ function EstimateForm(){
                     onBlur={formik.handleBlur}
                     value={formik.values.measurements}
                 />
+                {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.measurements && formik.errors.measurements ? <p className="Error">{formik.errors.measurements}</p> : null}
             </div>
 
             <div className="inputAndLabel">
                 <h2>Include Any Images of the Job Site</h2>
-                <div class="placeholder">
+                <div className="placeholder">
                     <br/>
                     <br/>
                     Placeholder <br/>
@@ -210,6 +246,7 @@ function EstimateForm(){
                     onBlur={formik.handleBlur}
                     value={formik.values.details}
                 />
+                {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.details && formik.errors.details ? <p className="Error">{formik.errors.details}</p> : null}
             </div>
             <div class="captcha">
