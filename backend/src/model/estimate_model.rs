@@ -2,6 +2,7 @@ use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use crate::model::material_model::Material;
 
+/// Represents a job estimate. This is the model that will be used to create JSON objects.
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(non_snake_case)]
 pub struct JobEstimate {

@@ -1,6 +1,7 @@
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
 
+/// Represents a user estimate. This is the model that will be used to create JSON objects.
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(non_snake_case)]
 pub struct UserEstimate {

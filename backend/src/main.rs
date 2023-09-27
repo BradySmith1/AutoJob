@@ -23,7 +23,7 @@ use crate::repository::mongodb_estimate_repo::MongoRepoEstimate;
 ///
 /// # Returns
 ///
-/// Returns a `std::io::Result` indicating the success or failure of running
+/// Returns a Result indicating the success or failure of running
 /// the Actix web server.
 #[actix_web::main]
 pub async fn main() -> std::io::Result<()> {
