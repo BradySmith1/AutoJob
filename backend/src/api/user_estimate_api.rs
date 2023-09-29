@@ -17,7 +17,7 @@ use mongodb::bson::oid::ObjectId;
 /// an error message.
 #[post("/user")]
 pub async fn create_user(db: Data<MongoRepoUser>, new_user: Json<UserEstimate>) -> HttpResponse {
-    let data = build_user(&new_user);
+    let data = UserEstimate::build_user(&new_user);
     let user_detail = db.create_user_estimate(data).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
@@ -160,28 +160,4 @@ pub async fn get_all_users(db: Data<MongoRepoUser>) -> HttpResponse {
 #[get("/")]
 async fn index() -> impl Responder {
     "Hello world!"
-}
-
-/// Helper function to build a UserEstimate object from a JSON object.
-///
-/// # Parameters
-///
-/// new_user : A JSON object representing the user estimate to be created.
-///
-/// # Returns
-///
-/// A UserEstimate object representing the user estimate to be created.
-fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
-    UserEstimate {
-        id: None,
-        fName: new_user.fName.to_owned(),
-        lName: new_user.lName.to_owned(),
-        email: new_user.email.to_owned(),
-        strAddr: new_user.strAddr.to_owned(),
-        city: new_user.city.to_owned(),
-        state: new_user.state.to_owned(),
-        zip: new_user.zip.to_owned(),
-        measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned()
-    }
 }
