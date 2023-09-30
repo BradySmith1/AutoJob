@@ -2,19 +2,22 @@ use std::env;
 use std::process::exit;
 use dotenv::dotenv;
 use mongodb::{bson::{extjson::de::Error, doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
-use futures::stream::TryStreamExt; //add this
+use futures::stream::TryStreamExt;
+use mongodb::event::cmap::ConnectionCheckoutFailedReason;
+use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
+//add this
 use mongodb::results::{DeleteResult, UpdateResult};
-use crate::model::user_model::UserEstimate;
+use crate::model::model_trait::Model;
 
 /// A struct representing a MongoDB repository for user estimates.
-pub struct MongoRepoUser {
-    col: Collection<UserEstimate>,
+pub struct MongoRepo<T> {
+    col: Collection<T>,
 }
 
-/// Implementation of the MongoRepoUser struct.
-impl MongoRepoUser {
+/// Implementation of the MongoRepo struct.
+impl<T: Model<T>> MongoRepo<T> {
 
-    /// Initialize a MongoDB repository for user estimates.
+    /// Initialize a MongoDB repository for sepcified collection.
     ///
     /// # Returns
     ///
@@ -24,7 +27,7 @@ impl MongoRepoUser {
     ///
     /// This function may panic if there are errors during environment variable loading,
     /// connection URL parsing, or if it cannot establish a connection to the MongoDB server.
-    pub async fn init() -> Self {
+    pub async fn init(collection_name: &str) -> Self {
         dotenv().ok();
         let database_address = match env::var("MONGOURL") {
             Ok(v) => v.to_string(),
@@ -51,8 +54,8 @@ impl MongoRepoUser {
         };
         println!("Successfully connected to the user estimate database.");
         let db = client.database("ajseDB");
-        let col: Collection<UserEstimate> = db.collection("userEstimates");
-        MongoRepoUser { col }
+        let col: Collection<T> = db.collection(collection_name);
+        MongoRepo { col }
     }
 
     /// This function creates a new user estimate in the userEstimate collection.
@@ -68,14 +71,21 @@ impl MongoRepoUser {
     /// # Panics
     ///
     /// This function may panic if there are errors during the insert operation.
-    pub async fn create_user_estimate(&self, new_user: UserEstimate) -> Result<InsertOneResult, Error> {
+    pub async fn create_estimate(&self, new_user: T) -> Result<InsertOneResult,
+        ConnectionCheckoutFailedReason> {
         let user = self
             .col
             .insert_one(&new_user, None)
             .await
-            .ok()
-            .expect("Error creating user");
-        Ok(user)
+            .ok();
+        match user {
+            None => {
+                println!("Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running");
+                Err(ConnectionError)
+            },
+            Some(_) => Ok(user.unwrap()),
+        }
     }
 
     /// Retrieve a user estimate from the userEstimate collection by its ID.
@@ -92,7 +102,7 @@ impl MongoRepoUser {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn get_user_estimate(&self, id: &String) -> Result<UserEstimate, Error> {
+    pub async fn get_estimate(&self, id: &String) -> Result<T, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -104,7 +114,8 @@ impl MongoRepoUser {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn update_user_estimate(&self, id: &String, new_user: UserEstimate) -> Result<UpdateResult, Error> {
+    pub async fn update_estimate(&self, id: &String, new_user: T) -> Result<UpdateResult,
+        Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let doc = bson::to_document(&new_user).unwrap();
@@ -132,7 +143,7 @@ impl MongoRepoUser {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_user_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
+    pub async fn delete_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -153,14 +164,14 @@ impl MongoRepoUser {
     /// # Panics
     ///
     /// This function may panic if there are issues with the MongoDB query.
-    pub async fn get_all_user_estimates(&self) -> Result<Vec<UserEstimate>, Error> {
+    pub async fn get_all_estimates(&self) -> Result<Vec<T>, Error> {
         let mut cursors = self
             .col
             .find(None, None)
             .await
             .ok()
             .expect("Error getting list of users");
-        let mut users: Vec<UserEstimate> = Vec::new();
+        let mut users: Vec<T> = Vec::new();
         while let Some(user) = cursors
             .try_next()
             .await

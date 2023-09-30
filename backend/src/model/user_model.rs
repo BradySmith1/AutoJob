@@ -1,6 +1,7 @@
 use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
+use crate::model::model_trait::Model;
 
 /// Represents a user estimate. This is the model that will be used to create JSON objects.
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +20,7 @@ pub struct UserEstimate {
     pub details: String
 }
 
-impl UserEstimate {
+impl Model<UserEstimate> for UserEstimate {
     /// Helper function to build a UserEstimate object from a JSON object.
     ///
     /// # Parameters
@@ -29,7 +30,7 @@ impl UserEstimate {
     /// # Returns
     ///
     /// A UserEstimate object representing the user estimate to be created.
-    pub(crate) fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
+    fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
         UserEstimate {
             id: None,
             fName: new_user.fName.to_owned(),

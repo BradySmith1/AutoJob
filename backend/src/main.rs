@@ -12,10 +12,11 @@ use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
 use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user, get_all_users};
-use repository::mongodb_user_repo::MongoRepoUser;
+use repository::mongodb_repo::MongoRepo;
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate
                                    , update_estimate};
-use crate::repository::mongodb_estimate_repo::MongoRepoEstimate;
+use crate::model::estimate_model::JobEstimate;
+use crate::model::user_model::UserEstimate;
 
 /// This function initializes and runs an Actix API server.
 /// It sets up the necessary environment variables, initializes the logger,
@@ -40,8 +41,8 @@ pub async fn main() -> std::io::Result<()> {
     let target = format!("{}{}", prefix, port);
 
     // Initializes the different Mongodb collection connections.
-    let db_user = MongoRepoUser::init().await;
-    let db_estimate = MongoRepoEstimate::init().await;
+    let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
+    let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
     let db_user_data = Data::new(db_user);
     let db_estimate_data = Data::new(db_estimate);
 

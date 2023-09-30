@@ -1,6 +1,7 @@
-use crate::{model::user_model::UserEstimate, repository::mongodb_user_repo::MongoRepoUser};
+use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
 use mongodb::bson::oid::ObjectId;
+use crate::model::model_trait::Model;
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -16,12 +17,15 @@ use mongodb::bson::oid::ObjectId;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepoUser>, new_user: Json<UserEstimate>) -> HttpResponse {
+pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, new_user: Json<UserEstimate>) ->
+                                                                                    HttpResponse {
     let data = UserEstimate::build_user(&new_user);
-    let user_detail = db.create_user_estimate(data).await;
+    let user_detail = db.create_estimate(data).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+        Err(_) => HttpResponse::InternalServerError()
+            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running"),
     }
 }
 
@@ -39,12 +43,12 @@ pub async fn create_user(db: Data<MongoRepoUser>, new_user: Json<UserEstimate>) 
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user/{id}")]
-pub async fn get_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpResponse {
+pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     }
-    let user_detail = db.get_user_estimate(&id).await;
+    let user_detail = db.get_estimate(&id).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -67,7 +71,7 @@ pub async fn get_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpRespon
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/user/{id}")]
 pub async fn update_user(
-    db: Data<MongoRepoUser>,
+    db: Data<MongoRepo<UserEstimate>>,
     path: Path<String>,
     new_user: Json<UserEstimate>,
 ) -> HttpResponse {
@@ -87,11 +91,11 @@ pub async fn update_user(
         measurements: new_user.measurements.to_owned(),
         details: new_user.details.to_owned()
     };
-    let update_result = db.update_user_estimate(&id, data).await;
+    let update_result = db.update_estimate(&id, data).await;
     match update_result {
         Ok(update) => {
             if update.matched_count == 1 {
-                let updated_user_info = db.get_user_estimate(&id).await;
+                let updated_user_info = db.get_estimate(&id).await;
                 return match updated_user_info {
                     Ok(user) => HttpResponse::Ok().json(user),
                     Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -118,12 +122,12 @@ pub async fn update_user(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/user/{id}")]
-pub async fn delete_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpResponse {
+pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let result = db.delete_user_estimate(&id).await;
+    let result = db.delete_estimate(&id).await;
     match result {
         Ok(res) => {
             if res.deleted_count == 1 {
@@ -148,8 +152,8 @@ pub async fn delete_user(db: Data<MongoRepoUser>, path: Path<String>) -> HttpRes
 /// it returns an HTTP 200 OK response with the JSON representation of the userEstimate's details. If there's an error
 /// during the retrieval process, it returns an HTTP 500 Internal Server Error response with an error message.
 #[get("/users")]
-pub async fn get_all_users(db: Data<MongoRepoUser>) -> HttpResponse {
-    let users = db.get_all_user_estimates().await;
+pub async fn get_all_users(db: Data<MongoRepo<UserEstimate>>) -> HttpResponse {
+    let users = db.get_all_estimates().await;
     match users {
         Ok(users) => HttpResponse::Ok().json(users),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
