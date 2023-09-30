@@ -1,6 +1,7 @@
 use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
+use serde_json::to_string;
 use crate::model::model_trait::Model;
 
 /// Represents a user estimate. This is the model that will be used to create JSON objects.
@@ -43,5 +44,9 @@ impl Model<UserEstimate> for UserEstimate {
             measurements: new_user.measurements.to_owned(),
             details: new_user.details.to_owned()
         }
+    }
+
+    fn to_string(&self) -> String {
+        to_string(self).unwrap()
     }
 }

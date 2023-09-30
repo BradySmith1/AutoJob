@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
+use serde_json::to_string;
 use crate::model::material_model::Material;
 use crate::model::model_trait::Model;
 use crate::model::user_model::UserEstimate;
@@ -23,5 +24,9 @@ impl Model<JobEstimate> for JobEstimate{
             user: Default::default(),
             materials: vec![],
         }
+    }
+
+    fn to_string(&self) -> String{
+        to_string(self).unwrap()
     }
 }

@@ -18,7 +18,7 @@ use mongodb::bson::oid::ObjectId;
 #[post("/estimate")]
 pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String) -> HttpResponse {
     let data = serde_json::from_str(&new_user);
-    let json = match data{
+    let json: JobEstimate = match data{
         Ok(parsed_json) => parsed_json,
         Err(_) => {
             println!("Incorrect JSON object format from HTTPRequest.");
