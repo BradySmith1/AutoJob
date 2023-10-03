@@ -15,6 +15,7 @@ use api::user_estimate_api::{create_user, index, get_user, update_user, delete_u
 use repository::mongodb_repo::MongoRepo;
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate
                                    , update_estimate};
+use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::user_model::UserEstimate;
 
@@ -65,7 +66,9 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_estimate)
             .service(delete_estimate)
             .service(get_all_estimates)
+            .service(get_scraper_data)
             .service(index)
+
     })
         .bind(&target)?
         .run()

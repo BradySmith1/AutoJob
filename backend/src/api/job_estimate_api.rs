@@ -1,6 +1,7 @@
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
+use std::string::String;
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
