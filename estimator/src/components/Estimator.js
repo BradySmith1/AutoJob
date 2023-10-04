@@ -56,10 +56,13 @@ function Estimator(props){
 
                 //Turn customer data and material data into raw JSONs
                 const customerData = JSON.parse(JSON.stringify(props.data));
+                const user = {user: customerData}
                 const materialData = JSON.parse(JSON.stringify(values));
 
                 //Merge the two JSONs into one
-                const estimateData = {...customerData, ...materialData};
+                const estimateData = {...user, ...materialData};
+
+                console.log(estimateData);
 
                 //Post the json to our backend
                 axios.post('/estimate', estimateData).then(response => console.log(response));
