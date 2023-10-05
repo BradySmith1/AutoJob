@@ -5,11 +5,12 @@
  * This component uses a field array to display a resizable form so
  * that you can enter as many surfaces as you want.
  */
-import './Estimator.css'
+import './Estimator.css';
 import { Formik, FieldArray, Field, Form} from 'formik';
-import React from "react";
+import React, { useState } from "react";
 import {array, object, string, number} from "yup";
 import axios from 'axios';
+import MaterialLibrary from './MaterialLibrary';
 
 //Declare initial values for the form, an array of material objects
 const initialValues = {
@@ -46,6 +47,8 @@ const materialsValidation = object({
  */
 function Estimator(props){
 
+    const [display, setDisplay] = useState(false);
+
     return(
         <div className='materialsForm'>
             <h2>Add Materials</h2>
@@ -80,7 +83,7 @@ function Estimator(props){
                     <FieldArray name="materials">
                         {/*Here we are creating an arrow function, passing it the remove and push field
                         array methods so that we can use them in the form.*/}
-                        {({ remove, push }) => (
+                        {({ remove, push, insert }) => (
                             <div>
                                 {/*Here we are ensuring that the material array length is always greater than zero and then
                                 mapping over the material array to create our resizeable form*/}
@@ -115,7 +118,7 @@ function Estimator(props){
                                             />
                                         </div>
                                         <div className='col'>
-                                            <div className='label'> Total </div>
+                                            <div className='label'> Sub Total </div>
                                             <div className='totalContainer'>
                                                 <div className='total'> 
                                                 {/*Here we are calculating the total price for this material*/}
@@ -150,6 +153,17 @@ function Estimator(props){
                                 >
                                     Add Material
                                 </button>
+                                <button
+                                    type="button"
+                                    className="secondary"
+                                    onClick={() => setDisplay(true)}
+                                >
+                                    Import Material
+                                </button>
+                                {display ? <MaterialLibrary 
+                                            insert={insert}
+                                            display={display} 
+                                            setDisplay={setDisplay}/> : null}
                             </div>
                         )}
                     </FieldArray>
