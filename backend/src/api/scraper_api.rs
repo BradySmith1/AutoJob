@@ -1,6 +1,6 @@
 use std::process::{Command, Output, Stdio};
 use actix_web::{HttpResponse, post};
-use crate::model::scrape_model::Scraped;
+use crate::model::library_model::Library;
 
 ///TEMPORARY
 ///Tests the webscraper api and how it pulls data
@@ -16,7 +16,7 @@ pub async fn get_scraper_data(url: String) -> HttpResponse {
     if data.clone().eq("No products found") {
         return HttpResponse::Ok().body(data);
     }
-    let result_json = serde_json::from_str::<Scraped>(&data);
+    let result_json = serde_json::from_str::<Library>(&data);
     match result_json {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError()

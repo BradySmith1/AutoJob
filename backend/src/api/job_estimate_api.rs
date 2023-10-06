@@ -2,6 +2,7 @@ use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoR
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
+use crate::api::api_helper::{delete_data, get_all_data, get_data};
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -51,15 +52,7 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimate/{id}")]
 pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, path: Path<String>) -> HttpResponse {
-    let id = path.into_inner();
-    if id.is_empty() {
-        return HttpResponse::BadRequest().body("invalid ID");
-    }
-    let user_detail = db.get_estimate(&id).await;
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    get_data(db, path).await
 }
 
 /// Update jobEstimate details by their ID via a PUT request.
@@ -120,21 +113,7 @@ pub async fn update_estimate(
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/estimate/{id}")]
 pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, path: Path<String>) -> HttpResponse {
-    let id = path.into_inner();
-    if id.is_empty() {
-        return HttpResponse::BadRequest().body("invalid ID");
-    };
-    let result = db.delete_estimate(&id).await;
-    match result {
-        Ok(res) => {
-            if res.deleted_count == 1 {
-                return HttpResponse::Ok().json("User successfully deleted!");
-            } else {
-                return HttpResponse::NotFound().json("User with specified ID not found!");
-            }
-        }
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    delete_data(db, path).await
 }
 
 /// Retrieve all jobEstimate details via a GET request.
@@ -151,9 +130,5 @@ pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, path: Path<String
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimates")]
 pub async fn get_all_estimates(db: Data<MongoRepo<JobEstimate>>) -> HttpResponse {
-    let users = db.get_all_estimates().await;
-    match users {
-        Ok(users) => HttpResponse::Ok().json(users),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    get_all_data(db).await
 }
