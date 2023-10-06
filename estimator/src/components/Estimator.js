@@ -156,14 +156,17 @@ function Estimator(props){
                                 <button
                                     type="button"
                                     className="secondary"
-                                    onClick={() => setDisplay(true)}
+                                    onClick={() => {
+                                        setDisplay(true);
+                                    }}
                                 >
                                     Import Material
                                 </button>
                                 {display ? <MaterialLibrary 
                                             insert={insert}
                                             display={display} 
-                                            setDisplay={setDisplay}/> : null}
+                                            setDisplay={setDisplay}
+                                            data={values.materials}/> : null}
                             </div>
                         )}
                     </FieldArray>
