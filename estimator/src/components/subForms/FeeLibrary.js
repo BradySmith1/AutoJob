@@ -4,34 +4,33 @@ import axios from 'axios';
 
 const initialValues = [
         {
-            material_type: "bleach",
-            price: 8.00,
+            fee_title: "Labor",
+            price: 100.00,
             quantity: 1
         },
         {
-            material_type: "soap",
-            price: 3.00,
+            fee_title: "Outside Service Area",
+            price: 30.00,
             quantity: 1
         },
         {
-            material_type: "chemical",
-            price: 8.00,
+            fee_title: "Repairs Fee",
+            price: 20.00,
             quantity: 1
         }
     ]
 
-function trackImported(formData, materialData){
+function trackImported(formData, feeData){
     var stateArr = [];
 
-    for(var i = 0; i < materialData.length; i++){;
-        var material = materialData[i];
+    for(var i = 0; i < feeData.length; i++){;
+        var fee = feeData[i];
         var tracked = false;
 
         for(var j = 0; j < formData.length; j++){
             var data = formData[j];
-            if(material.material_type === data.material_type
-                && material.price === data.price){
-                console.log(data.material_type)
+            if(fee.fee_title === data.fee_title
+                && fee.price === data.price){
                 tracked = true;
             }
 
@@ -50,7 +49,7 @@ function updateImported(stateArr, index){
     return arrCopy;
 }
 
-function MaterialLibrary(props){
+function FeeLibrary(props){
 
 
     const values = initialValues;
@@ -68,13 +67,13 @@ function MaterialLibrary(props){
         <div className="pageContainer">
             <div className="overflowWrapper">
                 <div className="contentContainer">
-                    <h2>Material Library</h2>
+                    <h2>Fee Library</h2>
                     <div className="materialHeaders">
                         <div className="section">
                             <h3>No.</h3>
                         </div>
                         <div className="section">
-                            <h3>Name</h3>
+                            <h3>Fee</h3>
                         </div>
                         <div className="section">
                             <h3>Price</h3>
@@ -83,16 +82,16 @@ function MaterialLibrary(props){
                             <h3>Import</h3>
                         </div>
                     </div>
-                    {values.map((material, index) => (
+                    {values.map((fee, index) => (
                         <div className="materialContainer">
                             <div className="section">
                                 {index + 1}
                             </div>
                             <div className="section">
-                                {material.material_type}
+                                {fee.fee_title}
                             </div>
                             <div className="section">
-                                ${material.price}
+                                ${fee.price}
                             </div>
                             <div className="section">
                                 {!stateArr[index] ? 
@@ -126,4 +125,4 @@ function MaterialLibrary(props){
     );
 }
 
-export default MaterialLibrary;
+export default FeeLibrary;

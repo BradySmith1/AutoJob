@@ -1,46 +1,46 @@
-import './MaterialCalculator.css';
+import './FeeCalculator.css';
 import { FieldArray, Field} from 'formik';
 import React, { useState } from "react";
-import MaterialLibrary from './MaterialLibrary';
+import FeeLibrary from './FeeLibrary.js';
 
-function MaterialCalculator(props){
+function FeeCalculator(props){
 
     const [display, setDisplay] = useState(false);
 
     return(
-        <FieldArray name="materials">
+        <FieldArray name="fees">
             {/*Here we are creating an arrow function, passing it the remove and push field
             array methods so that we can use them in the form.*/}
             {({ remove, push, insert }) => (
                 <div className='wrapper'>
-                    <h2>Add Materials</h2>
+                    <h2>Add Fees</h2>
                     {/*Here we are ensuring that the material array length is always greater than zero and then
                     mapping over the material array to create our resizeable form*/}
-                    {props.values.materials.length > 0 &&
-                    props.values.materials.map((material, index) => (
+                    {props.values.fees.length > 0 &&
+                    props.values.fees.map((fee, index) => (
                         <div className="row" key={index}>
                             <div className="col">
-                                <div className='label' htmlFor={`material.${index}.material_type`}>Material</div>
+                                <div className='label' htmlFor={`fee.${index}.fee_title`}>Fee Title</div>
                                 <Field
-                                name={`materials.${index}.material_type`}
+                                name={`fees.${index}.fee_title`}
                                 placeholder=""
                                 type="text"
                                 className="inputBox"
                                 />
                             </div>
                             <div className="col">
-                                <div className='label' htmlFor={`material.${index}.price`}>Price</div>
+                                <div className='label' htmlFor={`fee.${index}.price`}>Price</div>
                                 <Field
-                                name={`materials.${index}.price`}
+                                name={`fees.${index}.price`}
                                 placeholder=""
                                 type="number"
                                 className="inputBox"
                                 />
                             </div>
                             <div className="col">
-                                <div className='label' htmlFor={`material.${index}.quantity`}>Qty.</div>
+                                <div className='label' htmlFor={`fee.${index}.quantity`}>Qty.</div>
                                 <Field
-                                name={`materials.${index}.quantity`}
+                                name={`fees.${index}.quantity`}
                                 placeholder=""
                                 type="number"
                                 className="inputBox"
@@ -52,7 +52,7 @@ function MaterialCalculator(props){
                                     <div className='total'> 
                                     {/*Here we are calculating the total price for this material*/}
                                     ${
-                                        material.price * material.quantity
+                                        fee.price * fee.quantity
                                     } 
                                     </div>
                                 </div>
@@ -64,7 +64,7 @@ function MaterialCalculator(props){
                                     onClick={() => {
                                         //Here we are removing this element of the material array
                                         //when the x button is clicked
-                                        if(props.values.materials.length > 1){
+                                        if(props.values.fees.length > 1){
                                             remove(index)
                                         }
                                     }}
@@ -78,9 +78,9 @@ function MaterialCalculator(props){
                     <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ material_type: '', price: 0.0, quantity: 0.0})}
+                        onClick={() => push({ fee_title: '', price: 0.0, quantity: 0.0})}
                     >
-                        Add Material
+                        Add Fee
                     </button>
                     <button
                         type="button"
@@ -89,17 +89,17 @@ function MaterialCalculator(props){
                             setDisplay(true);
                         }}
                     >
-                        Import Material
+                        Import Fee
                     </button>
-                    {display ? <MaterialLibrary 
+                    {display ? <FeeLibrary 
                                 insert={insert}
                                 display={display} 
                                 setDisplay={setDisplay}
-                                data={props.values.materials}/> : null}
+                                data={props.values.fees}/> : null}
                 </div>
             )}
         </FieldArray>
     );
 }
 
-export default MaterialCalculator;
+export default FeeCalculator;

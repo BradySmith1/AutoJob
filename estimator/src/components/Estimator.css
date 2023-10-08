@@ -13,52 +13,38 @@
     padding-bottom: 100px;
     position: relative;
     height: 100%;
+    margin-bottom: 300px;
 }
 
-.col{
-    margin-top: 10px;
+.divider{
+    height: 60px;
+    border-bottom: 3px white solid;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 30px;
+    text-align: left;
     display: flex;
-    width: 100%;
-    justify-content: center;
+    align-items: center;
 }
 
-.label{
-    text-align: left;
-    width: 10%;
+.formNav{
+    margin-left: 30px;
+}
+
+.button{
+    margin-left: 10px;
+    background-color: #0055FF;
+    cursor: pointer;
     color: white;
-    font-size: 18px;
-}
-
-.totalLabel{
-    text-align: left;
-    width: 15%;
-    color: white;
-    font-size: 18px;
-}
-
-.totalContainer{
-    width: 30%;
+    font-size: 20px;
     height: 30px;
+    width: 100px;
+    border-style: none;
+    transition-duration: 200ms;
+    border-width: 1.5px;
 }
 
-.total{
-    background-color: #191D23;
-    border-radius: 10px;
-    color: white;
-    font-size: 18px;
-    width: 60%;
-    height: 30px;
-}
-
-.inputBox {
-    background-color: #191D23;
-    border-style: solid;
-    border-color: #0055FF;
-    border-radius: 5px;
-    border-width: 1px;
-    caret-color: white;
-    color: white;
-    font-size: 18px;
-    width: 30%;
-    height: 30px;
+.button:hover{
+    background-color: #00A3FF;
 }

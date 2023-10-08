@@ -1,0 +1,78 @@
+.wrapper{
+    margin-bottom: 30px;
+}
+
+.row{
+    display: flex;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.col{
+    margin-top: 10px;
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.label{
+    text-align: left;
+    width: 80%;
+    color: white;
+    font-size: 18px;
+}
+
+.totalLabel{
+    text-align: left;
+    width: 100%;
+    color: white;
+    font-size: 18px;
+}
+
+.totalContainer{
+    width: 80%;
+    height: 30px;
+}
+
+.total{
+    background-color: #191D23;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    width: 80%;
+    height: 30px;
+}
+
+.inputBox {
+    background-color: #191D23;
+    border-style: solid;
+    border-color: #0055FF;
+    border-radius: 5px;
+    border-width: 1px;
+    caret-color: white;
+    color: white;
+    font-size: 18px;
+    width: 80%;
+    height: 30px;
+}
+
+.xButton{
+    left: 325px;
+    background-color: #d61f2c;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+    width: 60px;
+    border-radius: 25px;
+    transition-duration: 200ms;
+    margin-top: 25px;
+    border-style: none;
+}
+
+.xButton:hover{
+    background-color: #d63741;
+}

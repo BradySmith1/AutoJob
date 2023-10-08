@@ -7,21 +7,32 @@
  */
 import './Estimator.css';
 import './subForms/MaterialCalculator.js';
-import { Formik, FieldArray, Field, Form} from 'formik';
+import './subForms/FeeCalculator.js';
+import './subForms/Overview.js';
+import { Formik, Form} from 'formik';
 import React, { useState } from "react";
 import {array, object, string, number} from "yup";
 import axios from 'axios';
 import MaterialCalculator from './subForms/MaterialCalculator.js';
+import FeeCalculator from './subForms/FeeCalculator.js';
+import Overview from './subForms/Overview.js';
 
 //Declare initial values for the form, an array of material objects
 const initialValues = {
     materials: [
-      {
-        material_type: '',
-        price: 0.0,
-        quantity: 0.0
-      },
+        {
+            material_type: '',
+            price: 0.0,
+            quantity: 0.0
+        },
     ],
+    fees: [
+        {
+            fee_title: '',
+            price: 0.0,
+            quantity: 0.0
+        }
+    ]
 };
 
 //Declare a validation schema for the form
@@ -37,7 +48,20 @@ const materialsValidation = object({
         quantity: number('Must be a number')
             .required('Required')
 
+    })).min(1),
+    fees: array(object({
+        fee_title: string()
+            .required('Required')
+            .max(20, "Must be less than 20 characters"),
+
+        price: number('Must be a number')
+            .required('Required'),
+
+        quantity: number('Must be a number')
+            .required('Required')
+
     })).min(1)
+    
 });
 
 /**
@@ -48,11 +72,28 @@ const materialsValidation = object({
  */
 function Estimator(props){
 
-    const [display, setDisplay] = useState(false);
+    const [navIndex, setNavIndex] = useState(0);
 
     return(
         <div className='materialsForm'>
-            <h2>Add Materials</h2>
+            <div className='divider'>
+                <h2>Three Stage Estimate Calculator</h2>
+                <div className='formNav'>
+                    <button className='button'
+                            onClick={() => {setNavIndex(0)}}>
+                        Materials
+                    </button>
+                    <button className='button'
+                            onClick={() => {setNavIndex(1)}}>
+                        Fees
+                    </button>
+                    <button className='button'
+                            onClick={() => {setNavIndex(2)}}>
+                        Overview
+                    </button>
+                </div>
+            </div>
+
             <Formik
             initialValues={initialValues}
             onSubmit={async (values, {resetForm}) => {
@@ -69,10 +110,12 @@ function Estimator(props){
                 console.log(estimateData);
 
                 //Post the json to our backend
-                axios.post('/estimate', estimateData).then(response => console.log(response));
+                //axios.post('/estimate', estimateData).then(response => console.log(response));
                 //Delete the customer info entry from the userEstimates database
-                axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
+                //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
                 //reset the form to it's initial values
+
+                console.log(estimateData);
                 resetForm(initialValues);
             }}
             validationSchema={materialsValidation}
@@ -81,8 +124,10 @@ function Estimator(props){
             our form values*/}
             {({ values }) => (
                 <Form>
-                    <MaterialCalculator values={values} />
-                    <button type="submit">Submit Estimate</button>
+                    {navIndex === 0 ? <MaterialCalculator values={values} /> : null}
+                    {navIndex === 1 ? <FeeCalculator values={values} /> : null}
+                    {navIndex === 2 ? <Overview values={values} /> : null}
+                    {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
                 </Form>
             )}
             </Formik>
