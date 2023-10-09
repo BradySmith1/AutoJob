@@ -3,7 +3,7 @@ use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::model::material_model::Material;
+use crate::model::library_model::MaterialFee;
 use crate::model::model_trait::Model;
 use crate::model::user_model::UserEstimate;
 
@@ -15,7 +15,8 @@ pub struct JobEstimate {
     pub id: Option<ObjectId>,
     #[serde(flatten)]
     pub user: HashMap<String, UserEstimate>,
-    pub materials: Vec<Material>
+    pub materials: Vec<MaterialFee>,
+    pub fees: Vec<MaterialFee>
 }
 impl Model<JobEstimate> for JobEstimate{
     fn build_user(_new_user: &Json<JobEstimate>) -> JobEstimate {
@@ -23,6 +24,7 @@ impl Model<JobEstimate> for JobEstimate{
             id: None,
             user: Default::default(),
             materials: vec![],
+            fees: vec![]
         }
     }
 

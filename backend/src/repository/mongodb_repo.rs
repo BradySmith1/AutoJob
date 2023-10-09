@@ -71,7 +71,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     ///
     /// This function may panic if there are errors during the insert operation.
-    pub async fn create_estimate(&self, new_user: T) -> Result<InsertOneResult,
+    pub async fn create_document(&self, new_user: T) -> Result<InsertOneResult,
         ConnectionCheckoutFailedReason> {
         let user = self
             .col
@@ -102,7 +102,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn get_estimate(&self, id: &String) -> Result<T, Error> {
+    pub async fn get_document(&self, id: &String) -> Result<T, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -114,7 +114,7 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn update_estimate(&self, id: &String, new_user: T) -> Result<UpdateResult,
+    pub async fn update_document(&self, id: &String, new_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
@@ -143,7 +143,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_estimate(&self, id: &String) -> Result<DeleteResult, Error> {
+    pub async fn delete_document(&self, id: &String) -> Result<DeleteResult, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -164,7 +164,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     ///
     /// This function may panic if there are issues with the MongoDB query.
-    pub async fn get_all_estimates(&self) -> Result<Vec<T>, Error> {
+    pub async fn get_all_documents(&self) -> Result<Vec<T>, Error> {
         let mut cursors = self
             .col
             .find(None, None)

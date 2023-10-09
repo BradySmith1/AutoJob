@@ -76,7 +76,7 @@ pub async fn update_user(
         measurements: new_user.measurements.to_owned(),
         details: new_user.details.to_owned()
     };
-    let update_result = db.update_estimate(&id, data).await;
+    let update_result = db.update_document(&id, data).await;
     push_update(update_result, db, id).await
 }
 

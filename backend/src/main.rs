@@ -18,7 +18,7 @@ use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_est
 use crate::api::material_library_api::{create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
 use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
-use crate::model::library_model::Product;
+use crate::model::library_model::MaterialFee;
 use crate::model::user_model::UserEstimate;
 
 /// This function initializes and runs an Actix API server.
@@ -46,7 +46,7 @@ pub async fn main() -> std::io::Result<()> {
     // Initializes the different Mongodb collection connections.
     let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
     let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
-    let db_library: MongoRepo<Product> = MongoRepo::init("materialLibrary").await;
+    let db_library: MongoRepo<MaterialFee> = MongoRepo::init("materialLibrary").await;
     let db_user_data = Data::new(db_user);
     let db_estimate_data = Data::new(db_estimate);
     let db_library_data = Data::new(db_library);

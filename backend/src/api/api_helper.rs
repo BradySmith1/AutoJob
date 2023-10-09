@@ -15,7 +15,7 @@ pub async fn post_data<T: Model<T>>(db: Data<MongoRepo<T>>, new_user: String) ->
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },
     };
-    let user_detail = db.create_estimate(json).await;
+    let user_detail = db.create_document(json).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(_) => HttpResponse::InternalServerError()
@@ -24,12 +24,12 @@ pub async fn post_data<T: Model<T>>(db: Data<MongoRepo<T>>, new_user: String) ->
     }
 }
 
-pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse {
+pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse{
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     }
-    let user_detail = db.get_estimate(&id).await;
+    let user_detail = db.get_document(&id).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -41,7 +41,7 @@ pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let result = db.delete_estimate(&id).await;
+    let result = db.delete_document(&id).await;
     match result {
         Ok(res) => {
             if res.deleted_count == 1 {
@@ -55,7 +55,7 @@ pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>
 }
 
 pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
-    let users = db.get_all_estimates().await;
+    let users = db.get_all_documents().await;
     match users {
         Ok(users) => HttpResponse::Ok().json(users),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -67,7 +67,7 @@ Data<MongoRepo<T>>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {
             if update.matched_count == 1 {
-                let updated_user_info = db.get_estimate(&id).await;
+                let updated_user_info = db.get_document(&id).await;
                 return match updated_user_info {
                     Ok(user) => HttpResponse::Ok().json(user),
                     Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
