@@ -5,6 +5,25 @@ use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
 
+pub async fn post_data<T: Model<T>>(db: Data<MongoRepo<T>>, new_user: String) -> HttpResponse {
+    let data = serde_json::from_str(&new_user);
+    let json: T = match data{
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    let user_detail = db.create_estimate(json).await;
+    match user_detail {
+        Ok(user) => HttpResponse::Ok().json(user),
+        Err(_) => HttpResponse::InternalServerError()
+            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running"),
+    }
+}
+
 pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {

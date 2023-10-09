@@ -1,8 +1,7 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
 use mongodb::bson::oid::ObjectId;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
-use crate::model::model_trait::Model;
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -18,16 +17,9 @@ use crate::model::model_trait::Model;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, new_user: Json<UserEstimate>) ->
+pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, new_user: String) ->
                                                                                     HttpResponse {
-    let data = UserEstimate::build_user(&new_user);
-    let user_detail = db.create_estimate(data).await;
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
-                is running"),
-    }
+    post_data(db, new_user).await
 }
 
 /// Retrieve userEstimate details by their ID via a GET request.

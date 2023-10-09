@@ -2,7 +2,7 @@ use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoR
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -19,22 +19,7 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
 /// an error message.
 #[post("/estimate")]
 pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String) -> HttpResponse {
-    let data = serde_json::from_str(&new_user);
-    let json: JobEstimate = match data{
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
-    };
-    let user_detail = db.create_estimate(json).await;
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
-                is running"),
-    }
+    post_data(db, new_user).await
 }
 
 /// Retrieve jobEstimate details by their ID via a GET request.

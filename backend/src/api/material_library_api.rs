@@ -4,7 +4,7 @@ use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::Product;
 
 /// Creates a new jobEstimate via a POST request to the api web server
@@ -23,22 +23,7 @@ use crate::model::library_model::Product;
 #[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<Product>>, new_user: String) ->
                                                                                     HttpResponse {
-    let data = serde_json::from_str(&new_user);
-    let json: Product = match data{
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
-    };
-    let user_detail = db.create_estimate(json).await;
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
-                is running"),
-    }
+    post_data(db, new_user).await
 }
 
 /// Retrieve jobEstimate details by their ID via a GET request.
