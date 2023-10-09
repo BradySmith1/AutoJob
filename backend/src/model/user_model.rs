@@ -1,4 +1,3 @@
-use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
 use serde_json::to_string;
@@ -22,29 +21,6 @@ pub struct UserEstimate {
 }
 
 impl Model<UserEstimate> for UserEstimate {
-    /// Helper function to build a UserEstimate object from a JSON object.
-    ///
-    /// # Parameters
-    ///
-    /// new_user : A JSON object representing the user estimate to be created.
-    ///
-    /// # Returns
-    ///
-    /// A UserEstimate object representing the user estimate to be created.
-    fn build_user(new_user: &Json<UserEstimate>) -> UserEstimate {
-        UserEstimate {
-            id: None,
-            fName: new_user.fName.to_owned(),
-            lName: new_user.lName.to_owned(),
-            email: new_user.email.to_owned(),
-            strAddr: new_user.strAddr.to_owned(),
-            city: new_user.city.to_owned(),
-            state: new_user.state.to_owned(),
-            zip: new_user.zip.to_owned(),
-            measurements: new_user.measurements.to_owned(),
-            details: new_user.details.to_owned()
-        }
-    }
 
     fn to_string(&self) -> String {
         to_string(self).unwrap()
