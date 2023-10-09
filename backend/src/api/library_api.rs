@@ -5,7 +5,7 @@ use std::string::String;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
-use crate::model::library_model::MaterialFee;
+use crate::model::material_model::MaterialFee;
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -20,7 +20,7 @@ use crate::model::library_model::MaterialFee;
 /// it returns an HTTP 200 OK response with the JSON representation of the created jobEstimate. If there's
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
-#[post("/material_lib")]
+#[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
                                                                                     HttpResponse {
     post_data(db, new_user).await
@@ -39,7 +39,7 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 /// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/material_lib/{id}")]
+#[get("/library/{id}")]
 pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
                                                                                     HttpResponse {
     get_data(db, path).await
@@ -60,7 +60,7 @@ pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<Stri
 /// it returns an HTTP 200 OK response with the JSON representation of the updated jobEstimate's details. If the provided ID
 /// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[put("/material_lib/{id}")]
+#[put("/library/{id}")]
 pub async fn update_library_entry(
     db: Data<MongoRepo<MaterialFee>>,
     path: Path<String>,
@@ -89,7 +89,7 @@ pub async fn update_library_entry(
 /// it returns an HTTP 200 OK response with a success message. If the provided ID
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[delete("/material_lib/{id}")]
+#[delete("/library/{id}")]
 pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
                                                                                     HttpResponse {
     delete_data(db, path).await
@@ -107,7 +107,7 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<S
 /// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/material_libs")]
+#[get("/libraries")]
 pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
     get_all_data(db).await
 }
