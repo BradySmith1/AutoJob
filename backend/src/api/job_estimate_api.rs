@@ -2,7 +2,7 @@ use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoR
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
-use crate::api::api_helper::{delete_data, get_all_data, get_data};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -82,20 +82,7 @@ pub async fn update_estimate(
     let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
     let update_result = db.update_estimate(&id, data).await;
-    match update_result {
-        Ok(update) => {
-            if update.matched_count == 1 {
-                let updated_user_info = db.get_estimate(&id).await;
-                return match updated_user_info {
-                    Ok(user) => HttpResponse::Ok().json(user),
-                    Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-                };
-            } else {
-                return HttpResponse::NotFound().body("No user found with specified ID");
-            }
-        }
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    push_update(update_result, db, id).await
 }
 
 /// Delete jobEstimate details by their ID via a DELETE request.

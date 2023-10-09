@@ -1,7 +1,7 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
 use mongodb::bson::oid::ObjectId;
-use crate::api::api_helper::{delete_data, get_all_data, get_data};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, push_update};
 use crate::model::model_trait::Model;
 
 /// Creates a new userEstimate via a POST request to the api web server
@@ -85,20 +85,7 @@ pub async fn update_user(
         details: new_user.details.to_owned()
     };
     let update_result = db.update_estimate(&id, data).await;
-    match update_result {
-        Ok(update) => {
-            if update.matched_count == 1 {
-                let updated_user_info = db.get_estimate(&id).await;
-                return match updated_user_info {
-                    Ok(user) => HttpResponse::Ok().json(user),
-                    Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-                };
-            } else {
-                return HttpResponse::NotFound().body("No user found with specified ID");
-            }
-        }
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    push_update(update_result, db, id).await
 }
 
 /// Delete userEstimate details by their ID via a DELETE request.
