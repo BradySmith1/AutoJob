@@ -45,7 +45,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 1 or len(sys.argv) > 2:
         print("Usage: python main.py <url>")
         sys.exit(1)
-    url_arg = sys.argv[1]
+    url_arg = "https://www.homedepot.com/s/" + sys.argv[1]
     page_parsed = BeautifulSoup(retrieve_web_page(url_arg).content, 'html.parser')
     # print(page_parsed.prettify())
     products_list = find_product(page_parsed)

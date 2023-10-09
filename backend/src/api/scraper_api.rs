@@ -1,11 +1,14 @@
 use std::process::{Command, Output, Stdio};
-use actix_web::{HttpResponse, post};
+use actix_web::{get, HttpResponse};
+use actix_web::web::Path;
 use crate::model::library_model::Library;
 
 ///TEMPORARY
 ///Tests the webscraper api and how it pulls data
-#[post("/scrape")]
-pub async fn get_scraper_data(url: String) -> HttpResponse {
+#[get("/scrape/{material}")]
+pub async fn get_scraper_data(search: Path<String>) -> HttpResponse {
+    let mut url = search.into_inner();
+    url = url.replace('_', " ");
     let output: Output = Command::new("python3")
         .arg("./src/scraper/scraper.py")
         .arg(url)
