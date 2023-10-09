@@ -20,12 +20,15 @@ h3{
     margin-right: auto;
     z-index: 1;
     width: 700px;
-    height: 900px;
+    height: 700px;
     background-color: #2B303A;
     overflow-y: auto;
     border-radius: 10px;
     padding: 20px;
-    padding-left: 100px;
+}
+
+.overflowWrapper{
+    position: relative;
 }
 
 .materialContainer{
@@ -43,4 +46,28 @@ h3{
     width: 25%;
     text-align: left;
     padding-bottom: 10px;
+}
+
+.btn{
+    left: 325px;
+    background-color: #0055FF;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+    width: 100px;
+    border-style: solid;
+    border-radius: 25px;
+    transition-duration: 200ms;
+    border-width: 1.5px;
+    border-color: black;
+}
+
+.closeBtn{
+    position: absolute;
+    bottom: -40px;
+}
+
+.btn:hover{
+    background-color: #00A3FF;
 }
