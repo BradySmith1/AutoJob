@@ -7,7 +7,8 @@ const initialValues = [
         {
             name: "",
             price: 0,
-            quantity: 1
+            quantity: 1,
+            description: ""
         }
     ]
 
@@ -15,14 +16,13 @@ function trackImported(formData, billableData){
     var stateArr = [];
 
     for(var i = 0; i < billableData.length; i++){;
-        var bilable = billableData[i];
+        var billable = billableData[i];
         var tracked = false;
 
         for(var j = 0; j < formData.length; j++){
             var data = formData[j];
-            if(bilable.name === data.name
-                && bilable.price === data.price){
-                console.log(data.name)
+            if(billable.name === data.name
+                && billable.price === data.price){
                 tracked = true;
             }
 
@@ -30,6 +30,16 @@ function trackImported(formData, billableData){
         stateArr.push(tracked);
     }
     return stateArr;
+}
+
+function getCorrectBillables(arr, description){
+    var correctBillables = [];
+    for(var i = 0; i < arr.length; i++){
+        if(arr[i].description === description){
+            correctBillables.push(arr[i]);
+        }
+    }
+    return correctBillables;
 }
 
 function updateImported(stateArr, index){
@@ -43,19 +53,18 @@ function updateImported(stateArr, index){
 
 function Library(props){
 
-
-    const [values, setValues] = useState(initialValues);
+    const [library, setLibrary] = useState(initialValues);
     const [stateArr, setState] = useState([]);
     const [display, setDisplay] = useState(false);
-    var [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
         try{
-            //Get all the customer data
             axios.get('/libraries').then((response) => {
-                //Set the customer data to the axios response
-                setValues(response.data);
+                var correctBillables = getCorrectBillables(response.data, props.name);
+                setState(trackImported(props.data, correctBillables));
+                setLibrary(correctBillables);
                 //Set the loading variable to false
                 setLoading(false);
             });
@@ -65,7 +74,6 @@ function Library(props){
         }
 
         document.body.style.overflowY = 'hidden';
-        setState(trackImported(props.data, values));
         return () => {
             document.body.style.overflowY = 'auto';
         }
@@ -92,7 +100,7 @@ function Library(props){
                     </div>
                     {loading ? <h3>Loading Data...</h3> : null}
                     {!loading &&
-                     values.map((billable, index) => (
+                     library.map((billable, index) => (
                         <div className="materialContainer">
                             <div className="section">
                                 {index + 1}
@@ -109,14 +117,28 @@ function Library(props){
                                         type="button"
                                         className="btn"
                                         onClick={() => {
-                                            props.insert(0, values[index])
+                                            props.insert(0, library[index])
                                             setState(updateImported(stateArr, index))
                                         }}
                                     >
                                         Import
                                     </button>
-                                    : <div className="section">Imported</div>
+                                    : <p>Imported</p>
                                 }
+                                <button
+                                    type="button"
+                                    className="removeButton"
+                                    onClick={() => {
+                                        //Here we are removing this element of the billable array
+                                        //when the x button is clicked
+                                        var libCopy = [...library];
+                                        libCopy.splice(index, 1);
+                                        axios.delete(`/library/${billable._id.$oid}`).then(response => console.log(response));
+                                        setLibrary(libCopy);
+                                    }}
+                                >
+                                    X
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -142,8 +164,8 @@ function Library(props){
             </div>
             {display ? 
                 <AddToLibrary 
-                    values={values}
-                    setValues={setValues}
+                    values={library}
+                    setValues={setLibrary}
                     name={props.name}
                     setDisplay={setDisplay}
             /> : null}

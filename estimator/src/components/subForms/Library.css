@@ -19,7 +19,7 @@ h3{
     margin-left: auto;
     margin-right: auto;
     z-index: 1;
-    width: 700px;
+    width: 750px;
     height: 700px;
     background-color: #2B303A;
     overflow-y: auto;
@@ -46,6 +46,9 @@ h3{
     width: 25%;
     text-align: left;
     padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn{
@@ -75,4 +78,21 @@ h3{
 
 .btn:hover{
     background-color: #00A3FF;
+}
+
+.removeButton{
+    background-color: #d61f2c;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+    width: 60px;
+    border-radius: 25px;
+    transition-duration: 200ms;
+    border-style: none;
+    margin-left: 10px;
+}
+
+.removeButton:hover{
+    background-color: #d63741;
 }

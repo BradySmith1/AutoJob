@@ -79,7 +79,7 @@ function Calculator(props){
                     <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ name: '', price: 0.0, quantity: 0.0})}
+                        onClick={() => push({ name: '', price: 0.0, quantity: 0.0, description: props.name})}
                     >
                         Add {props.name}
                     </button>

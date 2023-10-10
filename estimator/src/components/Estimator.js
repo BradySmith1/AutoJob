@@ -19,14 +19,16 @@ const initialValues = {
         {
             name: '',
             price: 0.0,
-            quantity: 0.0
+            quantity: 0.0,
+            description: ''
         },
     ],
     fees: [
         {
             name: '',
             price: 0.0,
-            quantity: 0.0
+            quantity: 0.0,
+            description: ''
         }
     ]
 };
@@ -97,22 +99,24 @@ function Estimator(props){
 
                 //Turn customer data and material data into raw JSONs
                 const customerData = JSON.parse(JSON.stringify(props.data));
-                const user = {user: customerData}
-                const materialData = JSON.parse(JSON.stringify(values));
+                const user = {user: customerData};
+                const materialData = JSON.parse(JSON.stringify(values.materials));
+                const materials = {materials: materialData};
+                const feeData = JSON.parse(JSON.stringify(values.fees));
+                const fees = {fees: feeData}
 
                 //Merge the two JSONs into one
-                const estimateData = {...user, ...materialData};
+                const estimateData = {...user, ...materials, ...fees};
 
                 console.log(estimateData);
 
                 //Post the json to our backend
-                //axios.post('/estimate', estimateData).then(response => console.log(response));
+                axios.post('/estimate', estimateData).then(response => console.log(response));
                 //Delete the customer info entry from the userEstimates database
-                //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
+                axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
                 //reset the form to it's initial values
 
-                console.log(estimateData);
-                resetForm(initialValues);
+                //resetForm(initialValues);
             }}
             validationSchema={materialsValidation}
             >
