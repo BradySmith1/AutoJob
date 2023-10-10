@@ -18,7 +18,7 @@ use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_est
 use crate::api::library_api::{create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
 use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
-use crate::model::material_model::MaterialFee;
+use crate::model::library_model::MaterialFee;
 use crate::model::user_model::UserEstimate;
 
 /// This function initializes and runs an Actix API server.

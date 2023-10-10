@@ -1,7 +1,7 @@
 use std::process::{Command, Output, Stdio};
 use actix_web::{get, HttpResponse};
 use actix_web::web::Path;
-use crate::model::library_model::Library;
+use crate::model::scraper_model::Library;
 
 ///TEMPORARY
 ///Tests the webscraper api and how it pulls data

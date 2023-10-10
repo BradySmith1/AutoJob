@@ -5,7 +5,7 @@ use std::string::String;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
-use crate::model::material_model::MaterialFee;
+use crate::model::library_model::MaterialFee;
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::model::material_model::MaterialFee;
+use crate::model::library_model::MaterialFee;
 use crate::model::model_trait::Model;
 use crate::model::user_model::UserEstimate;
 
