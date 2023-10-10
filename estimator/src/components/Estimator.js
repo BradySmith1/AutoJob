@@ -6,29 +6,25 @@
  * that you can enter as many surfaces as you want.
  */
 import './Estimator.css';
-import './subForms/MaterialCalculator.js';
-import './subForms/FeeCalculator.js';
-import './subForms/Overview.js';
 import { Formik, Form} from 'formik';
 import React, { useState } from "react";
 import {array, object, string, number} from "yup";
 import axios from 'axios';
-import MaterialCalculator from './subForms/MaterialCalculator.js';
-import FeeCalculator from './subForms/FeeCalculator.js';
+import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
 
 //Declare initial values for the form, an array of material objects
 const initialValues = {
     materials: [
         {
-            material_type: '',
+            name: '',
             price: 0.0,
             quantity: 0.0
         },
     ],
     fees: [
         {
-            fee_title: '',
+            name: '',
             price: 0.0,
             quantity: 0.0
         }
@@ -38,7 +34,7 @@ const initialValues = {
 //Declare a validation schema for the form
 const materialsValidation = object({
     materials: array(object({
-        material_type: string()
+        name: string()
             .required('Required')
             .max(20, "Must be less than 20 characters"),
 
@@ -50,7 +46,7 @@ const materialsValidation = object({
 
     })).min(1),
     fees: array(object({
-        fee_title: string()
+        name: string()
             .required('Required')
             .max(20, "Must be less than 20 characters"),
 
@@ -124,8 +120,8 @@ function Estimator(props){
             our form values*/}
             {({ values }) => (
                 <Form>
-                    {navIndex === 0 ? <MaterialCalculator values={values} /> : null}
-                    {navIndex === 1 ? <FeeCalculator values={values} /> : null}
+                    {navIndex === 0 ? <Calculator values={values.materials} name="Material" /> : null}
+                    {navIndex === 1 ? <Calculator values={values.fees} name="Fee" /> : null}
                     {navIndex === 2 ? <Overview values={values} /> : null}
                     {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
                 </Form>

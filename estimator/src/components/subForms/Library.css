@@ -49,7 +49,6 @@ h3{
 }
 
 .btn{
-    left: 325px;
     background-color: #0055FF;
     cursor: pointer;
     color: white;
@@ -63,7 +62,13 @@ h3{
     border-color: black;
 }
 
+.add{
+    height: 30px;
+    width: 200px !important;
+}
+
 .closeBtn{
+    left: 325px;
     position: absolute;
     bottom: -40px;
 }

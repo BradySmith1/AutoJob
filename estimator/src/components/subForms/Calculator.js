@@ -1,46 +1,47 @@
-import './FeeCalculator.css';
+import './Calculator.css';
 import { FieldArray, Field} from 'formik';
 import React, { useState } from "react";
-import FeeLibrary from './FeeLibrary.js';
+import Library from './Library';
 
-function FeeCalculator(props){
+function Calculator(props){
 
     const [display, setDisplay] = useState(false);
+    const formikName = (props.name + "s").toLowerCase();
 
     return(
-        <FieldArray name="fees">
+        <FieldArray name={(formikName).toLowerCase()}>
             {/*Here we are creating an arrow function, passing it the remove and push field
             array methods so that we can use them in the form.*/}
             {({ remove, push, insert }) => (
                 <div className='wrapper'>
-                    <h2>Add Fees</h2>
-                    {/*Here we are ensuring that the material array length is always greater than zero and then
-                    mapping over the material array to create our resizeable form*/}
-                    {props.values.fees.length > 0 &&
-                    props.values.fees.map((fee, index) => (
+                    <h2>Add {props.name}s</h2>
+                    {/*Here we are ensuring that the billable array length is always greater than zero and then
+                    mapping over the billable array to create our resizeable form*/}
+                    {props.values.length > 0 &&
+                    props.values.map((billable, index) => (
                         <div className="row" key={index}>
                             <div className="col">
-                                <div className='label' htmlFor={`fee.${index}.fee_title`}>Fee Title</div>
+                                <div className='label' >{props.name}</div>
                                 <Field
-                                name={`fees.${index}.fee_title`}
+                                name={`${formikName}.${index}.name`}
                                 placeholder=""
                                 type="text"
                                 className="inputBox"
                                 />
                             </div>
                             <div className="col">
-                                <div className='label' htmlFor={`fee.${index}.price`}>Price</div>
+                                <div className='label' >Price</div>
                                 <Field
-                                name={`fees.${index}.price`}
+                                name={`${formikName}.${index}.price`}
                                 placeholder=""
                                 type="number"
                                 className="inputBox"
                                 />
                             </div>
                             <div className="col">
-                                <div className='label' htmlFor={`fee.${index}.quantity`}>Qty.</div>
+                                <div className='label' >Qty.</div>
                                 <Field
-                                name={`fees.${index}.quantity`}
+                                name={`${formikName}.${index}.quantity`}
                                 placeholder=""
                                 type="number"
                                 className="inputBox"
@@ -50,9 +51,9 @@ function FeeCalculator(props){
                                 <div className='label'> Sub Total </div>
                                 <div className='totalContainer'>
                                     <div className='total'> 
-                                    {/*Here we are calculating the total price for this material*/}
+                                    {/*Here we are calculating the total price for this billable*/}
                                     ${
-                                        fee.price * fee.quantity
+                                        billable.price * billable.quantity
                                     } 
                                     </div>
                                 </div>
@@ -62,9 +63,9 @@ function FeeCalculator(props){
                                     type="button"
                                     className="xButton"
                                     onClick={() => {
-                                        //Here we are removing this element of the material array
+                                        //Here we are removing this element of the billable array
                                         //when the x button is clicked
-                                        if(props.values.fees.length > 1){
+                                        if(props.values.length > 1){
                                             remove(index)
                                         }
                                     }}
@@ -74,13 +75,13 @@ function FeeCalculator(props){
                             </div>
                         </div>
                     ))}
-                    {/*In this on click fuction, we are pushing a new empty material to the array*/}
+                    {/*In this on click fuction, we are pushing a new empty billable to the array*/}
                     <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ fee_title: '', price: 0.0, quantity: 0.0})}
+                        onClick={() => push({ name: '', price: 0.0, quantity: 0.0})}
                     >
-                        Add Fee
+                        Add {props.name}
                     </button>
                     <button
                         type="button"
@@ -89,17 +90,18 @@ function FeeCalculator(props){
                             setDisplay(true);
                         }}
                     >
-                        Import Fee
+                        Import {props.name}
                     </button>
-                    {display ? <FeeLibrary 
+                    {display ? <Library 
                                 insert={insert}
                                 display={display} 
                                 setDisplay={setDisplay}
-                                data={props.values.fees}/> : null}
+                                data={props.values}
+                                name={props.name}/> : null}
                 </div>
             )}
         </FieldArray>
     );
 }
 
-export default FeeCalculator;
+export default Calculator;
