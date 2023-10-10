@@ -102,7 +102,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn get_document(&self, id: &String) -> Result<T, Error> {
+    pub async fn get_document_by_id(&self, id: &String) -> Result<T, Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let user_detail = self
@@ -112,6 +112,27 @@ impl<T: Model<T>> MongoRepo<T> {
             .ok()
             .expect("Error getting user's detail");
         Ok(user_detail.unwrap())
+    }
+
+    pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
+        let doc = attr.split("_").collect::<Vec<&str>>();
+        let filter = doc! {doc[0]: doc[1]};
+        let mut cursor = self
+            .col
+            .find(filter, None)
+            .await
+            .ok()
+            .expect("Error getting details. Check if filter is correct");
+        let mut users: Vec<T> = Vec::new();
+        while let Some(user) = cursor
+            .try_next()
+            .await
+            .ok()
+            .expect("Error mapping through cursor")
+        {
+            users.push(user)
+        }
+        Ok(users)
     }
 
     pub async fn update_document(&self, id: &String, new_user: T) -> Result<UpdateResult,

@@ -123,3 +123,13 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<S
 pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
     get_all_data(db).await
 }
+
+#[get("/libraries/{descriptor}")]
+pub async fn get_all_library_description(db: Data<MongoRepo<MaterialFee>>,  path: Path<String>) ->
+                                                                                    HttpResponse {
+    let users = db.get_documents_by_attribute(&path.into_inner()).await;
+    match users {
+        Ok(users) => HttpResponse::Ok().json(users),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}

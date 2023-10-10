@@ -29,7 +29,7 @@ pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     }
-    let user_detail = db.get_document(&id).await;
+    let user_detail = db.get_document_by_id(&id).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -67,7 +67,7 @@ Data<MongoRepo<T>>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {
             if update.matched_count == 1 {
-                let updated_user_info = db.get_document(&id).await;
+                let updated_user_info = db.get_document_by_id(&id).await;
                 return match updated_user_info {
                     Ok(user) => HttpResponse::Ok().json(user),
                     Err(err) => HttpResponse::InternalServerError().body(err.to_string()),

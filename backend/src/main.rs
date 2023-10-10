@@ -15,10 +15,12 @@ use api::user_estimate_api::{create_user, index, get_user, update_user, delete_u
 use repository::mongodb_repo::MongoRepo;
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate
                                    , update_estimate};
-use crate::api::library_api::{create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
+use crate::api::library_api::{create_library_entry, delete_library_entry,
+                              get_all_library_entries, get_library_entry, update_library_entry,
+                              get_all_library_description};
 use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
-use crate::model::library_model::MaterialFee;
+use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
 
 /// This function initializes and runs an Actix API server.
@@ -46,10 +48,12 @@ pub async fn main() -> std::io::Result<()> {
     // Initializes the different Mongodb collection connections.
     let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
     let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
-    let db_library: MongoRepo<MaterialFee> = MongoRepo::init("materialLibrary").await;
+    let db_material_library: MongoRepo<MaterialFee> = MongoRepo::init("materialFee\
+    Library").
+        await;
     let db_user_data = Data::new(db_user);
     let db_estimate_data = Data::new(db_estimate);
-    let db_library_data = Data::new(db_library);
+    let db_library_data = Data::new(db_material_library);
 
     println!("\nServer ready at {}", blue.apply_to(format!("http://{}",&target)));
 
@@ -76,6 +80,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
+            .service(get_all_library_description)
             .service(get_scraper_data)
             .service(index)
 
