@@ -30,7 +30,7 @@ function Overview(props){
                 <div className="divide"></div>
                 {props.values.materials.map((material) => (
                     <div className="contentWrapper">
-                        {material.name !== '' ? <h3>{material.name}</h3> : <h3>None</h3>}
+                        {material.name !== '' ? <h3>{material.name}</h3> : null}
                         {material.name !== '' ? <h3>${material.price}</h3> : null}
                         {material.name !== '' ? <h3>Qty: {material.quantity}</h3> : null}
                     </div>
@@ -44,7 +44,7 @@ function Overview(props){
                 <div className="divide"></div>
                 {props.values.fees.map((fee) => (
                     <div className="contentWrapper">
-                        {fee.name !== '' ? <h3>{fee.name}</h3> : <h3>None</h3>}
+                        {fee.name !== '' ? <h3>{fee.name}</h3> : null}
                         {fee.name !== '' ? <h3>${fee.price}</h3> : null}
                         {fee.name !== '' ? <h3>Qty: {fee.quantity}</h3> : null}
                     </div>

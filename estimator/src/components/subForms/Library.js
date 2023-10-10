@@ -32,16 +32,6 @@ function trackImported(formData, billableData){
     return stateArr;
 }
 
-function getCorrectBillables(arr, description){
-    var correctBillables = [];
-    for(var i = 0; i < arr.length; i++){
-        if(arr[i].description === description){
-            correctBillables.push(arr[i]);
-        }
-    }
-    return correctBillables;
-}
-
 function updateImported(stateArr, index){
     //copy array
     var arrCopy = [...stateArr];
@@ -61,10 +51,10 @@ function Library(props){
     useEffect(() => {
 
         try{
-            axios.get('/libraries').then((response) => {
-                var correctBillables = getCorrectBillables(response.data, props.name);
-                setState(trackImported(props.data, correctBillables));
-                setLibrary(correctBillables);
+            axios.get('/libraries/description_' + props.name).then((response) => {
+                setState(trackImported(props.data, response.data));
+                console.log(response.data)
+                setLibrary(response.data);
                 //Set the loading variable to false
                 setLoading(false);
             });
