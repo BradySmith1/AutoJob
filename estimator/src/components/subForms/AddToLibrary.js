@@ -13,7 +13,7 @@ function AddToLibrary(props){
             name: "",
             price: 0.0,
             quantity: 1,
-            description: ""
+            description: props.name
         },
     
         //Declare a validation schema for the form
@@ -24,17 +24,13 @@ function AddToLibrary(props){
     
             price: Yup.number('Must be a number')
                 .required('Required'),
-    
-            quantity: Yup.number('Must be a number')
-                .required('Required')
         }),
 
         onSubmit: (values, { resetForm }) => {
-            values.description = props.name;
             console.log(values);
             props.setValues([...props.values, values]);
+            axios.post('/library', values).then(response => console.log(response));
             resetForm();
-            //axios.post('/library', values).then(response => console.log(response));
         }
     
     });
@@ -44,7 +40,7 @@ function AddToLibrary(props){
         <div className="Back">
             <div className="formContainer">
                 <h2>Add a new {props.name}</h2>
-                <form id="libraryForm" onSubmit={formik.handleSubmit}>
+                <div id="libraryForm">
                     <div className="boxAndLable">
                         <h3>Name</h3>
                         <input
@@ -62,25 +58,12 @@ function AddToLibrary(props){
                         <h3>Price</h3>
                         <input
                             className="inputBox" 
-                            type="text" 
+                            type="number" 
                             id="price" 
                             name="price"
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             value={formik.values.price}
-                        >
-                        </input>
-                    </div>
-                    <div className="boxAndLable">
-                        <h3>Qty</h3>
-                        <input
-                            className="inputBox" 
-                            type="text" 
-                            id="quantity" 
-                            name="quantity"
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            value={formik.values.quantity}
                         >
                         </input>
                     </div>
@@ -92,7 +75,7 @@ function AddToLibrary(props){
                     >
                         Submit
                     </button>
-                </form>
+                </div>
                 <button 
                     className="btn exit" 
                     onClick={() => {

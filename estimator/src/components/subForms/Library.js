@@ -5,18 +5,8 @@ import axios from 'axios';
 
 const initialValues = [
         {
-            name: "bleach",
-            price: 8.00,
-            quantity: 1
-        },
-        {
-            name: "soap",
-            price: 3.00,
-            quantity: 1
-        },
-        {
-            name: "chemical",
-            price: 8.00,
+            name: "",
+            price: 0,
             quantity: 1
         }
     ]
@@ -57,8 +47,23 @@ function Library(props){
     const [values, setValues] = useState(initialValues);
     const [stateArr, setState] = useState([]);
     const [display, setDisplay] = useState(false);
+    var [loading, setLoading] = useState(true);
 
     useEffect(() => {
+
+        try{
+            //Get all the customer data
+            axios.get('/libraries').then((response) => {
+                //Set the customer data to the axios response
+                setValues(response.data);
+                //Set the loading variable to false
+                setLoading(false);
+            });
+        } catch(error){
+            //If an error occurs, log it
+            console.log(error);
+        }
+
         document.body.style.overflowY = 'hidden';
         setState(trackImported(props.data, values));
         return () => {
@@ -85,7 +90,9 @@ function Library(props){
                             <h3>Import</h3>
                         </div>
                     </div>
-                    {values.map((billable, index) => (
+                    {loading ? <h3>Loading Data...</h3> : null}
+                    {!loading &&
+                     values.map((billable, index) => (
                         <div className="materialContainer">
                             <div className="section">
                                 {index + 1}
