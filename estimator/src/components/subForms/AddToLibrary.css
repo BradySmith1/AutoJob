@@ -1,0 +1,25 @@
+.submitBtn{
+    margin-top: 30px;
+}
+
+.boxAndLable{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.formContainer{
+    background-color: #2B303A;
+    padding: 20px;
+    width: 350px;
+    border-radius: 10px;
+    margin-left: 50px;
+    position: relative;
+}
+
+.exit{
+    position: absolute;
+    bottom: -45px;
+    left: 145px;
+}

@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from "react";
-import './MaterialLibrary.css';
+import './Library.css';
+import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 
 const initialValues = [
         {
-            material_type: "bleach",
+            name: "bleach",
             price: 8.00,
             quantity: 1
         },
         {
-            material_type: "soap",
+            name: "soap",
             price: 3.00,
             quantity: 1
         },
         {
-            material_type: "chemical",
+            name: "chemical",
             price: 8.00,
             quantity: 1
         }
     ]
 
-function trackImported(formData, materialData){
+function trackImported(formData, billableData){
     var stateArr = [];
 
-    for(var i = 0; i < materialData.length; i++){;
-        var material = materialData[i];
+    for(var i = 0; i < billableData.length; i++){;
+        var bilable = billableData[i];
         var tracked = false;
 
         for(var j = 0; j < formData.length; j++){
             var data = formData[j];
-            if(material.material_type === data.material_type
-                && material.price === data.price){
-                console.log(data.material_type)
+            if(bilable.name === data.name
+                && bilable.price === data.price){
+                console.log(data.name)
                 tracked = true;
             }
 
@@ -50,11 +51,12 @@ function updateImported(stateArr, index){
     return arrCopy;
 }
 
-function MaterialLibrary(props){
+function Library(props){
 
 
-    const values = initialValues;
+    const [values, setValues] = useState(initialValues);
     const [stateArr, setState] = useState([]);
+    const [display, setDisplay] = useState(false);
 
     useEffect(() => {
         document.body.style.overflowY = 'hidden';
@@ -68,7 +70,7 @@ function MaterialLibrary(props){
         <div className="pageContainer">
             <div className="overflowWrapper">
                 <div className="contentContainer">
-                    <h2>Material Library</h2>
+                    <h2>{props.name} Library</h2>
                     <div className="materialHeaders">
                         <div className="section">
                             <h3>No.</h3>
@@ -83,16 +85,16 @@ function MaterialLibrary(props){
                             <h3>Import</h3>
                         </div>
                     </div>
-                    {values.map((material, index) => (
+                    {values.map((billable, index) => (
                         <div className="materialContainer">
                             <div className="section">
                                 {index + 1}
                             </div>
                             <div className="section">
-                                {material.material_type}
+                                {billable.name}
                             </div>
                             <div className="section">
-                                ${material.price}
+                                ${billable.price}
                             </div>
                             <div className="section">
                                 {!stateArr[index] ? 
@@ -111,6 +113,15 @@ function MaterialLibrary(props){
                             </div>
                         </div>
                     ))}
+                    <button
+                        type="button"
+                        className="btn add"
+                        onClick={() => {
+                            setDisplay(true);
+                        }}    
+                    >
+                        Add New {props.name}
+                    </button>
                 </div>
                 <button
                         type="button"
@@ -120,10 +131,17 @@ function MaterialLibrary(props){
                         }}
                     >
                         Close
-                    </button>
+                </button>
             </div>
+            {display ? 
+                <AddToLibrary 
+                    values={values}
+                    setValues={setValues}
+                    name={props.name}
+                    setDisplay={setDisplay}
+            /> : null}
         </div>
     );
 }
 
-export default MaterialLibrary;
+export default Library;

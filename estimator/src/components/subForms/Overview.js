@@ -4,7 +4,7 @@ import './Overview.css';
 function getTotal(arr){
     var total = 0;
     for(var i = 0; i < arr.length; i++){
-        total = total + arr[i].price;
+        total = total + (arr[i].price * arr[i].quantity);
     }
     return total;
 }
@@ -30,9 +30,9 @@ function Overview(props){
                 <div className="divide"></div>
                 {props.values.materials.map((material) => (
                     <div className="contentWrapper">
-                        {material.material_type !== '' ? <h3>{material.material_type}</h3> : <h3>None</h3>}
-                        {material.material_type !== '' ? <h3>${material.price}</h3> : null}
-                        {material.material_type !== '' ? <h3>Qty: {material.quantity}</h3> : null}
+                        {material.name !== '' ? <h3>{material.name}</h3> : <h3>None</h3>}
+                        {material.name !== '' ? <h3>${material.price}</h3> : null}
+                        {material.name !== '' ? <h3>Qty: {material.quantity}</h3> : null}
                     </div>
                 ))}
             </div>
@@ -44,9 +44,9 @@ function Overview(props){
                 <div className="divide"></div>
                 {props.values.fees.map((fee) => (
                     <div className="contentWrapper">
-                        {fee.fee_title !== '' ? <h3>{fee.fee_title}</h3> : <h3>None</h3>}
-                        {fee.fee_title !== '' ? <h3>${fee.price}</h3> : null}
-                        {fee.fee_title !== '' ? <h3>Qty: {fee.quantity}</h3> : null}
+                        {fee.name !== '' ? <h3>{fee.name}</h3> : <h3>None</h3>}
+                        {fee.name !== '' ? <h3>${fee.price}</h3> : null}
+                        {fee.name !== '' ? <h3>Qty: {fee.quantity}</h3> : null}
                     </div>
                 ))}
             </div>
