@@ -7,17 +7,19 @@ use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::MaterialFee;
 
-/// Creates a new jobEstimate via a POST request to the api web server
+/// Creates a new library entry via a POST request to the api web server
 ///
 /// # Parameters
 ///
-/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// data storage.
 /// new_user: A JSON object representing the job estimate to be created.
 ///
 /// # Returns
 ///
-/// An HttpResponse representing the result of the operation. If the jobEstimate is created successfully,
-/// it returns an HTTP 200 OK response with the JSON representation of the created jobEstimate. If there's
+/// An HttpResponse representing the result of the operation. If the materialLibrary entry is created
+/// successfully, it returns an HTTP 200 OK response with the JSON representation of the created
+/// materialLibrary entry. If there's
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/library")]
@@ -26,19 +28,23 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
     post_data(db, new_user).await
 }
 
-/// Retrieve jobEstimate details by their ID via a GET request.
+/// Retrieve materialLibrary entry details by their ID via a GET request.
 ///
 /// # Parameters
 ///
-/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
 ///
-/// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
-/// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
-/// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
-/// an error message or an HTTP 500 Internal Server Error response with an error message.
+/// An HttpResponse representing the result of the operation. If the v with the specified ID is
+/// found,
+/// it returns an HTTP 200 OK response with the JSON representation of the materialLibrary
+/// entry's details. If the provided ID
+/// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request
+/// response with an error message or an HTTP 500 Internal Server Error response with an error
+/// message.
 #[get("/library/{id}")]
 pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
                                                                                     HttpResponse {
@@ -46,19 +52,21 @@ pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<Stri
 
 }
 
-/// Update jobEstimate details by their ID via a PUT request.
+/// Update materialLibrary entry details by their ID via a PUT request.
 ///
 /// # Parameters
 ///
-/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
-/// new_user : A JSON object representing the jobEstimate estimate to be updated.
+/// new_user : A JSON object representing the materialLibrary entry estimate to be updated.
 ///
 /// # Returns
 ///
-/// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
-/// it returns an HTTP 200 OK response with the JSON representation of the updated jobEstimate's details. If the provided ID
-/// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
+/// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
+/// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
+/// updated materialLibrary entry's details. If the provided ID is empty or there's an error
+/// during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/library/{id}")]
 pub async fn update_library_entry(
@@ -76,37 +84,41 @@ pub async fn update_library_entry(
     push_update(update_result, db, id).await
 }
 
-/// Delete jobEstimate details by their ID via a DELETE request.
+/// Delete materialLibrary entry details by their ID via a DELETE request.
 ///
 /// # Parameters
 ///
-/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
 ///
-/// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
-/// it returns an HTTP 200 OK response with a success message. If the provided ID
-/// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
-/// an error message or an HTTP 500 Internal Server Error response with an error message.
+/// An HttpResponse representing the result of the operation. If the materialLibrary entry with
+/// the specified ID is found, it returns an HTTP 200 OK response with a success message. If the
+/// provided ID is empty or there's an error during the deletion process, it returns an HTTP 400
+/// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
+/// an error message.
 #[delete("/library/{id}")]
 pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
                                                                                     HttpResponse {
     delete_data(db, path).await
 }
 
-/// Retrieve all jobEstimate details via a GET request.
+/// Retrieve all materialLibrary entry details via a GET request.
 ///
 /// # Parameters
 ///
-/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
 ///
 /// # Returns
 ///
-/// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
-/// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
-/// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
-/// an error message or an HTTP 500 Internal Server Error response with an error message.
+/// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
+/// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
+/// materialLibrary entry's details. If the provided ID is empty or there's an error during the
+/// retrieval process, it returns an HTTP 400 Bad Request response with an error message or an
+/// HTTP 500 Internal Server Error response with an error message.
 #[get("/libraries")]
 pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
     get_all_data(db).await
