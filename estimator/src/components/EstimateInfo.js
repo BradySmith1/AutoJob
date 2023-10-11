@@ -94,14 +94,14 @@ function EstimateInfo(){
             <div className="customerInfo">
                 <div className="infoContainer">
                     <div className="infoElement">
-                        <h2 class="infoHeading">Contact</h2>
+                        <h2 className="infoHeading">Contact</h2>
                         <div className="info">
                             {currentCustomerData.fName} {currentCustomerData.lName} <br/>
                             {currentCustomerData.email}
                         </div>
                     </div>
                     <div className="infoElement">
-                        <h2 class="infoHeading">Address</h2>
+                        <h2 className="infoHeading">Address</h2>
                         <div className="info">
                             {currentCustomerData.strAddr} <br/>
                             {currentCustomerData.city} {currentCustomerData.state} {currentCustomerData.zip}
@@ -110,13 +110,13 @@ function EstimateInfo(){
                 </div>
                 <div className="infoContainer">
                     <div className="infoElement">
-                        <h2 class="infoHeading">Surfaces and Measurements</h2>
+                        <h2 className="infoHeading">Surfaces and Measurements</h2>
                         <div className="info">
                             {currentCustomerData.measurements}
                         </div>
                     </div>
                     <div className="infoElement">
-                        <h2 class="infoHeading">Job Details</h2>
+                        <h2 className="infoHeading">Job Details</h2>
                         <div className="info">
                         {currentCustomerData.details}
                         </div>
@@ -129,7 +129,8 @@ function EstimateInfo(){
                 <div className="image">Image</div>
             </div>
             {/*Display the estimator component and pass it the current customer data*/}
-            <Estimator data={currentCustomerData} />
+            {console.log(currentCustomerData)}
+            {currentCustomerData.fName != "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
         </div>
     );
 }

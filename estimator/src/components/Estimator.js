@@ -7,8 +7,8 @@
  */
 import './Estimator.css';
 import { Formik, Form} from 'formik';
-import React, { useState } from "react";
-import {array, object, string, number} from "yup";
+import React, { useState, useEffect } from "react";
+import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
@@ -34,28 +34,28 @@ const initialValues = {
 };
 
 //Declare a validation schema for the form
-const materialsValidation = object({
-    materials: array(object({
-        name: string()
+const materialsValidation = Yup.object().shape({
+    materials: Yup.array(Yup.object().shape({
+        name: Yup.string()
             .required('Required')
             .max(20, "Must be less than 20 characters"),
 
-        price: number('Must be a number')
+        price: Yup.number('Must be a number')
             .required('Required'),
 
-        quantity: number('Must be a number')
+        quantity: Yup.number('Must be a number')
             .required('Required')
 
     })).min(1),
-    fees: array(object({
-        name: string()
+    fees: Yup.array(Yup.object().shape({
+        name: Yup.string()
             .required('Required')
             .max(20, "Must be less than 20 characters"),
 
-        price: number('Must be a number')
+        price: Yup.number('Must be a number')
             .required('Required'),
 
-        quantity: number('Must be a number')
+        quantity: Yup.number('Must be a number')
             .required('Required')
 
     })).min(1)
@@ -69,6 +69,10 @@ const materialsValidation = object({
  * @returns JSX object containing all html for the Form
  */
 function Estimator(props){
+
+    useEffect(() => {
+        
+    }, [props.data]);
 
     const [navIndex, setNavIndex] = useState(0);
 
@@ -94,6 +98,9 @@ function Estimator(props){
 
             <Formik
             initialValues={initialValues}
+            validationSchema={materialsValidation}
+            validateOnChange={false}
+            validateOnBlur={true}
             onSubmit={async (values, {resetForm}) => {
                 //Submit Function
 
@@ -108,28 +115,28 @@ function Estimator(props){
                 //Merge the two JSONs into one
                 const estimateData = {...user, ...materials, ...fees};
 
-                console.log(estimateData);
-
                 //Post the json to our backend
                 axios.post('/estimate', estimateData).then(response => console.log(response));
                 //Delete the customer info entry from the userEstimates database
                 axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
+                resetForm()
+                window.location.reload(false);
                 //reset the form to it's initial values
 
                 //resetForm(initialValues);
             }}
-            validationSchema={materialsValidation}
             >
             {/*Here we are creating an arrow function that returns the form and passing it
             our form values*/}
-            {({ values }) => (
-                <Form>
-                    {navIndex === 0 ? <Calculator values={values.materials} name="Material" /> : null}
-                    {navIndex === 1 ? <Calculator values={values.fees} name="Fee" /> : null}
-                    {navIndex === 2 ? <Overview values={values} /> : null}
-                    {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
-                </Form>
-            )}
+                {({ values, errors, touched }) => (
+                    <Form>
+                        {navIndex === 0 ? <Calculator values={values.materials} name="Material" errors={errors} touched={touched} /> : null}
+                        {navIndex === 1 ? <Calculator values={values.fees} name="Fee" errors={errors} touched={touched} /> : null}
+                        {navIndex === 2 ? <Overview values={values} /> : null}
+                        {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center'>Input Errros Prevent Submission</div> : null}
+                        {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
+                    </Form>
+                )}
             </Formik>
         </div>
 );

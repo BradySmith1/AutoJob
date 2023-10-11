@@ -23,7 +23,7 @@ function AddToLibrary(props){
                 .max(20, "Must be less than 20 characters"),
     
             price: Yup.number('Must be a number')
-                .required('Required'),
+                .required('Must be a number'),
         }),
 
         onSubmit: (values, { resetForm }) => {
@@ -53,6 +53,7 @@ function AddToLibrary(props){
                             value={formik.values.name}
                         >
                         </input>
+                        {formik.touched.name && formik.errors.name ? <p className="error">{formik.errors.name}</p> : null}
                     </div>
                     <div className="boxAndLable">
                         <h3>Price</h3>
@@ -66,6 +67,7 @@ function AddToLibrary(props){
                             value={formik.values.price}
                         >
                         </input>
+                        {formik.touched.price && formik.errors.price ? <p className="error">{formik.errors.name}</p> : null}
                     </div>
                     <button
                         type="submit"

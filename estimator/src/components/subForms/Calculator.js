@@ -1,15 +1,18 @@
 import './Calculator.css';
-import { FieldArray, Field} from 'formik';
-import React, { useState } from "react";
+import { FieldArray, Field, ErrorMessage} from 'formik';
+import React, { useState, useEffect } from "react";
 import Library from './Library';
 
 function Calculator(props){
 
+    //{props.errors.formikName[index].name && props.touched.formikName[index].name ? <p>{props.errors.formikName[index].name}</p> : null}
+
     const [display, setDisplay] = useState(false);
     const formikName = (props.name + "s").toLowerCase();
 
+
     return(
-        <FieldArray name={(formikName).toLowerCase()}>
+        <FieldArray name={(formikName)}>
             {/*Here we are creating an arrow function, passing it the remove and push field
             array methods so that we can use them in the form.*/}
             {({ remove, push, insert }) => (
@@ -28,6 +31,7 @@ function Calculator(props){
                                 type="text"
                                 className="inputBox"
                                 />
+                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.name`} component='div'/></div>
                             </div>
                             <div className="col">
                                 <div className='label' >Price</div>
@@ -37,6 +41,7 @@ function Calculator(props){
                                 type="number"
                                 className="inputBox"
                                 />
+                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.price`} component='div'/></div>
                             </div>
                             <div className="col">
                                 <div className='label' >Qty.</div>
@@ -46,6 +51,7 @@ function Calculator(props){
                                 type="number"
                                 className="inputBox"
                                 />
+                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.quantity`} component='div'/></div>
                             </div>
                             <div className='col'>
                                 <div className='label'> Sub Total </div>

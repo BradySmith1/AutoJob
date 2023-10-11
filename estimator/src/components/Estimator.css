@@ -48,3 +48,11 @@
 .button:hover{
     background-color: #00A3FF;
 }
+
+.center{
+    margin: none;
+    padding: none;
+    color: red;
+    width: 100%;
+    text-align: center;
+}
