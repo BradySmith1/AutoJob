@@ -1,5 +1,5 @@
 /**
- * @version 1, September 28th, 2023
+ * @version 1, Ovtober 12th, 2023
  * @author Andrew Monroe and Brady Smith
  * 
  * This component takes all the customer info entries, entered in the estimate form,
@@ -128,8 +128,7 @@ function EstimateInfo(){
                 <div className="image">Image</div>
                 <div className="image">Image</div>
             </div>
-            {/*Display the estimator component and pass it the current customer data*/}
-            {console.log(currentCustomerData)}
+            {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
             {currentCustomerData.fName != "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
         </div>
     );

@@ -1,11 +1,27 @@
-import React, { useEffect, useState } from "react";
+/**
+ * @version 1, Octover 12th, 2023
+ * @author Andrew Monroe and Brady Smith
+ * 
+ * This component displays a pop up, self containted sub form
+ * that adds materials to the material library
+ */
+
+import React from "react";
 import './AddToLibrary.css';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import * as Yup from "yup"
 
+/**
+ * 
+ * @param {JSON object} props 
+ *      props.values the values of the library
+ *      props.setValues function to change the values of the library
+ *      props.name name of the billable
+ *      props.setDisplay controls when to stop rendering this component
+ * @returns JSX object containing all the html for the pop up form
+ */
 function AddToLibrary(props){
-
 
     const formik = useFormik({
         //Declare initial values for the form
@@ -26,6 +42,7 @@ function AddToLibrary(props){
                 .required('Must be a number'),
         }),
 
+        //submit function for the form
         onSubmit: (values, { resetForm }) => {
             console.log(values);
             props.setValues([...props.values, values]);
@@ -41,6 +58,7 @@ function AddToLibrary(props){
             <div className="formContainer">
                 <h2>Add a new {props.name}</h2>
                 <div id="libraryForm">
+                    {/**Input field for the name of the billable and error messages */}
                     <div className="boxAndLable">
                         <h3>Name</h3>
                         <input
@@ -55,6 +73,7 @@ function AddToLibrary(props){
                         </input>
                         {formik.touched.name && formik.errors.name ? <p className="error">{formik.errors.name}</p> : null}
                     </div>
+                    {/**Input field for the price of the billable and error messages */}
                     <div className="boxAndLable">
                         <h3>Price</h3>
                         <input
@@ -69,6 +88,7 @@ function AddToLibrary(props){
                         </input>
                         {formik.touched.price && formik.errors.price ? <p className="error">{formik.errors.name}</p> : null}
                     </div>
+                    {/**Submit button */}
                     <button
                         type="submit"
                         className="submitBtn btn"
@@ -81,6 +101,7 @@ function AddToLibrary(props){
                 <button 
                     className="btn exit" 
                     onClick={() => {
+                        //On click, stop displaying this component
                         props.setDisplay(false);
                     }}>
                     Close
