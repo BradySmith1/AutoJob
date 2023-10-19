@@ -10,11 +10,14 @@
  */
 
 import './Form.css'
+import DragDrop from './DragDrop.js'
 import { useFormik } from 'formik';
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
+
+var images = [];
 
 /**
  * This function returns the estimate form in a JSX object
@@ -227,12 +230,7 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Include Any Images of the Job Site</h2>
-                <div className="placeholder">
-                    <br/>
-                    <br/>
-                    Placeholder <br/>
-                    Looking to add drag and drop feature here
-                </div>
+                <DragDrop images={images} />
             </div>
 
             <div className="inputAndLabel">
