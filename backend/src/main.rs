@@ -8,6 +8,8 @@ mod repository;
 // uses the module model.
 mod model;
 
+use std::io::{Read};
+use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
@@ -22,6 +24,26 @@ use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
+
+fn check_mongodb() {
+    let output = Command::new("./src/repository/check_mongodb_running.sh")
+        .stdout(Stdio::piped())
+        .output()
+        .expect("Could not run bash command");
+    let data = String::from_utf8(output.stdout.clone()).unwrap();
+    if data.eq("MongoDB is not running\n") {
+        println!("MongoDB is not running. Attempting to start on local machine");
+        let mut start = Command::new("sudo")
+            .arg("./src/repository/start_mongodb.sh")
+            .stdout(Stdio::piped())
+            .stdin(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let mut output = String::new();
+        start.stdout.as_mut().unwrap().read_to_string(&mut output).expect("Failed to read stdout");
+        println!("{}", output);
+    }
+}
 
 /// This function initializes and runs an Actix API server.
 /// It sets up the necessary environment variables, initializes the logger,
@@ -44,6 +66,9 @@ pub async fn main() -> std::io::Result<()> {
     let prefix = "127.0.0.1:"; // // Use 0.0.0.0 instead of localhost or 127.0.0.1 to use Actix with docker
     let port = 3001; // We will use 80 for aws with env variable.
     let target = format!("{}{}", prefix, port);
+
+    //checks if MongoDB instance is running
+    check_mongodb();
 
     // Initializes the different Mongodb collection connections.
     let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;

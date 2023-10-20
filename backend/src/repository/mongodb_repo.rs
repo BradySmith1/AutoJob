@@ -52,7 +52,7 @@ impl<T: Model<T>> MongoRepo<T> {
                 exit(1);
             }
         };
-        println!("Successfully connected to the user estimate database.");
+        println!("Successfully connected to the {} estimate database.", collection_name);
         let db = client.database("ajseDB");
         let col: Collection<T> = db.collection(collection_name);
         MongoRepo { col }
