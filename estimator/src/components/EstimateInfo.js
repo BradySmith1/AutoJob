@@ -15,6 +15,7 @@ import axios from 'axios';
 import React, {useEffect, useState} from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
+import ImageCarousel from "./ImageCarousel";
 
 /**
  * This function takes in an array of json of customer data and creates an
@@ -36,6 +37,13 @@ function populateDropDown(data){
     //return the array of Jsons for the drop down.
     return outputData;
 }
+
+const images = [
+    process.env.PUBLIC_URL + "/image1.jpg",
+    process.env.PUBLIC_URL + "/image2.jpg",
+    process.env.PUBLIC_URL + "/image3.jpg",
+    process.env.PUBLIC_URL + "/image4.jpg"
+]
 
 /**
  * This function returns the JSX object for the estimate calculator and
@@ -123,11 +131,12 @@ function EstimateInfo(){
                     </div>
                 </div>
             </div>
-            <div className="images">
+            {/* <div className="images">
                 <div className="image">Image</div>
                 <div className="image">Image</div>
                 <div className="image">Image</div>
-            </div>
+            </div> */}
+            <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
             {currentCustomerData.fName != "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
         </div>
