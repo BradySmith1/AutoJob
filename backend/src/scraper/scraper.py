@@ -7,6 +7,7 @@ import sys
 
 class WebScraper:
     driver = None
+    material = None
     options = webdriver.ChromeOptions()
     page = None
 
@@ -44,6 +45,9 @@ class WebScraper:
         self.page = page_parsed
         return page_parsed
 
+    def set_material(self, material):
+        self.material = material
+
     def get_products_homedepot(self):
         def find_product_price(product_price):
             temp = []
@@ -53,6 +57,7 @@ class WebScraper:
             except AttributeError:
                 return None
             return float(' '.join([str(elem) for elem in temp])[1:].replace(" ", "").replace("\t", ""))
+
 
         def find_product_details(product_details):
             return product_details.find('span').string
@@ -72,18 +77,41 @@ class WebScraper:
         def find_product_price(product):
             temp = []
             for product_pieces in product.find_all():
-                temp.append(product_pieces.string)
+                if product_pieces.string is not None:
+                    temp.append(product_pieces.string)
             temp = temp[1:]
-            return float(' '.join([str(elem) for elem in temp]).replace(" ", "").replace("\t", ""))
+            try:
+                return float(' '.join([str(elem) for elem in temp]).replace(" ", "").replace("\t", ""))
+            except ValueError:
+                # might not be long term solution for price ranges
+                val_index = temp.index('-')
+                temp = temp[:val_index]
+                lowest_value = float(' '.join([str(elem) for elem in temp]).replace(" ", "").replace("\t", ""))
+                price_per_foot = lowest_value / 8
+                length_of_board = float(self.material.split('x')[2])
+                return price_per_foot * length_of_board
+
+        def format_variable_price_details(product_details):
+            temp_index = product_details.find('in', product_details.find('in') + 1) + 2
+            product_details = product_details[:temp_index] + " x " + self.material.split('x')[
+                2] + "-ft " + product_details[temp_index + len(self.material.split('x')[2]):]
+            return product_details
 
         products = []
+        raw_variable_prices = self.page.find('div', class_='prdt-rng 1')
         raw_prices = self.page.find_all('div', class_='prdt-actl-pr')
         raw_details = self.page.find_all('span', class_='description-spn')
         done = False
         index = 0
         while done is False:
-            product_price = find_product_price(raw_prices[index])
-            product_details = raw_details[index].string
+            if raw_variable_prices is not None:
+                product_price = find_product_price(raw_variable_prices)
+                product_details = raw_details[index].string
+                product_details = format_variable_price_details(product_details)
+                raw_variable_prices = None
+            else:
+                product_price = find_product_price(raw_prices[index])
+                product_details = raw_details[index].string
             if product_price is not None:
                 products.append({"name": product_details, "price": product_price})
             index += 1
@@ -112,6 +140,7 @@ if __name__ == '__main__':
         sys.exit(1)
     url_arg = build_url(sys.argv[1], sys.argv[2])
     scraper = WebScraper()
+    scraper.set_material(sys.argv[2])
     page = scraper.get_page(url_arg)
     # print(page)
     if sys.argv[1] == "homedepot":
