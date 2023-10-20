@@ -16,16 +16,22 @@ use crate::model::scraper_model::Library;
 /// If the provided material is empty or there's an error during the retrieval process, it
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/scrape/{material}")]
-pub async fn get_scraper_data(search: Path<String>) -> HttpResponse {
+#[get("/scrape/{company}/{material}")]
+pub async fn get_scraper_data(search: Path<(String, String)>) -> HttpResponse {
     //formats the string to be used in the python script
-    let mut url = search.into_inner();
-    url = url.replace('_', " ");
+    let (company, material) = search.into_inner();
+    //todo fix this if statement it is not efficient
+    if company.eq("homedepot") || company.eq("lowes") {
+    }else{
+        return HttpResponse::BadRequest().body("invalid company");
+    }
+    let material_parsed = material.replace('_', " ");
 
     //runs the python script and gets the output
     let output: Output = Command::new("python3")
         .arg("./src/scraper/scraper.py")
-        .arg(url)
+        .arg(company)
+        .arg(material_parsed)
         .stdout(Stdio::piped())
         .output()
         .expect("Could not run bash command");

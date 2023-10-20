@@ -74,9 +74,7 @@ class WebScraper:
             for product_pieces in product.find_all():
                 temp.append(product_pieces.string)
             temp = temp[1:]
-            temp = ' '.join([str(elem) for elem in temp])
-            temp = temp.replace(" ", "").replace("\t", "")
-            return temp
+            return float(' '.join([str(elem) for elem in temp]).replace(" ", "").replace("\t", ""))
 
         products = []
         raw_prices = self.page.find_all('div', class_='prdt-actl-pr')
