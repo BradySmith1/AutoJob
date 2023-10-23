@@ -1,0 +1,54 @@
+.carouselContainer{
+    margin-top: 50px;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.images{
+    text-align: center;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 50px;
+    flex-wrap: wrap;
+}
+
+.image{
+    width: 20%;
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+    margin-bottom: 5%;
+    height: 80%;
+    font-size: 30px;
+    color: white;
+    border-radius: 10px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.fullScreen{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right:0;
+    background-color: rgba(0, 0, 0, .8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.imgNav{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navBtn{
+    margin: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+

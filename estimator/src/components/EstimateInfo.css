@@ -56,21 +56,3 @@ h2{
     color: white;
     font-size: 20px;
 }
-
-.images{
-    text-align: center;
-    height: 350px;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    margin-top: 50px;
-}
-
-.image{
-    width: 25%;
-    height: 100%;
-    font-size: 30px;
-    color: white;
-    background-color: #191D23;
-    border-radius: 10px;
-}
