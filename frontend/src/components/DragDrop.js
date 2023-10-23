@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 
 function fileListToArray(fileList, imageArr){
     for(var i = 0; i < fileList.length; i++){
-        if((fileList[i].type === "image/jpg" || fileList[i].type === "image/png" || fileList[i].type === "image/jpeg") && fileList[i].size < 500000){
+        if(fileList[i].type === "image/jpg" || fileList[i].type === "image/png" || fileList[i].type === "image/jpeg"){
             Object.assign(fileList[i], {preview: URL.createObjectURL(fileList[i])});
             imageArr.push(fileList[i]);
         }
@@ -12,14 +12,12 @@ function fileListToArray(fileList, imageArr){
 
 function DragDrop(props){
 
-    const [images, setImages] = useState(props.images);
-
     const inputRef = useRef();
 
     const addImages = (fileList) => {
-        var imageArr = [...images];
+        var imageArr = [...props.images];
         fileListToArray(fileList, imageArr);
-        setImages(imageArr);
+        props.setImages(imageArr);
     }
 
     const handleDragOver = (event) => {
@@ -29,7 +27,7 @@ function DragDrop(props){
     const handleDrop = (event) => {
         event.preventDefault();
         addImages(event.dataTransfer.files);
-        console.log(images);
+        console.log(props.images);
     }
 
     return(
@@ -51,23 +49,23 @@ function DragDrop(props){
                     hidden
                     onChange={(event) => {
                         addImages(event.target.files);
-                        console.log(images);
+                        console.log(props.images);
                     }}
                     ref={inputRef}
                 >
                 </input>
             </div>
             <div className="imageContainer">
-            {images.map((image, index) => (
+            {props.images.map((image, index) => (
                 <div className="thumbnail" key={index}>
                     {image.name}
                     <button 
                         type="button"
                         className="removeBtn"
                         onClick={() => {
-                            var imageArr = [...images];
+                            var imageArr = [...props.images];
                             imageArr.splice(index, 1);
-                            setImages(imageArr);
+                            props.setImages(imageArr);
                         }}
                     >
                         X

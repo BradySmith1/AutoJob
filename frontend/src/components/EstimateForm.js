@@ -17,7 +17,28 @@ import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
-var images = [];
+function addImages(imageArr, values){
+    let imageListJSON = {
+        "images" : []
+    }
+    for(let image of imageArr){
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        reader.onload = function () {
+            //console.log(reader.result);
+            let imageJSON = {
+                "name" : image.name,
+                "content" : reader.result
+            }
+            imageListJSON.images.push(imageJSON);
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    let valuesAndImages = {...values, ...imageListJSON}
+    return valuesAndImages;
+}
 
 /**
  * This function returns the estimate form in a JSX object
@@ -29,6 +50,7 @@ function EstimateForm(){
 
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
+    const [images, setImages] = useState([]);
 
     //Formik data
     const formik = useFormik({
@@ -86,11 +108,14 @@ function EstimateForm(){
         //This function runs when the submit button is clicked
         onSubmit: (values, {resetForm}) => {
             //Post values to backend
-            axios.post('/user', values).then(response => console.log(response));
+            //console.log(addImages(images));
+            var submitData = addImages(images, values);
+            console.log(submitData);
+            //axios.post('/user', submitData).then(response => console.log(response));
             //Capture the captcha authentication token
-            const token = captchaRef.current.getValue();
+            //const token = captchaRef.current.getValue();
             //Reset the captcha
-            captchaRef.current.reset();
+            //captchaRef.current.reset();
             //Reset the form
             resetForm();
         }
@@ -230,7 +255,7 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Include Any Images of the Job Site</h2>
-                <DragDrop images={images} />
+                <DragDrop images={images} setImages={setImages} />
             </div>
 
             <div className="inputAndLabel">
