@@ -24,6 +24,7 @@ use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
+use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -43,6 +44,16 @@ fn check_mongodb() {
         start.stdout.as_mut().unwrap().read_to_string(&mut output).expect("Failed to read stdout");
         println!("{}", output);
     }
+}
+
+fn ssl_builder() -> SslAcceptorBuilder {
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file("./src/ssl/key.pem", SslFiletype::PEM)
+        .expect("failed to open/read key.pem");
+    builder.set_certificate_chain_file("./src/ssl/cert.pem")
+        .expect("failed to open/read cert.pem");
+    builder
 }
 
 /// This function initializes and runs an Actix API server.
@@ -80,7 +91,9 @@ pub async fn main() -> std::io::Result<()> {
     let db_estimate_data = Data::new(db_estimate);
     let db_library_data = Data::new(db_material_library);
 
-    println!("\nServer ready at {}", blue.apply_to(format!("http://{}",&target)));
+    let ssl = ssl_builder();
+
+    println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
 
     // Creation of the api server
     HttpServer::new(move || {
@@ -110,7 +123,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(index)
 
     })
-        .bind(&target)?
+        .bind_openssl(&target, ssl)?
         .run()
         .await
 }
