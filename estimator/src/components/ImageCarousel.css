@@ -5,11 +5,10 @@
 }
 
 .images{
-    text-align: center;
     height: 350px;
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     margin-top: 50px;
     flex-wrap: wrap;
 }
@@ -46,9 +45,23 @@
     justify-content: center;
 }
 
+.placeHolderDiv{
+    margin: 20px;
+    height: 20px;
+    width: 20px;
+}
+
 .navBtn{
     margin: 20px;
     height: 20px;
+    width: 20px;
     cursor: pointer;
 }
+
+.fullScreenImg{
+    max-height: 70vh;
+    max-width: 70vw;
+    object-fit: contain;
+}
+
 

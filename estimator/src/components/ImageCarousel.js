@@ -26,7 +26,12 @@ function ImageCarousel(props){
             {!display ? null : (
                 <div className="fullScreen">
                     <div className="imgNav">
-                        {imgIndex === 0 ? null : (
+                        {imgIndex === 0 ? 
+                        (
+                            <div className="placeHolderDiv"></div>
+                        )
+                        : 
+                        (
                             <button 
                             className="navBtn"
                             onClick={() => {
@@ -34,11 +39,18 @@ function ImageCarousel(props){
                             }}
                         > &lt; </button>
                         )}
-                        <img
-                            src={props.images[imgIndex]}
-                            className="fullScreenImg"
-                        />
-                        {imgIndex === props.images.length - 1 ? null : (
+                        <div className="maxImageSize">
+                            <img
+                                src={props.images[imgIndex]}
+                                className="fullScreenImg"
+                            />
+                        </div>
+                        {imgIndex === props.images.length - 1 ? 
+                        (
+                            <div className="placeHolderDiv"></div>
+                        )
+                        : 
+                        (
                             <button 
                             className="navBtn"
                             onClick={() => {

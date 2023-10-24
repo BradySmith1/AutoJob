@@ -39,10 +39,12 @@ function populateDropDown(data){
 }
 
 const images = [
+    process.env.PUBLIC_URL + "/astronaut-152023.png",
     process.env.PUBLIC_URL + "/image1.jpg",
     process.env.PUBLIC_URL + "/image2.jpg",
     process.env.PUBLIC_URL + "/image3.jpg",
-    process.env.PUBLIC_URL + "/image4.jpg"
+    process.env.PUBLIC_URL + "/image4.jpg",
+    process.env.PUBLIC_URL + "/portrait.jpg"
 ]
 
 /**
@@ -138,7 +140,7 @@ function EstimateInfo(){
             </div> */}
             <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
-            {currentCustomerData.fName != "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
+            {currentCustomerData.fName !== "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
         </div>
     );
 }
