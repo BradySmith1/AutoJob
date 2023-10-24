@@ -56,23 +56,23 @@ function DragDrop(props){
                 </input>
             </div>
             <div className="imageContainer">
-            {props.images.map((image, index) => (
-                <div className="thumbnail" key={index}>
-                    {image.name}
-                    <button 
-                        type="button"
-                        className="removeBtn"
-                        onClick={() => {
-                            var imageArr = [...props.images];
-                            imageArr.splice(index, 1);
-                            props.setImages(imageArr);
-                        }}
-                    >
-                        X
-                    </button>
-                </div>
-            ))}
-        </div>
+                {props.images.map((image, index) => (
+                    <div className="thumbnail" key={index}>
+                        <img className='img' src={image.preview}></img>
+                        <button 
+                            type="button"
+                            className="removeBtn"
+                            onClick={() => {
+                                var imageArr = [...props.images];
+                                imageArr.splice(index, 1);
+                                props.setImages(imageArr);
+                            }}
+                        >
+                            X
+                        </button>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
