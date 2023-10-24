@@ -5,7 +5,7 @@
 }
 
 .images{
-    height: 350px;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -14,11 +14,11 @@
 }
 
 .image{
-    width: 20%;
+    width: 250px;
+    height: 250px;
     margin-left: 2.5%;
     margin-right: 2.5%;
     margin-bottom: 5%;
-    height: 80%;
     font-size: 30px;
     color: white;
     border-radius: 10px;
