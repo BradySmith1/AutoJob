@@ -3,3 +3,4 @@ pub mod estimate_model;
 pub mod model_trait;
 pub mod scraper_model;
 pub mod library_model;
+pub mod image_model;

@@ -1,6 +1,7 @@
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
 use serde_json::to_string;
+use crate::model::image_model::Image;
 use crate::model::model_trait::Model;
 
 /// Represents a user estimate. This is the model that will be used to create JSON objects.
@@ -17,7 +18,9 @@ pub struct UserEstimate {
     pub state: String,
     pub zip: String, //might make this a int
     pub measurements: String,
-    pub details: String
+    pub details: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<Image>>
 }
 
 impl Model<UserEstimate> for UserEstimate {

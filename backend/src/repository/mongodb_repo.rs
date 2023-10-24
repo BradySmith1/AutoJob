@@ -7,6 +7,7 @@ use mongodb::event::cmap::ConnectionCheckoutFailedReason;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 //add this
 use mongodb::results::{DeleteResult, UpdateResult};
+use serde_json::json;
 use crate::model::model_trait::Model;
 
 /// A struct representing a MongoDB repository for user estimates.
@@ -135,11 +136,12 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
-    pub async fn update_document(&self, id: &String, new_user: T) -> Result<UpdateResult,
+    pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
-        let doc = bson::to_document(&new_user).unwrap();
+        let doc = json!({"$set": updated_user});
+        let doc = bson::to_document(&doc).unwrap();
         let updated_doc = self
             .col
             .update_one(filter, doc, None)

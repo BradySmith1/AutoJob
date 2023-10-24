@@ -1,7 +1,11 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
+use actix_web::body::MessageBody;
 use mongodb::bson::oid::ObjectId;
+use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use std::fs::File;
+use std::io::Write;
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -17,9 +21,40 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, new_user: String) ->
+pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, mut new_user: String) ->
                                                                                     HttpResponse {
-    post_data(db, new_user).await
+    let mut value: Value = serde_json::from_str(&new_user).unwrap();
+    if value["images"] == Value::Null {
+        println!("{}", value);
+        return post_data(&db, &new_user).await;
+    }
+
+    let images: Value = value["images"].to_owned();
+    let images = images.as_array().unwrap();
+    new_user = new_user.rsplit("\"images\"").collect::<Vec<&str>>()[1].trim_end_matches(
+        |c| c == ' ' || c == ',' || c == '\n' || c == '\r' || c == '\t').to_string() + "\n}";
+
+    let json = post_data(&db, &new_user).await.into_body().try_into_bytes().unwrap();
+
+    let mut id = std::str::from_utf8(&json).unwrap();
+    id = id.rsplit("\"").collect::<Vec<&str>>()[1];
+    std::fs::create_dir("../images/".to_owned() + id).expect("Could not create directory");
+    let mut image_vec: Vec<Value> = vec![];
+    for image in images{
+        let image_name = &*image["name"]
+            .to_string().trim_end_matches("\"").trim_start_matches("\"").to_owned();
+        let mut file = File::create("../images/".to_owned() + id + "/" + image_name)
+            .expect("Could not create file");
+        let _ = file.write_all(&*image["content"].to_string().trim_end_matches("\"")
+            .trim_start_matches
+        ("\"").as_bytes());
+        image_vec.push(json!({"reference": "../images/".to_owned() + id + "/" + image_name}));
+    }
+    value["images"] = Value::from(image_vec);
+    let json = serde_json::from_value(value).unwrap();
+    let response = db.update_document(&id.to_string(), json).await;
+    push_update(response, db, id.to_string()).await
+    //might want to make this only return a id
 }
 
 /// Retrieve userEstimate details by their ID via a GET request.
@@ -74,7 +109,8 @@ pub async fn update_user(
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
         measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned()
+        details: new_user.details.to_owned(),
+        images: new_user.images.to_owned(),
     };
     let update_result = db.update_document(&id, data).await;
     push_update(update_result, db, id).await

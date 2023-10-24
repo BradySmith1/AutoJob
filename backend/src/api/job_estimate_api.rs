@@ -19,7 +19,7 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 /// an error message.
 #[post("/estimate")]
 pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String) -> HttpResponse {
-    post_data(db, new_user).await
+    post_data(&db, &new_user).await
 }
 
 /// Retrieve jobEstimate details by their ID via a GET request.

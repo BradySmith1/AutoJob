@@ -25,7 +25,7 @@ use crate::model::library_model::MaterialFee;
 #[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
                                                                                     HttpResponse {
-    post_data(db, new_user).await
+    post_data(&db, &new_user).await
 }
 
 /// Retrieve materialLibrary entry details by their ID via a GET request.
