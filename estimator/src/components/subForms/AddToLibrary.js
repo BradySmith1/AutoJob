@@ -44,9 +44,11 @@ function AddToLibrary(props){
 
         //submit function for the form
         onSubmit: (values, { resetForm }) => {
-            console.log(values);
-            props.setValues([...props.values, values]);
-            axios.post('/library', values).then(response => console.log(response));
+            axios.post('/library', values).then((response) => {
+                values._id = {"$oid" : response.data.insertedId.$oid};
+                console.log(response);
+                props.setValues([...props.values, values]);
+            });
             resetForm();
         }
     
