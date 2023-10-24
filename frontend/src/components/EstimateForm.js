@@ -111,13 +111,14 @@ function EstimateForm(){
             //console.log(addImages(images));
             var submitData = addImages(images, values);
             console.log(submitData);
-            //axios.post('/user', submitData).then(response => console.log(response));
+            axios.post('/user', submitData).then(response => console.log(response));
             //Capture the captcha authentication token
-            //const token = captchaRef.current.getValue();
+            const token = captchaRef.current.getValue();
             //Reset the captcha
-            //captchaRef.current.reset();
+            captchaRef.current.reset();
             //Reset the form
             resetForm();
+            setImages([]);
         }
     });
     

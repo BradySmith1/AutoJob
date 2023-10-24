@@ -21,10 +21,21 @@
     flex-wrap: wrap;
 }
 
+.thumbnail {
+    position: relative;
+    margin-top: 10px;
+}
+
 .img{
     width: 100px;
     height: 100px;
     object-fit: cover;
     border-radius: 5px;
     margin: 10px;
+}
+
+.removeBtn{
+    position: absolute;
+    top: 0;
+    right: 0;
 }
