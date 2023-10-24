@@ -38,7 +38,7 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, mut new_user: String
 
     let mut id = std::str::from_utf8(&json).unwrap();
     id = id.rsplit("\"").collect::<Vec<&str>>()[1];
-    std::fs::create_dir("../images/".to_owned() + id).expect("Could not create directory");
+    std::fs::create_dir_all("../images/".to_owned() + id).expect("Could not create directory");
     let mut image_vec: Vec<Value> = vec![];
     for image in images{
         let image_name = &*image["name"]
