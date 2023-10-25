@@ -24,8 +24,9 @@ use std::io::Write;
 pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, mut new_user: String) ->
                                                                                     HttpResponse {
     let mut value: Value = serde_json::from_str(&new_user).unwrap();
-    if value["images"] == Value::Null {
-        println!("{}", value);
+    if value["images"] == Value::Null || value["images"] == json!([]){
+        value["images"] = Value::Null;
+        new_user = serde_json::to_string(&value).unwrap();
         return post_data(&db, &new_user).await;
     }
 
