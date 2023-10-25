@@ -17,29 +17,6 @@ import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
-function addImages(imageArr, values){
-    let imageListJSON = {
-        "images" : []
-    }
-    for(let image of imageArr){
-        const reader = new FileReader();
-        reader.readAsDataURL(image);
-        reader.onload = function () {
-            //console.log(reader.result);
-            let imageJSON = {
-                "name" : image.name,
-                "content" : reader.result
-            }
-            imageListJSON.images.push(imageJSON);
-        };
-        reader.onerror = function (error) {
-            console.log('Error: ', error);
-        };
-    }
-    let valuesAndImages = {...values, ...imageListJSON}
-    return valuesAndImages;
-}
-
 /**
  * This function returns the estimate form in a JSX object
  * that is then used imported in App.js
@@ -107,16 +84,20 @@ function EstimateForm(){
 
         //This function runs when the submit button is clicked
         onSubmit: (values, {resetForm}) => {
+            //Create form data object
+            var formData = new FormData();
+            //Add images to form data
+            for(var image of images){
+                formData.append(image.name, image);
+            }
             //Post values to backend
-            //console.log(addImages(images));
-            var submitData = addImages(images, values);
-            console.log(submitData);
-            axios.post('/user', submitData).then(response => console.log(response));
-            //Capture the captcha authentication token
+            axios.post('/user', values, formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => console.log(response));
+
             const token = captchaRef.current.getValue();
             //Reset the captcha
             captchaRef.current.reset();
-            //Reset the form
+
+            //Reset form and images
             resetForm();
             setImages([]);
         }
@@ -273,7 +254,7 @@ function EstimateForm(){
                 {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.details && formik.errors.details ? <p className="Error">{formik.errors.details}</p> : null}
             </div>
-            <div class="captcha">
+            <div className="captcha">
                 <ReCAPTCHA 
                     sitekey={process.env.REACT_APP_SITE_KEY}
                     ref={captchaRef} 
