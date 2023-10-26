@@ -1,15 +1,18 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
             model::upload_model::UploadForm};
-use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete};
+use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
 use actix_multipart::{
     form::{
         MultipartForm,
     },
 };
+use actix_files::NamedFile;
 use actix_web::body::MessageBody;
+use actix_web::web::Query;
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::model::image_model::Image;
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -51,39 +54,7 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
     let json_user = serde_json::from_value(user_value).unwrap();
     let response = db.update_document(&id.to_string(), json_user).await;
     push_update(response, db, id.to_string()).await
-    /*let mut value: Value = serde_json::from_str(&new_user).unwrap();
-    if value["images"] == Value::Null || value["images"] == json!([]){
-        value["images"] = Value::Null;
-        new_user = serde_json::to_string(&value).unwrap();
-        return post_data(&db, &new_user).await;
-    }
-
-    let images: Value = value["images"].to_owned();
-    let images = images.as_array().unwrap();
-    new_user = new_user.rsplit("\"images\"").collect::<Vec<&str>>()[1].trim_end_matches(
-        |c| c == ' ' || c == ',' || c == '\n' || c == '\r' || c == '\t').to_string() + "\n}";
-
-    let json = post_data(&db, &new_user).await.into_body().try_into_bytes().unwrap();
-
-    let mut id = std::str::from_utf8(&json).unwrap();
-    id = id.rsplit("\"").collect::<Vec<&str>>()[1];
-    std::fs::create_dir_all("../images/".to_owned() + id).expect("Could not create directory");
-    let mut image_vec: Vec<Value> = vec![];
-    for image in images{
-        let image_name = &*image["name"]
-            .to_string().trim_end_matches("\"").trim_start_matches("\"").to_owned();
-        let mut file = File::create("../images/".to_owned() + id + "/" + image_name)
-            .expect("Could not create file");
-        let _ = file.write_all(&*image["content"].to_string().trim_end_matches("\"")
-            .trim_start_matches
-        ("\"").as_bytes());
-        image_vec.push(json!({"reference": "../images/".to_owned() + id + "/" + image_name}));
-    }
-    value["images"] = Value::from(image_vec);
-    let json = serde_json::from_value(value).unwrap();
-    let response = db.update_document(&id.to_string(), json).await;
-    push_update(response, db, id.to_string()).await*/
-    //might want to make this only return a id
+    //might want to just return a id
 }
 
 async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
@@ -92,10 +63,11 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
     if form.files[0].size == 0 {
         return Ok(image_vec);
     }
+    let image_path = std::env::var("IMAGE_PATH").unwrap();
     for f in form.files {
-        let path = format!("../images/{}", id);
+        let path = format!("{}{}", image_path, id);
         std::fs::create_dir_all(&path).expect("Could not create directories");
-        let path = format!("../images/{}/{}", id, f.file_name.unwrap());
+        let path = format!("{}{}/{}",image_path, id, f.file_name.unwrap());
         f.file.persist(&path).unwrap();
         image_vec.push(json!({"reference": &path}));
     }
@@ -119,6 +91,16 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 #[get("/user/{id}")]
 pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> HttpResponse {
     get_data(db, path).await
+}
+
+#[get("/userimage")]
+pub async fn get_image(req: HttpRequest) -> HttpResponse {
+    let query = Query::<Image>::from_query(req.query_string()).unwrap();
+    let path = std::path::PathBuf::from(&query.reference);
+    let file = NamedFile::open_async(path).await.unwrap();
+
+    file.into_response(&req)
+
 }
 
 /// Update userEstimate details by their ID via a PUT request.

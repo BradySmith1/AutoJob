@@ -25,6 +25,7 @@ use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
+use crate::api::user_estimate_api::get_image;
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -69,6 +70,8 @@ pub async fn main() -> std::io::Result<()> {
     // Setup environment variables.
     std::env::set_var("RUST_LOG", "actix_web=info");
     std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("MONGOURL", "mongodb://localhost:27017");
+    std::env::set_var("IMAGE_PATH", "../images/");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -105,6 +108,7 @@ pub async fn main() -> std::io::Result<()> {
             .app_data(db_library_data.clone())
             .service(create_user)
             .service(get_user)
+            .service(get_image)
             .service(update_user)
             .service(delete_user)
             .service(get_all_users)

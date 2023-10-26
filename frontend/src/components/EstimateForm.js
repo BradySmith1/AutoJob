@@ -91,6 +91,7 @@ function EstimateForm(){
             images.forEach(file=>{
                 formData.append("files", file);
             });
+            console.log(formData)
             //Post values to backend
             axios.post('/user', formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => console.log(response));
 
