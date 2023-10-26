@@ -86,12 +86,13 @@ function EstimateForm(){
         onSubmit: (values, {resetForm}) => {
             //Create form data object
             var formData = new FormData();
+            formData.append("user", values)
             //Add images to form data
-            for(var image of images){
-                formData.append(image.name, image);
-            }
+            images.forEach(file=>{
+                formData.append("files", file);
+            });
             //Post values to backend
-            axios.post('/user', values, formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => console.log(response));
+            axios.post('/user', formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => console.log(response));
 
             const token = captchaRef.current.getValue();
             //Reset the captcha

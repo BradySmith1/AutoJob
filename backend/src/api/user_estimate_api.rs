@@ -1,11 +1,15 @@
-use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo};
-use actix_web::{post, web::{Data, Json, Path}, HttpResponse, get, Responder, put, delete};
+use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
+            model::upload_model::UploadForm};
+use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete};
+use actix_multipart::{
+    form::{
+        MultipartForm,
+    },
+};
 use actix_web::body::MessageBody;
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
-use std::fs::File;
-use std::io::Write;
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -21,9 +25,33 @@ use std::io::Write;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, mut new_user: String) ->
-                                                                                    HttpResponse {
-    let mut value: Value = serde_json::from_str(&new_user).unwrap();
+pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form): MultipartForm<UploadForm>) ->
+                                                                                                            HttpResponse {
+    let user: &String = &form.user.to_string();
+    if user.is_empty() {
+        return HttpResponse::BadRequest().body("invalid format for userEstimate");
+    }
+    let json = post_data(&db, user).await.into_body().try_into_bytes().unwrap();
+    let mut id = std::str::from_utf8(&json).unwrap();
+    id = id.rsplit("\"").collect::<Vec<&str>>()[1];
+
+    let references = match save_files(form, id).await{
+        Ok(refers) => {refers},
+        Err(_) => {
+            println!("Error: Could not save files from FormData");
+            return HttpResponse::InternalServerError().body("Could not save files");
+        },
+    };
+    if references.is_empty(){
+        return get_data(db, Path::from(id.to_string())).await;
+    }
+
+    let mut user_value: Value = serde_json::from_str(user).unwrap();
+    user_value["images"] = Value::from(references);
+    let json_user = serde_json::from_value(user_value).unwrap();
+    let response = db.update_document(&id.to_string(), json_user).await;
+    push_update(response, db, id.to_string()).await
+    /*let mut value: Value = serde_json::from_str(&new_user).unwrap();
     if value["images"] == Value::Null || value["images"] == json!([]){
         value["images"] = Value::Null;
         new_user = serde_json::to_string(&value).unwrap();
@@ -54,8 +82,25 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, mut new_user: String
     value["images"] = Value::from(image_vec);
     let json = serde_json::from_value(value).unwrap();
     let response = db.update_document(&id.to_string(), json).await;
-    push_update(response, db, id.to_string()).await
+    push_update(response, db, id.to_string()).await*/
     //might want to make this only return a id
+}
+
+async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
+    Error> {
+    let mut image_vec: Vec<Value> = vec![];
+    if form.files[0].size == 0 {
+        return Ok(image_vec);
+    }
+    for f in form.files {
+        let path = format!("../images/{}", id);
+        std::fs::create_dir_all(&path).expect("Could not create directories");
+        let path = format!("../images/{}/{}", id, f.file_name.unwrap());
+        f.file.persist(&path).unwrap();
+        image_vec.push(json!({"reference": &path}));
+    }
+
+    Ok(image_vec)
 }
 
 /// Retrieve userEstimate details by their ID via a GET request.
