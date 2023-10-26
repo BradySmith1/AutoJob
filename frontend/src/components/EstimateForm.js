@@ -86,7 +86,7 @@ function EstimateForm(){
         onSubmit: (values, {resetForm}) => {
             //Create form data object
             var formData = new FormData();
-            formData.append("user", values)
+            formData.append("user", JSON.stringify(values))
             //Add images to form data
             images.forEach(file=>{
                 formData.append("files", file);
