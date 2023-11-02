@@ -96,8 +96,11 @@ pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> 
 
 #[get("/userimage")]
 pub async fn get_image(req: HttpRequest) -> HttpResponse {
-    let name = std::env::var("IMAGE_PATH").unwrap() + &req.query_string().to_string();
-    let query = Query::<Image>::from_query(&*name).unwrap();
+    let name_query =  &req.query_string().to_string();
+    let name = std::env::var("IMAGE_PATH").unwrap() +
+        name_query.split("=").collect::<Vec<&str>>()[1];
+    let name_change = format!("reference={}", name);
+    let query = Query::<Image>::from_query(&*name_change).unwrap();
     let path = std::path::PathBuf::from(&query.reference);
     let file = NamedFile::open_async(path).await.unwrap();
 
