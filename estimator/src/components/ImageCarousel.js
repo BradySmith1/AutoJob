@@ -9,6 +9,8 @@
 import "./ImageCarousel.css"
 import { useState } from "react";
 
+const URLHEADER = "userimage?reference=";
+
 /**
  * This function returns the jsx component containing
  * all of the HTML for this component.
@@ -31,7 +33,7 @@ function ImageCarousel(props){
                 {/**map over the images and display them in a grid */}
                 {props.images.map((source, index) => (
                     <img 
-                        src={source} 
+                        src={URLHEADER + source.reference} 
                         className="image" 
                         key={index}
                         onClick={() => {
@@ -68,7 +70,7 @@ function ImageCarousel(props){
                         {/**Full screen image is displayed here */}
                         <div className="maxImageSize">
                             <img
-                                src={props.images[imgIndex]}
+                                src={URLHEADER + props.images[imgIndex].reference}
                                 className="fullScreenImg"
                             />
                         </div>

@@ -38,14 +38,7 @@ function populateDropDown(data){
     return outputData;
 }
 
-const images = [
-    process.env.PUBLIC_URL + "/astronaut-152023.png",
-    process.env.PUBLIC_URL + "/image1.jpg",
-    process.env.PUBLIC_URL + "/image2.jpg",
-    process.env.PUBLIC_URL + "/image3.jpg",
-    process.env.PUBLIC_URL + "/image4.jpg",
-    process.env.PUBLIC_URL + "/portrait.jpg"
-]
+const defaultImages = [];
 
 /**
  * This function returns the JSX object for the estimate calculator and
@@ -61,6 +54,7 @@ function EstimateInfo(){
     //Declare a boolean loading use state to keep track of when the
     //axios get request returns what we need
     var [loading, setLoading] = useState(true);
+    var [images, setImages] = useState(defaultImages);
 
     //Declare a use state variable that holds the default customer data
     var [customerData, setCustomerData] = useState([{"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}]);
@@ -71,6 +65,7 @@ function EstimateInfo(){
             //Get all the customer data
             axios.get('/users').then((response) => {
                 //Set the customer data to the axios response
+                console.log(response.data);
                 setCustomerData(response.data);
                 //Set the loading variable to false
                 setLoading(false);
@@ -86,6 +81,7 @@ function EstimateInfo(){
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
         setCurrentCustomerData(selectedOption.value);
+        setImages(selectedOption.value.images);
     }
 
     //Return the json object containing all html for this page
