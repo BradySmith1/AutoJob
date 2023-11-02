@@ -1,31 +1,15 @@
-extern crate actix_web;
-extern crate console;
-
-// uses the module api.
-mod api;
-// uses the module repository.
 mod repository;
-// uses the module model.
 mod model;
+mod api;
 
 use std::io::{Read};
 use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
-use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user, get_all_users};
-use repository::mongodb_repo::MongoRepo;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
-use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate
-                                   , update_estimate};
-use crate::api::library_api::{create_library_entry, delete_library_entry,
-                              get_all_library_entries, get_library_entry, update_library_entry,
-                              get_all_library_description};
-use crate::api::scraper_api::get_scraper_data;
-use crate::model::estimate_model::JobEstimate;
-use crate::model::library_model::{MaterialFee};
-use crate::model::user_model::UserEstimate;
-use crate::api::user_estimate_api::get_image;
+use repository::mongodb_repo::MongoRepo;
+use model::material_model::Material;
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -71,7 +55,6 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
-    std::env::set_var("IMAGE_PATH", "../images/");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -85,14 +68,8 @@ pub async fn main() -> std::io::Result<()> {
     check_mongodb();
 
     // Initializes the different Mongodb collection connections.
-    let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
-    let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
-    let db_material_library: MongoRepo<MaterialFee> = MongoRepo::init("materialFee\
-    Library").
-        await;
-    let db_user_data = Data::new(db_user);
-    let db_estimate_data = Data::new(db_estimate);
-    let db_library_data = Data::new(db_material_library);
+    let db_cache: MongoRepo<Material> = MongoRepo::init("materialCache").await;
+    let db_cache_data = Data::new(db_cache);
 
     let ssl = ssl_builder();
 
@@ -103,33 +80,10 @@ pub async fn main() -> std::io::Result<()> {
         let logger = Logger::default();
         App::new()
             .wrap(logger)
-            .app_data(db_user_data.clone())
-            .app_data(db_estimate_data.clone())
-            .app_data(db_library_data.clone())
-            .service(create_user)
-            .service(get_user)
-            .service(get_image)
-            .service(update_user)
-            .service(delete_user)
-            .service(get_all_users)
-            .service(create_estimate)
-            .service(get_estimate)
-            .service(update_estimate)
-            .service(delete_estimate)
-            .service(get_all_estimates)
-            .service(create_library_entry)
-            .service(get_library_entry)
-            .service(update_library_entry)
-            .service(delete_library_entry)
-            .service(get_all_library_entries)
-            .service(get_all_library_description)
-            .service(get_scraper_data)
-            .service(index)
+            .app_data(db_cache_data.clone())
 
     })
         .bind_openssl(&target, ssl)?
         .run()
         .await
 }
-
-

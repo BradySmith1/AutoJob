@@ -4,4 +4,4 @@ pub mod model_trait;
 pub mod scraper_model;
 pub mod library_model;
 pub mod image_model;
-pub mod upload_model;
+pub mod form_data_model;
