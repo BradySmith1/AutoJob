@@ -67,8 +67,9 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
     for f in form.files {
         let path = format!("{}{}", image_path, id);
         std::fs::create_dir_all(&path).expect("Could not create directories");
-        let path = format!("{}{}/{}",image_path, id, f.file_name.unwrap());
+        let path = format!("{}{}/{}",image_path, id, f.file_name.clone().unwrap());
         f.file.persist(&path).unwrap();
+        let path = format!("{}/{}", id, f.file_name.unwrap());
         image_vec.push(json!({"reference": &path}));
     }
 
