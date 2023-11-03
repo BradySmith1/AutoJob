@@ -8,7 +8,9 @@
  */
 
 import './DragDrop.css';
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
+const MAXIMAGES = 10;
 
 /**
  * This function takes in a FileList object and
@@ -22,13 +24,31 @@ function fileListToArray(fileList, imageArr){
     //Loop through the fileList
     for(var i = 0; i < fileList.length; i++){
         //Filter anything that isnt an image
-        if(fileList[i].type === "image/jpg" || fileList[i].type === "image/png" || fileList[i].type === "image/jpeg"){
+        if(validateOne(fileList[i]) && imageArr.length < MAXIMAGES){
             //Assign each file a URL so we can view a thumbnail of it
             Object.assign(fileList[i], {preview: URL.createObjectURL(fileList[i])});
             //Push to image array
             imageArr.push(fileList[i]);
         }
     }
+}
+
+function validateAll(fileList, imageArr){
+    var valid = true;
+    for(var i = 0; i < fileList.length; i++){
+        if(!validateOne(fileList[i]) || i >= imageArr.length){
+            valid = false;
+        }
+    }
+    return valid;
+}
+
+function validateOne(file){
+    var valid = false;
+    if(file.type === "image/jpg" || file.type === "image/png" || file.type === "image/jpeg"){
+        valid = true;
+    }
+    return valid;
 }
 
 /**
@@ -43,6 +63,8 @@ function DragDrop(props){
     //Reference we use to connect drag and drop div
     //to a hidden upload button
     const inputRef = useRef();
+    const [fileNum, setFileNum] = useState(0);
+    const [valid, setValid] = useState(true);
 
     /**
      * This function adds an image to the image array
@@ -52,15 +74,15 @@ function DragDrop(props){
     const addImages = (fileList) => {
         var imageArr = [...props.images];
         fileListToArray(fileList, imageArr);
+        if(!validateAll(fileList, imageArr)){
+            setValid(false);
+        }else{
+            setValid(true);
+        }
         props.setImages(imageArr);
+        setFileNum(imageArr.length);
     }
 
-    /**
-     * This function prevents the default functionality
-     * of the drag over event.
-     * 
-     * @param {event} event 
-     */
     const handleDragOver = (event) => {
         event.preventDefault();
     }
@@ -80,14 +102,35 @@ function DragDrop(props){
         <div>
             <div 
                 className="dropZone"
+                id="drop"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => inputRef.current.click()}
-            >
-                <br/>
-                <br/>
-                Drop Images Here <br/>
-                Or Click to Upload
+            >   
+                {valid ? 
+                (
+                    <>
+                    <br/>
+                    <br/>
+                    Drop Images Here 
+                    <br/>
+                    Or Click to Upload 
+                    <br/>
+                    <br/>
+                    Images: {fileNum}/{MAXIMAGES}
+                    </>
+                )
+                :
+                (
+                    <>
+                    <br/>
+                    <br/>
+                    Invalid Files
+                    <br/>
+                    <br/>
+                    Images: {fileNum}/{MAXIMAGES}
+                    </>
+                )}
                 <input
                     type="file"
                     accept="image/png, image/jpeg, image/jpg"
@@ -116,6 +159,7 @@ function DragDrop(props){
                                 var imageArr = [...props.images];
                                 imageArr.splice(index, 1);
                                 props.setImages(imageArr);
+                                setFileNum(imageArr.length);
                             }}
                         >
                             X
