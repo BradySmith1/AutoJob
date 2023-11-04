@@ -71,6 +71,20 @@ function updateImported(stateArr, index){
     return arrCopy;
 }
 
+function searchString(billabe, searchStr){
+    var contains = false;
+    var billableName = billabe.name.toLowerCase();
+    var search = searchStr.toLowerCase();
+    billableName = billableName.replace(/\s/g, '');
+    search = search.replace(/\s/g, '');
+
+    if(billableName.includes(search)){
+        contains = true;
+    }
+
+    return contains;
+}
+
 /**
  * This function returns the library component, which displays all
  * of the billables of a given category and allows you to import them,
@@ -89,11 +103,16 @@ function Library(props){
     const [library, setLibrary] = useState(initialValues);
     //Use state for the state array
     const [stateArr, setState] = useState([]);
+    const [searchStr, setSearchStr] = useState("");
     //Use state to determine whether or not to display the add
     //billabel popup form
     const [display, setDisplay] = useState(false);
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
+
+    const handleSearch = (event) =>{
+        setSearchStr(event.target.value);
+    }
 
     useEffect(() => {
 
@@ -126,6 +145,16 @@ function Library(props){
                 <div className="contentContainer">
                     {/**Titles for each column of the form */}
                     <h2>{props.name} Library</h2>
+                    <div className="searchWrapper">
+                        <input
+                            className="inputBox"
+                            name="search"
+                            type="text"
+                            value={searchStr}
+                            onChange={handleSearch}
+                        >
+                        </input>
+                    </div>
                     <div className="materialHeaders">
                         <div className="section">
                             <h3>No.</h3>
@@ -144,55 +173,59 @@ function Library(props){
                     {loading ? <h3>Loading Data...</h3> : null}
                     {/**If we arent loadin, map over the data */}
                     {!loading &&
-                     library.map((billable, index) => (
-                        <div className="materialContainer" key={index}>
-                            {/**Show a number for this row */}
-                            <div className="section">
-                                {index + 1}
-                            </div>
-                            {/**Show the name of the billable item */}
-                            <div className="section">
-                                {billable.name}
-                            </div>
-                            {/**Show the price of the billable item */}
-                            <div className="section">
-                                ${billable.price}
-                            </div>
-                            {/**Show either an import button or "imported" as well as a remove button
-                             * for this billable object
-                             */}
-                            <div className="section">
-                                {!stateArr[index] ? 
+                    library.map((billable, index) => (
+                        (searchString(billable, searchStr) ? 
+                            (
+                            <div className="materialContainer" key={index}>
+                                {/**Show a number for this row */}
+                                <div className="section">
+                                    {index + 1}
+                                </div>
+                                {/**Show the name of the billable item */}
+                                <div className="section">
+                                    {billable.name}
+                                </div>
+                                {/**Show the price of the billable item */}
+                                <div className="section">
+                                    ${billable.price}
+                                </div>
+                                {/**Show either an import button or "imported" as well as a remove button
+                                * for this billable object
+                                */}
+                                <div className="section">
+                                    {!stateArr[index] ? 
+                                        <button
+                                            type="button"
+                                            className="btn"
+                                            onClick={() => {
+                                                //Here we are inserting this element of the library
+                                                //into the form
+                                                props.insert(0, library[index])
+                                                setState(updateImported(stateArr, index))
+                                            }}
+                                        >
+                                            Import
+                                        </button>
+                                        : <p>Imported</p>
+                                    }
                                     <button
                                         type="button"
-                                        className="btn"
+                                        className="removeButton"
                                         onClick={() => {
-                                            //Here we are inserting this element of the library
-                                            //into the form
-                                            props.insert(0, library[index])
-                                            setState(updateImported(stateArr, index))
+                                            //Here we are removing this element from the library
+                                            //when the x button is clicked
+                                            var libCopy = [...library];
+                                            libCopy.splice(index, 1);
+                                            axios.delete(`/library/${billable._id.$oid}`).then(response => console.log(response));
+                                            setLibrary(libCopy);
                                         }}
                                     >
-                                        Import
+                                        X
                                     </button>
-                                    : <p>Imported</p>
-                                }
-                                <button
-                                    type="button"
-                                    className="removeButton"
-                                    onClick={() => {
-                                        //Here we are removing this element from the library
-                                        //when the x button is clicked
-                                        var libCopy = [...library];
-                                        libCopy.splice(index, 1);
-                                        axios.delete(`/library/${billable._id.$oid}`).then(response => console.log(response));
-                                        setLibrary(libCopy);
-                                    }}
-                                >
-                                    X
-                                </button>
+                                </div>
                             </div>
-                        </div>
+                            )
+                        : null )
                     ))}
                     <button
                         type="button"
