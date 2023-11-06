@@ -19,7 +19,7 @@ import Overview from './subForms/Overview.js';
 const billableSchema = [{
     name: '',
     price: 0.0,
-    quantity: 0.0,
+    quantity: 1.0,
     description: ''
 }]
 
@@ -82,6 +82,7 @@ function Estimator(props){
 
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
+    const [saved, setSaved] = useState(false);
 
     for(const key of Object.keys(initialValues)){
         if(props.data.hasOwnProperty(key)){
@@ -91,7 +92,7 @@ function Estimator(props){
         }
     }
 
-    const postDraftData = (materialArr, feeArr, status, resetForm) => {
+    const postDraftData = (materialArr, feeArr, status) => {
 
         const estimateData = constructData(props.data, materialArr, feeArr, status);
 
@@ -170,10 +171,14 @@ function Estimator(props){
                         {/**Overview */}
                         {navIndex === 2 ? <Overview values={values} /> : null}
                         {/**Display an error message if there are errors in the form */}
-                        {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center'>Input Errros Prevent Submission</div> : null}
+                        {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                        {navIndex === 2 && saved ? <div className='center'>Saved as Draft</div> : null}
                         {/**Only display the submit button if ther are in the overview stage */}
                         {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
-                        {navIndex === 2 ? <button type="button" onClick={() => postDraftData(values.materials, values.fees, "draft")}>
+                        {navIndex === 2 ? <button type="button" onClick={() => {
+                            postDraftData(values.materials, values.fees, "draft");
+                            setSaved(true);
+                        }}>
                                             Save as draft
                                           </button> : null}
                     </Form>
