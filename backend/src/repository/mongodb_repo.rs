@@ -103,8 +103,13 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn get_document_by_id(&self, id: &String) -> Result<T, Error> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
+    pub async fn get_document_by_id(&self, id: &String) -> Result<T, String> {
+        let obj_id = match ObjectId::parse_str(id) {
+            Ok(obj_id) => obj_id,
+            Err(_) => {
+                return Err("Not a valid Id".to_string());
+            }
+        };
         let filter = doc! {"_id": obj_id};
         let user_detail = self
             .col
@@ -118,6 +123,7 @@ impl<T: Model<T>> MongoRepo<T> {
     pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
         let doc = attr.split("_").collect::<Vec<&str>>();
         let filter = doc! {doc[0]: doc[1]};
+        println!("{:?}", filter);
         let mut cursor = self
             .col
             .find(filter, None)

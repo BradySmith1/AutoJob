@@ -60,7 +60,7 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
 async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
     Error> {
     let mut image_vec: Vec<Value> = vec![];
-    if form.files[0].size == 0 {
+    if form.files.len() == 0 {
         return Ok(image_vec);
     }
     let image_path = std::env::var("IMAGE_PATH").unwrap();
