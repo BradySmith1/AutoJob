@@ -145,7 +145,7 @@ function Estimator(props){
                 const fees = {fees: feeData}
 
                 //Merge the JSONs into one
-                const estimateData = {...user, ...materials, ...fees};
+                const estimateData = {...user, ...materials, ...fees, status: "complete"};
 
                 console.log(estimateData)
 
