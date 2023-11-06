@@ -13,19 +13,19 @@ use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
-use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user, get_all_users};
+use api::user_estimate_api::{create_user, index, get_user_by_id, update_user, delete_user,
+                             get_all_users, get_image};
 use repository::mongodb_repo::MongoRepo;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
-use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates, get_estimate
-                                   , update_estimate};
+use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
+                                   get_estimate_by_id, get_estimate_by_attribute, update_estimate};
 use crate::api::library_api::{create_library_entry, delete_library_entry,
-                              get_all_library_entries, get_library_entry, update_library_entry,
+                              get_all_library_entries, get_library_entry_by_id, update_library_entry,
                               get_all_library_description};
 use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
-use crate::api::user_estimate_api::get_image;
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -107,18 +107,19 @@ pub async fn main() -> std::io::Result<()> {
             .app_data(db_estimate_data.clone())
             .app_data(db_library_data.clone())
             .service(create_user)
-            .service(get_user)
+            .service(get_user_by_id)
             .service(get_image)
             .service(update_user)
             .service(delete_user)
             .service(get_all_users)
             .service(create_estimate)
-            .service(get_estimate)
+            .service(get_estimate_by_id)
+            .service(get_estimate_by_attribute)
             .service(update_estimate)
             .service(delete_estimate)
             .service(get_all_estimates)
             .service(create_library_entry)
-            .service(get_library_entry)
+            .service(get_library_entry_by_id)
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
