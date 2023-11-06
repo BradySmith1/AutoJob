@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
             model::form_data_model::UploadForm};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
@@ -11,7 +12,7 @@ use actix_web::body::MessageBody;
 use actix_web::web::Query;
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
-use crate::api::api_helper::{delete_data, get_all_data, get_data_by_id, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::image_model::Image;
 
 /// Creates a new userEstimate via a POST request to the api web server
@@ -46,7 +47,9 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
         },
     };
     if references.is_empty(){
-        return get_data_by_id(db, Path::from(id.to_string())).await;
+        let mut hash = HashMap::new();
+        hash.insert("_id".to_string(), id.to_string());
+        return get_data(db, hash).await;
     }
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
@@ -89,10 +92,10 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 /// it returns an HTTP 200 OK response with the JSON representation of the userEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/user/{id}")]
-pub async fn get_user_by_id(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) ->
-                                                                                    HttpResponse {
-    get_data_by_id(db, path).await
+#[get("/user")]
+pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<HashMap<String,
+    String>>) -> HttpResponse {
+    get_data(db, query.into_inner()).await
 }
 
 #[get("/userimage")]

@@ -1,10 +1,12 @@
+use std::collections::HashMap;
 use crate::{repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
+use actix_web::web::Query;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
-use crate::api::api_helper::{delete_data, get_all_data, get_data_by_id, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::MaterialFee;
 
 /// Creates a new library entry via a POST request to the api web server
@@ -45,11 +47,10 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
-#[get("/library/{id}")]
-pub async fn get_library_entry_by_id(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
-                                                                                    HttpResponse {
-    get_data_by_id(db, path).await
-
+#[get("/library")]
+pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<HashMap<String,
+    String>>) -> HttpResponse {
+    get_data(db, query.into_inner()).await
 }
 
 /// Update materialLibrary entry details by their ID via a PUT request.
@@ -124,7 +125,7 @@ pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpRe
     get_all_data(db).await
 }
 
-#[get("/libraries/{descriptor}")]
+/*#[get("/libraries/{descriptor}")]
 pub async fn get_all_library_description(db: Data<MongoRepo<MaterialFee>>,  path: Path<String>) ->
                                                                                     HttpResponse {
     let users = db.get_documents_by_attribute(&path.into_inner()).await;
@@ -132,4 +133,4 @@ pub async fn get_all_library_description(db: Data<MongoRepo<MaterialFee>>,  path
         Ok(users) => HttpResponse::Ok().json(users),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
-}
+}*/
