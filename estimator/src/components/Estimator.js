@@ -7,7 +7,7 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form} from 'formik';
+import { Formik, Form } from 'formik';
 import React, { useState } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
@@ -91,22 +91,27 @@ function Estimator(props){
         }
     }
 
-    const postDraftData = (materialArr, feeArr) => {
+    const postDraftData = (materialArr, feeArr, status, resetForm) => {
 
-        const estimateData = constructData(props.data, materialArr, feeArr, "draft");
+        const estimateData = constructData(props.data, materialArr, feeArr, status);
+
         console.log(estimateData);
 
         if(estimateData.hasOwnProperty("_id")){
             axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
                 console.log(response);
+                if(status === "complete"){
+                    window.location.reload(false);
+                }
             });
         }else{
             axios.post('/estimate', estimateData).then((response) => {
                 console.log(response);
                 axios.delete(`/user/${estimateData.user._id.$oid}`).then((response) => {
                     console.log(response);
-                    //window.location.reload(false);
-                    //resetForm();
+                    if(status === "complete"){
+                        window.location.reload(false);
+                    }
                 });
             });
         }
@@ -138,25 +143,7 @@ function Estimator(props){
             validationSchema={materialsValidation}
             validateOnChange={false}
             validateOnBlur={true}
-            onSubmit={async (values, {resetForm}) => {
-                //submit function
-
-                const estimateData = constructData(props.data, values.materials, values.fees, "complete");
-
-                console.log(estimateData);
-
-                //Post the json to our backend
-                axios.post('/estimate', estimateData).then((response) => {
-                    console.log(response);
-                    if(!estimateData.hasOwnProperty("_id")){
-                        axios.delete(`/user/${estimateData.user._id.$oid}`).then((response) => {
-                            console.log(response);
-                            //window.location.reload(false);
-                            //resetForm();
-                        });
-                    }
-                });
-            }}
+            onSubmit={(values) => postDraftData(values.materials, values.fees, "complete")}
             >
             {/*Here we are creating an arrow function that returns the form and passing it
             our form values*/}
@@ -186,7 +173,7 @@ function Estimator(props){
                         {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center'>Input Errros Prevent Submission</div> : null}
                         {/**Only display the submit button if ther are in the overview stage */}
                         {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
-                        {navIndex === 2 ? <button type="button" onClick={() => postDraftData(values.materials, values.fees)}>
+                        {navIndex === 2 ? <button type="button" onClick={() => postDraftData(values.materials, values.fees, "draft")}>
                                             Save as draft
                                           </button> : null}
                     </Form>
