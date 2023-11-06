@@ -17,6 +17,8 @@ import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 
+const DEFAULT_ESTIMATE_DATA = {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""};
+
 /**
  * This function takes in an array of json of customer data and creates an
  * array of json objects used to populate the drop down selector.
@@ -49,15 +51,17 @@ const defaultImages = [];
 function EstimateInfo(){
     
     //Declare a use state variable that holds the currently selected customer data
-    const [currentCustomerData, setCurrentCustomerData] = useState({"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""});
+    const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
     
     //Declare a boolean loading use state to keep track of when the
     //axios get request returns what we need
-    var [loading, setLoading] = useState(true);
-    var [images, setImages] = useState(defaultImages);
+    const [userLoading, setUserLoading] = useState(true);
+    const [estimateLoading, setEstimateLoading] = useState(true);
+    const [images, setImages] = useState(defaultImages);
 
     //Declare a use state variable that holds the default customer data
-    var [customerData, setCustomerData] = useState([{"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}]);
+    const [customerData, setCustomerData] = useState([DEFAULT_ESTIMATE_DATA]);
+    const [draftData, setDraftData] = useState([DEFAULT_ESTIMATE_DATA]);
 
     //This function runs when the page is first loaded
     useEffect(() => {
@@ -68,7 +72,13 @@ function EstimateInfo(){
                 console.log(response.data);
                 setCustomerData(response.data);
                 //Set the loading variable to false
-                setLoading(false);
+                setUserLoading(false);
+            });
+            axios.get('/estimate/status_draft').then((response) => {
+                console.log(response.data);
+                setDraftData(response.data);
+                //Set the loading variable to false
+                setEstimateLoading(false);
             });
         } catch(error){
             //If an error occurs, log it
@@ -81,21 +91,39 @@ function EstimateInfo(){
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
         setCurrentCustomerData(selectedOption.value);
-        setImages(selectedOption.value.images);
+        if(selectedOption.value.hasOwnProperty("images")){
+            setImages(selectedOption.value.images);
+        }else{
+            setImages([]);
+        }
     }
 
     //Return the json object containing all html for this page
     return(
         <div className='estimateInfo'>
             <div className='dropDown'>
-                <h2 id="selectTitle">{customerData.length} Customers Waiting for an Estimate</h2>
-                {/*If axios has not responded, display an h2 that says loading
-                   otherwise, show the drop down */}
-                {loading ? <h2>loading...</h2> : <Select 
+                <div className="selectWrapper">
+                    <h2 id="selectTitle">{customerData.length} Customers Waiting for an Estimate</h2>
+                    {/*If axios has not responded, display an h2 that says loading
+                    otherwise, show the drop down */}
+                    {userLoading ? <h2>loading...</h2> : <Select 
                     className="select" 
                     options={populateDropDown(customerData)}
                     onChange={handleChange} 
-                />}
+                    placeholder='Select Customer...'
+                    />}
+                </div>
+                <div className="selectWrapper">
+                    <h2 id="selectTitle">{draftData.length} Unfinished Estimate Drafts</h2>
+                    {/*If axios has not responded, display an h2 that says loading
+                    otherwise, show the drop down */}
+                    {estimateLoading ? <h2>loading...</h2> : <Select 
+                    className="select" 
+                    options={populateDropDown(draftData)}
+                    onChange={handleChange}
+                    placeholder='Select Draft...' 
+                    />}
+                </div>
             </div>
             <div className="customerInfo">
                 <div className="infoContainer">
@@ -136,7 +164,13 @@ function EstimateInfo(){
             </div> */}
             <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
-            {currentCustomerData.fName !== "" ? <Estimator data={currentCustomerData} key={currentCustomerData._id.$oid}/> : null}
+            {currentCustomerData.fName !== "" 
+                ? 
+                <Estimator data={currentCustomerData} 
+                key={currentCustomerData._id.$oid}/> 
+                : 
+                null
+            }
         </div>
     );
 }

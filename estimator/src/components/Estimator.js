@@ -22,7 +22,7 @@ const initialValues = {
             name: '',
             price: 0.0,
             quantity: 0.0,
-            description: ''
+            description: 'Material'
         },
     ],
     fees: [
@@ -30,7 +30,7 @@ const initialValues = {
             name: '',
             price: 0.0,
             quantity: 0.0,
-            description: ''
+            description: 'Fee'
         }
     ]
 };
@@ -77,6 +77,37 @@ function Estimator(props){
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
 
+    for(const key of Object.entries(initialValues)){
+        if(props.data.hasOwnProperty(key)){
+            initialValues[key] = props.data[key]
+        }
+    }
+
+    const postDraftData = (materialArr, feeArr) => {
+        console.log(materialArr);
+        console.log(feeArr);
+        const customerData = JSON.parse(JSON.stringify(props.data));
+        const user = {user: customerData};
+        const materialData = JSON.parse(JSON.stringify(materialArr));
+        const materials = {materials: materialData};
+        const feeData = JSON.parse(JSON.stringify(feeArr));
+        const fees = {fees: feeData}
+
+        //Merge the JSONs into one
+        const estimateData = {...user, ...materials, ...fees};
+        estimateData.status = "draft";
+        console.log(estimateData)
+        axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
+            console.log(response);
+            axios.delete(`/user/${props.data._id.$oid}`).then((response) => {
+                console.log(response);
+                window.location.reload(false);
+            });
+
+        });
+        //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
+    }
+
     return(
         <div className='materialsForm'>
             <div className='divider'>
@@ -116,15 +147,19 @@ function Estimator(props){
                 //Merge the JSONs into one
                 const estimateData = {...user, ...materials, ...fees};
 
-                //Post the json to our backend
-                axios.post('/estimate', estimateData).then(response => console.log(response));
-                //Delete the customer info entry from the userEstimates database
-                axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
-                resetForm()
-                window.location.reload(false);
-                //reset the form to it's initial values
+                console.log(estimateData)
 
-                //resetForm(initialValues);
+                //Post the json to our backend
+                axios.post('/estimate', estimateData).then((response) => {
+                    console.log(response);
+                    axios.delete(`/user/${props.data._id.$oid}`).then((response) => {
+                        console.log(response);
+                        //window.location.reload(false);
+                        //resetForm();
+                    });
+                });
+                //Delete the customer info entry from the userEstimates database
+                //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
             }}
             >
             {/*Here we are creating an arrow function that returns the form and passing it
@@ -141,6 +176,9 @@ function Estimator(props){
                         {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center'>Input Errros Prevent Submission</div> : null}
                         {/**Only display the submit button if ther are in the overview stage */}
                         {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
+                        {navIndex === 2 ? <button type="button" onClick={() => postDraftData(values.materials, values.fees)}>
+                                            Save as draft
+                                          </button> : null}
                     </Form>
                 )}
             </Formik>
