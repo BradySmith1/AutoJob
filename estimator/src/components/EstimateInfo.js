@@ -17,7 +17,7 @@ import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 
-const DEFAULT_ESTIMATE_DATA = {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""};
+const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
 
 /**
  * This function takes in an array of json of customer data and creates an
@@ -33,7 +33,7 @@ function populateDropDown(data){
     data.forEach(entry =>{
         //Push a json for the drop down, made from customer data
         outputData.push(
-            {value: entry, label: entry.fName + " " + entry.lName}
+            {value: entry, label: entry.user.fName + " " + entry.user.lName}
         );
     });
     //return the array of Jsons for the drop down.
@@ -69,13 +69,15 @@ function EstimateInfo(){
             //Get all the customer data
             axios.get('/users').then((response) => {
                 //Set the customer data to the axios response
-                console.log(response.data);
-                setCustomerData(response.data);
+                var userArr = [];
+                for(const entry of response.data){
+                    userArr.push({user: entry});
+                }
+                setCustomerData(userArr);
                 //Set the loading variable to false
                 setUserLoading(false);
             });
             axios.get('/estimate/status_draft').then((response) => {
-                console.log(response.data);
                 setDraftData(response.data);
                 //Set the loading variable to false
                 setEstimateLoading(false);
@@ -91,8 +93,8 @@ function EstimateInfo(){
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
         setCurrentCustomerData(selectedOption.value);
-        if(selectedOption.value.hasOwnProperty("images")){
-            setImages(selectedOption.value.images);
+        if(selectedOption.value.user.hasOwnProperty("images")){
+            setImages(selectedOption.value.user.images);
         }else{
             setImages([]);
         }
@@ -130,15 +132,15 @@ function EstimateInfo(){
                     <div className="infoElement">
                         <h2 className="infoHeading">Contact</h2>
                         <div className="info">
-                            {currentCustomerData.fName} {currentCustomerData.lName} <br/>
-                            {currentCustomerData.email}
+                            {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br/>
+                            {currentCustomerData.user.email}
                         </div>
                     </div>
                     <div className="infoElement">
                         <h2 className="infoHeading">Address</h2>
                         <div className="info">
-                            {currentCustomerData.strAddr} <br/>
-                            {currentCustomerData.city} {currentCustomerData.state} {currentCustomerData.zip}
+                            {currentCustomerData.user.strAddr} <br/>
+                            {currentCustomerData.user.city} {currentCustomerData.user.state} {currentCustomerData.user.zip}
                         </div>
                     </div>
                 </div>
@@ -146,13 +148,13 @@ function EstimateInfo(){
                     <div className="infoElement">
                         <h2 className="infoHeading">Surfaces and Measurements</h2>
                         <div className="info">
-                            {currentCustomerData.measurements}
+                            {currentCustomerData.user.measurements}
                         </div>
                     </div>
                     <div className="infoElement">
                         <h2 className="infoHeading">Job Details</h2>
                         <div className="info">
-                        {currentCustomerData.details}
+                        {currentCustomerData.user.details}
                         </div>
                     </div>
                 </div>
@@ -164,10 +166,10 @@ function EstimateInfo(){
             </div> */}
             <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
-            {currentCustomerData.fName !== "" 
+            {currentCustomerData.user.fName !== "" 
                 ? 
                 <Estimator data={currentCustomerData} 
-                key={currentCustomerData._id.$oid}/> 
+                key={currentCustomerData.user._id.$oid}/> 
                 : 
                 null
             }

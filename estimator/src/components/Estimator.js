@@ -16,23 +16,16 @@ import Overview from './subForms/Overview.js';
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects
+const billableSchema = [{
+    name: '',
+    price: 0.0,
+    quantity: 0.0,
+    description: ''
+}]
+
 const initialValues = {
-    materials: [
-        {
-            name: '',
-            price: 0.0,
-            quantity: 0.0,
-            description: 'Material'
-        },
-    ],
-    fees: [
-        {
-            name: '',
-            price: 0.0,
-            quantity: 0.0,
-            description: 'Fee'
-        }
-    ]
+    materials: [...billableSchema],
+    fees: [...billableSchema]
 };
 
 //Declare a validation schema for the form
@@ -64,6 +57,19 @@ const materialsValidation = Yup.object().shape({
     
 });
 
+function constructData(userData, materials, fees, status){
+    const customerData = JSON.parse(JSON.stringify(userData));
+    const materialData = JSON.parse(JSON.stringify(materials));
+    const materialArr = {materials: materialData};
+    const feeData = JSON.parse(JSON.stringify(fees));
+    const feeArr = {fees: feeData}
+
+    //Merge the JSONs into one
+    const estimateData = {...customerData, ...materialArr, ...feeArr, status: status};
+
+    return estimateData;
+}
+
 /**
  * This function displays the three stage form. It uses a nave index to
  * keep track of where the user is and displays the correct form stage
@@ -77,34 +83,33 @@ function Estimator(props){
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
 
-    for(const key of Object.entries(initialValues)){
+    for(const key of Object.keys(initialValues)){
         if(props.data.hasOwnProperty(key)){
-            initialValues[key] = props.data[key]
+            initialValues[key] = props.data[key];
+        }else{
+            initialValues[key] = [...billableSchema];
         }
     }
 
     const postDraftData = (materialArr, feeArr) => {
-        console.log(materialArr);
-        console.log(feeArr);
-        const customerData = JSON.parse(JSON.stringify(props.data));
-        const user = {user: customerData};
-        const materialData = JSON.parse(JSON.stringify(materialArr));
-        const materials = {materials: materialData};
-        const feeData = JSON.parse(JSON.stringify(feeArr));
-        const fees = {fees: feeData}
 
-        //Merge the JSONs into one
-        const estimateData = {...user, ...materials, ...fees};
-        estimateData.status = "draft";
-        console.log(estimateData)
-        axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
-            console.log(response);
-            axios.delete(`/user/${props.data._id.$oid}`).then((response) => {
+        const estimateData = constructData(props.data, materialArr, feeArr, "draft");
+        console.log(estimateData);
+
+        if(estimateData.hasOwnProperty("_id")){
+            axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
                 console.log(response);
-                window.location.reload(false);
             });
-
-        });
+        }else{
+            axios.post('/estimate', estimateData).then((response) => {
+                console.log(response);
+                axios.delete(`/user/${estimateData.user._id.$oid}`).then((response) => {
+                    console.log(response);
+                    //window.location.reload(false);
+                    //resetForm();
+                });
+            });
+        }
         //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
     }
 
@@ -134,32 +139,23 @@ function Estimator(props){
             validateOnChange={false}
             validateOnBlur={true}
             onSubmit={async (values, {resetForm}) => {
-                //Submit Function
+                //submit function
 
-                //Turn customer data and material data into raw JSONs
-                const customerData = JSON.parse(JSON.stringify(props.data));
-                const user = {user: customerData};
-                const materialData = JSON.parse(JSON.stringify(values.materials));
-                const materials = {materials: materialData};
-                const feeData = JSON.parse(JSON.stringify(values.fees));
-                const fees = {fees: feeData}
+                const estimateData = constructData(props.data, values.materials, values.fees, "complete");
 
-                //Merge the JSONs into one
-                const estimateData = {...user, ...materials, ...fees, status: "complete"};
-
-                console.log(estimateData)
+                console.log(estimateData);
 
                 //Post the json to our backend
                 axios.post('/estimate', estimateData).then((response) => {
                     console.log(response);
-                    axios.delete(`/user/${props.data._id.$oid}`).then((response) => {
-                        console.log(response);
-                        //window.location.reload(false);
-                        //resetForm();
-                    });
+                    if(!estimateData.hasOwnProperty("_id")){
+                        axios.delete(`/user/${estimateData.user._id.$oid}`).then((response) => {
+                            console.log(response);
+                            //window.location.reload(false);
+                            //resetForm();
+                        });
+                    }
                 });
-                //Delete the customer info entry from the userEstimates database
-                //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
             }}
             >
             {/*Here we are creating an arrow function that returns the form and passing it
@@ -167,9 +163,23 @@ function Estimator(props){
                 {({ values, errors, touched }) => (
                     <Form>
                         {/**Material calculator */}
-                        {navIndex === 0 ? <Calculator values={values.materials} name="Material" errors={errors} touched={touched} /> : null}
+                        {navIndex === 0 ? <Calculator 
+                                            values={values.materials} 
+                                            name="Material" 
+                                            errors={errors} 
+                                            touched={touched} /> 
+                                        : 
+                                        null
+                        }
                         {/**Fee calculator */}
-                        {navIndex === 1 ? <Calculator values={values.fees} name="Fee" errors={errors} touched={touched} /> : null}
+                        {navIndex === 1 ? <Calculator 
+                                            values={values.fees} 
+                                            name="Fee" 
+                                            errors={errors} 
+                                            touched={touched} /> 
+                                        : 
+                                        null
+                        }
                         {/**Overview */}
                         {navIndex === 2 ? <Overview values={values} /> : null}
                         {/**Display an error message if there are errors in the form */}

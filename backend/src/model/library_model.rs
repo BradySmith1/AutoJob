@@ -17,7 +17,7 @@ pub struct MaterialFee {
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_update: Option<bool>,
-    #[serde(default = "default_ttl")]
+    #[serde(default = "default_ttl", skip_serializing)]
     pub ttl: String,
 }
 
