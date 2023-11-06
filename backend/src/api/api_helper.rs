@@ -6,6 +6,7 @@ use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
 
 pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) -> HttpResponse {
+    println!("{}", new_user);
     let data = serde_json::from_str(&new_user);
     let json: T = match data{
         Ok(parsed_json) => parsed_json,
