@@ -2,7 +2,7 @@ use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoR
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data_by_attribute, get_data_by_id, post_data, push_update};
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -35,9 +35,16 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 /// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/estimate/{id}")]
-pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, path: Path<String>) -> HttpResponse {
-    get_data(db, path).await
+#[get("/estimateid/{id}")]
+pub async fn get_estimate_by_id(db: Data<MongoRepo<JobEstimate>>, path: Path<String>) ->
+                                                                                    HttpResponse {
+    get_data_by_id(db, path).await
+}
+
+#[get("/estimate/{attribute}")]
+pub async fn get_estimate_by_attribute(db: Data<MongoRepo<JobEstimate>>, path: Path<String>) ->
+HttpResponse {
+    get_data_by_attribute(db, path).await
 }
 
 /// Update jobEstimate details by their ID via a PUT request.

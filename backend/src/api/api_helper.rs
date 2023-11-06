@@ -24,12 +24,24 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) 
     }
 }
 
-pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse{
+pub async fn get_data_by_id<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse{
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     }
     let user_detail = db.get_document_by_id(&id).await;
+    match user_detail {
+        Ok(user) => HttpResponse::Ok().json(user),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}
+
+pub async fn get_data_by_attribute<T: Model<T>>(db: Data<MongoRepo<T>>, path: Path<String>) -> HttpResponse{
+    let attribute = path.into_inner();
+    if attribute.is_empty() {
+        return HttpResponse::BadRequest().body("invalid attribute");
+    }
+    let user_detail = db.get_documents_by_attribute(&attribute).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),

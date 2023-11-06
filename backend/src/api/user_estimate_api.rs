@@ -11,7 +11,7 @@ use actix_web::body::MessageBody;
 use actix_web::web::Query;
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data_by_id, post_data, push_update};
 use crate::model::image_model::Image;
 
 /// Creates a new userEstimate via a POST request to the api web server
@@ -46,7 +46,7 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
         },
     };
     if references.is_empty(){
-        return get_data(db, Path::from(id.to_string())).await;
+        return get_data_by_id(db, Path::from(id.to_string())).await;
     }
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
@@ -90,8 +90,9 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user/{id}")]
-pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> HttpResponse {
-    get_data(db, path).await
+pub async fn get_user_by_id(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) ->
+                                                                                    HttpResponse {
+    get_data_by_id(db, path).await
 }
 
 #[get("/userimage")]

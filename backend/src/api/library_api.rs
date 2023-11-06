@@ -4,7 +4,7 @@ use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data_by_id, post_data, push_update};
 use crate::model::library_model::MaterialFee;
 
 /// Creates a new library entry via a POST request to the api web server
@@ -59,9 +59,9 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
 #[get("/library/{id}")]
-pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
+pub async fn get_library_entry_by_id(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
                                                                                     HttpResponse {
-    get_data(db, path).await
+    get_data_by_id(db, path).await
 
 }
 
