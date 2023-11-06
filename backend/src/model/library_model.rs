@@ -13,7 +13,10 @@ pub struct MaterialFee {
     pub name: String,
     pub price: f32,
     pub quantity: f32,
-    pub description: String
+    pub description: String,
+    pub auto_update: bool,
+    #[serde(skip_serializing)]
+    pub ttl: String
 }
 
 impl Model<MaterialFee> for MaterialFee {

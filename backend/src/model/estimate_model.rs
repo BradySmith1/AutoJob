@@ -17,7 +17,8 @@ pub struct JobEstimate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub materials: Option<Vec<MaterialFee>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub fees: Option<Vec<MaterialFee>>
+    pub fees: Option<Vec<MaterialFee>>,
+    pub status: String
 }
 impl Model<JobEstimate> for JobEstimate{
 
