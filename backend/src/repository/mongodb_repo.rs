@@ -123,7 +123,6 @@ impl<T: Model<T>> MongoRepo<T> {
     pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
         let doc = attr.split("_").collect::<Vec<&str>>();
         let filter = doc! {doc[0]: doc[1]};
-        println!("{:?}", filter);
         let mut cursor = self
             .col
             .find(filter, None)
@@ -194,6 +193,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are issues with the MongoDB query.
     pub async fn get_all_documents(&self) -> Result<Vec<T>, Error> {
+        println!("Getting all documents");
         let mut cursors = self
             .col
             .find(None, None)

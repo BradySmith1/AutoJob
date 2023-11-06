@@ -25,19 +25,6 @@ use crate::model::library_model::MaterialFee;
 #[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
                                                                                     HttpResponse {
-    let data = serde_json::from_str(&new_user);
-    let mut json: MaterialFee = match data{
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
-    };
-    if json.auto_update == true{
-        //TODO add valid ttl for material library.
-        json.ttl = "100".to_string();
-    }
     post_data(&db, &new_user).await
 }
 

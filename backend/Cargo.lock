@@ -362,6 +362,7 @@ dependencies = [
  "actix-multipart",
  "actix-web",
  "bytes",
+ "chrono",
  "console",
  "derive_more",
  "dotenv",
@@ -523,7 +524,9 @@ checksum = "defd4e7873dbddba6c7c91e199c7fcb946abc4a6a4ac3195400bcfb01b5de877"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
+ "wasm-bindgen",
  "windows-targets 0.48.5",
 ]
 
