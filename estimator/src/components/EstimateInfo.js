@@ -185,11 +185,6 @@ function EstimateInfo(){
                     </div>
                 </div>
             </div>
-            {/* <div className="images">
-                <div className="image">Image</div>
-                <div className="image">Image</div>
-                <div className="image">Image</div>
-            </div> */}
             <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
             {currentCustomerData.user.fName !== "" 

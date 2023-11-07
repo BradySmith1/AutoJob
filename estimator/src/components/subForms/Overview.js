@@ -9,6 +9,7 @@
 
 import React, {useState, useEffect} from "react";
 import './Overview.css';
+import billableList from '../JSONs/billableList.json';
 
 /**
  * This function gets the totals of billables to
@@ -35,52 +36,42 @@ function getTotal(arr){
  * @returns JSX object with html of component
  */
 function Overview(props){
-
-    //State for fee total
-    const [feeTotal, setFeeTotal] = useState(0);
-    //State for material total
-    const [materialTotal, setMaterialTotal] = useState(0);
+    
+    const [grandTotal, setGrandTotal] = useState(0);
 
     //On first render, get the totals of fees and values
     useEffect(() => {
-        setFeeTotal(getTotal(props.values.fees));
-        setMaterialTotal(getTotal(props.values.materials));
+        var total = 0;
+        for(const key of Object.keys(billableList)){
+            console.log(props.values[billableList[key]])
+            for(var i = 0; i < props.values[billableList[key]].length; i++){
+                total = total + (props.values[billableList[key]][i].price * props.values[billableList[key]][i].quantity);
+            }
+        }
+        setGrandTotal(total);
     }, []);
 
     return(
         <div className="overviewWrapper">
-            <div className="infoWrapper">
-                <div className="headerWrapper">
-                    <h2>Material Costs</h2>
-                    <h3>Sub Total: ${materialTotal}</h3>
-                </div>
-                <div className="divide"></div>
-                {/**Map over the materials and display name, price, and quantity */}
-                {props.values.materials.map((material) => (
-                    <div className="contentWrapper">
-                        {material.name !== '' ? <h3>{material.name}</h3> : null}
-                        {material.name !== '' ? <h3>${material.price}</h3> : null}
-                        {material.name !== '' ? <h3>Qty: {material.quantity}</h3> : null}
+            {Object.keys(billableList).map((key) => (
+                <div className="infoWrapper">
+                    <div className="headerWrapper">
+                        <h2>{key} Costs</h2>
+                        <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>
                     </div>
-                ))}
-            </div>
-            <div className="infoWrapper">
-                <div className="headerWrapper">
-                    <h2>Fees</h2>
-                    <h3>Sub Total: ${feeTotal}</h3>
+                    <div className="divide"></div>
+                    {/**Map over the materials and display name, price, and quantity */}
+                    {props.values[billableList[key]].map((billable) => (
+                        <div className="contentWrapper">
+                            {billable.name !== '' ? <h3>{billable.name}</h3> : null}
+                            {billable.name !== '' ? <h3>${billable.price}</h3> : null}
+                            {billable.name !== '' ? <h3>Qty: {billable.quantity}</h3> : null}
+                        </div>
+                    ))}
                 </div>
-                <div className="divide"></div>
-                {/**Map over the fees and display name, price, and quantity */}
-                {props.values.fees.map((fee) => (
-                    <div className="contentWrapper">
-                        {fee.name !== '' ? <h3>{fee.name}</h3> : null}
-                        {fee.name !== '' ? <h3>${fee.price}</h3> : null}
-                        {fee.name !== '' ? <h3>Qty: {fee.quantity}</h3> : null}
-                    </div>
-                ))}
-            </div>
+            ))}
             {/**Display grand total */}
-            <h2 className="grandTotal">Total: ${feeTotal + materialTotal}</h2>
+            <h2 className="grandTotal">Total: ${grandTotal}</h2>
         </div>
     );
 }

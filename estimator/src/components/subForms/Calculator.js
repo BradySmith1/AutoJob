@@ -29,6 +29,8 @@ function Calculator(props){
     const [display, setDisplay] = useState(false);
     //Formik name, derrived from the props.name, used to name input fields
     const formikName = (props.name + "s").toLowerCase();
+    console.log(formikName);
+    console.log(props.values);
 
 
     return(
@@ -109,7 +111,7 @@ function Calculator(props){
                     <button
                         type="button"
                         className="secondary"
-                        onClick={() => push({ name: '', price: 0.0, quantity: 1.0, description: props.name})}
+                        onClick={() => push({ name: '', price: 0.0, quantity: 1.0, description: props.name, auto_update: "false"})}
                     >
                         Add {props.name}
                     </button>

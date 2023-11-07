@@ -63,7 +63,6 @@ function DragDrop(props){
     //Reference we use to connect drag and drop div
     //to a hidden upload button
     const inputRef = useRef();
-    const [fileNum, setFileNum] = useState(0);
     const [valid, setValid] = useState(true);
 
     /**
@@ -80,7 +79,6 @@ function DragDrop(props){
             setValid(true);
         }
         props.setImages(imageArr);
-        setFileNum(imageArr.length);
     }
 
     const handleDragOver = (event) => {
@@ -117,7 +115,7 @@ function DragDrop(props){
                     Or Click to Upload 
                     <br/>
                     <br/>
-                    Images: {fileNum}/{MAXIMAGES}
+                    Images: {props.images.length}/{MAXIMAGES}
                     </>
                 )
                 :
@@ -128,7 +126,7 @@ function DragDrop(props){
                     Invalid Files
                     <br/>
                     <br/>
-                    Images: {fileNum}/{MAXIMAGES}
+                    Images: {props.images.length}/{MAXIMAGES}
                     </>
                 )}
                 <input
@@ -159,7 +157,6 @@ function DragDrop(props){
                                 var imageArr = [...props.images];
                                 imageArr.splice(index, 1);
                                 props.setImages(imageArr);
-                                setFileNum(imageArr.length);
                             }}
                         >
                             X

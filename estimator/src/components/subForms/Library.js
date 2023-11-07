@@ -176,54 +176,6 @@ function Library(props){
                                 updateImported={updateImported}
                                 key={index}
                             />
-                            // <div className="materialContainer" key={index}>
-                            //     {/**Show a number for this row */}
-                            //     <div className="section">
-                            //         {index + 1}
-                            //     </div>
-                            //     {/**Show the name of the billable item */}
-                            //     <div className="section">
-                            //         {billable.name}
-                            //     </div>
-                            //     {/**Show the price of the billable item */}
-                            //     <div className="section">
-                            //         ${billable.price}
-                            //     </div>
-                            //     {/**Show either an import button or "imported" as well as a remove button
-                            //     * for this billable object
-                            //     */}
-                            //     <div className="section">
-                            //         {!stateArr[index] ? 
-                            //             <button
-                            //                 type="button"
-                            //                 className="btn"
-                            //                 onClick={() => {
-                            //                     //Here we are inserting this element of the library
-                            //                     //into the form
-                            //                     props.insert(0, library[index])
-                            //                     setState(updateImported(stateArr, index))
-                            //                 }}
-                            //             >
-                            //                 Import
-                            //             </button>
-                            //             : <p>Imported</p>
-                            //         }
-                            //         <button
-                            //             type="button"
-                            //             className="removeButton"
-                            //             onClick={() => {
-                            //                 //Here we are removing this element from the library
-                            //                 //when the x button is clicked
-                            //                 var libCopy = [...library];
-                            //                 libCopy.splice(index, 1);
-                            //                 axios.delete(`/library/${billable._id.$oid}`).then(response => console.log(response));
-                            //                 setLibrary(libCopy);
-                            //             }}
-                            //         >
-                            //             X
-                            //         </button>
-                            //     </div>
-                            // </div>
                             )
                         : null )
                     ))}

@@ -7,12 +7,13 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form } from 'formik';
+import { Formik, Form, validateYupSchema } from 'formik';
 import React, { useState, useEffect } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
+import billableList from './JSONs/billableList.json'
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects
@@ -20,62 +21,59 @@ const billableSchema = [{
     name: '',
     price: 0.0,
     quantity: 1.0,
-    description: ''
+    description: '',
+    auto_update: "false"
 }]
 
-const initialValues = {
-    materials: [...billableSchema],
-    fees: [...billableSchema]
-};
+function generateInitialValues(){
+    var initialValues = {};
+    for(const key of Object.keys(billableList)){
+        initialValues[billableList[key]] = [...billableSchema];
+    }
+    console.log(initialValues)
+    return initialValues;
+}
 
-//Declare a validation schema for the form
-const materialsValidation = Yup.object().shape({
-    materials: Yup.array(Yup.object().shape({
-        name: Yup.string()
-            .required('Required')
-            .max(20, "Must be less than 20 characters"),
-
-        price: Yup.number('Must be a number')
-            .required('Required'),
-
-        quantity: Yup.number('Must be a number')
-            .required('Required')
-
-    })).min(1),
-    fees: Yup.array(Yup.object().shape({
-        name: Yup.string()
-            .required('Required')
-            .max(20, "Must be less than 20 characters"),
-
-        price: Yup.number('Must be a number')
-            .required('Required'),
-
-        quantity: Yup.number('Must be a number')
-            .required('Required')
-
-    })).min(1)
+function generateYupSchema(){
+    var blankSchema = {};
+    for(const key of Object.keys(billableList)){
+        blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
+            name: Yup.string()
+                .required('Required')
+                .max(20, "Must be less than 20 characters"),
     
-});
+            price: Yup.number('Must be a number')
+                .required('Required'),
+    
+            quantity: Yup.number('Must be a number')
+                .required('Required')
+    
+        })).min(1)
+    }
+    const formValidation = Yup.object(
+        blankSchema
+    );
+    console.log(formValidation);
+    return formValidation;
+}
 
 function determineBillables(initialValues, data){
     for(const key of Object.keys(initialValues)){
         if(data.hasOwnProperty(key)){
             initialValues[key] = data[key];
-        }else{
-            initialValues[key] = [...billableSchema];
         }
     }
 }
 
-function constructData(userData, materials, fees, status){
-    const customerData = JSON.parse(JSON.stringify(userData));
-    const materialData = JSON.parse(JSON.stringify(materials));
-    const materialArr = {materials: materialData};
-    const feeData = JSON.parse(JSON.stringify(fees));
-    const feeArr = {fees: feeData}
-
+function constructData(user, billables, status){
+    var estimateData = {...user};
+    for(const key of Object.keys(billableList)){
+        var billableArr = {};
+        billableArr[billableList[key]] = [...billables[billableList[key]]];
+        estimateData = {...estimateData, ...billableArr}
+    }
     //Merge the JSONs into one
-    const estimateData = {...customerData, ...materialArr, ...feeArr, status: status};
+    estimateData = {...estimateData, status: status};
 
     return estimateData;
 }
@@ -94,13 +92,12 @@ function Estimator(props){
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
 
+    const validationSchema = generateYupSchema();
+    var initialValues = generateInitialValues();
     determineBillables(initialValues, props.data);
 
-    const postDraftData = (materialArr, feeArr, status) => {
-
-        const estimateData = constructData(props.data, materialArr, feeArr, status);
-
-        console.log(estimateData);
+    const postDraftData = (values, status) => {
+        const estimateData = constructData(props.data, values, status);
 
         if(estimateData.hasOwnProperty("_id")){
             axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
@@ -128,62 +125,63 @@ function Estimator(props){
             <div className='divider'>
                 <h2>Three Stage Estimate Calculator</h2>
                 <div className='formNav'>
+                    {Object.keys(billableList).map((key, index) => (
+                        <button className='button'
+                                onClick={() => {setNavIndex(index)}}>
+                            {key}s
+                        </button>
+                    ))
+                    }
                     <button className='button'
-                            onClick={() => {setNavIndex(0)}}>
-                        Materials
-                    </button>
-                    <button className='button'
-                            onClick={() => {setNavIndex(1)}}>
-                        Fees
-                    </button>
-                    <button className='button'
-                            onClick={() => {setNavIndex(2)}}>
+                            onClick={() => {setNavIndex(Object.keys(billableList).length)}}>
                         Overview
                     </button>
                 </div>
             </div>
             <Formik
             initialValues={initialValues}
-            validationSchema={materialsValidation}
+            validationSchema={validationSchema}
             validateOnChange={false}
             validateOnBlur={true}
-            onSubmit={(values) => postDraftData(values.materials, values.fees, "complete")}
+            onSubmit={(values) => postDraftData(values, "complete")}
             >
             {/*Here we are creating an arrow function that returns the form and passing it
             our form values*/}
                 {({ values, errors, touched }) => (
                     <Form>
-                        {/**Material calculator */}
-                        {navIndex === 0 ? <Calculator 
-                                            values={values.materials} 
-                                            name="Material" 
-                                            errors={errors} 
-                                            touched={touched} /> 
-                                        : 
-                                        null
+                        {Object.keys(billableList).map((key, index) => (
+                            (navIndex === index ? 
+                            (
+                                <Calculator 
+                                    values={values[billableList[key]]} 
+                                    name={key} 
+                                    errors={errors} 
+                                    touched={touched} 
+                                />            
+                            )
+                            : 
+                            (null)
+                            )
+                        ))
                         }
-                        {/**Fee calculator */}
-                        {navIndex === 1 ? <Calculator 
-                                            values={values.fees} 
-                                            name="Fee" 
-                                            errors={errors} 
-                                            touched={touched} /> 
-                                        : 
-                                        null
+                        {navIndex === Object.keys(billableList).length ? 
+                        (
+                            <>
+                                <Overview values={values} />
+                                {(errors.fees || errors.materials) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                                {saved ? <div className='center'>Saved as Draft</div> : null}
+                                <button type="submit">Submit Estimate</button>
+                                <button type="button" onClick={() => {
+                                    postDraftData(values, "draft");
+                                    setSaved(true);
+                                }}>Save as Draft</button>
+                            </>
+                        )
+                        :
+                        (
+                            null
+                        )
                         }
-                        {/**Overview */}
-                        {navIndex === 2 ? <Overview values={values} /> : null}
-                        {/**Display an error message if there are errors in the form */}
-                        {navIndex === 2 && (errors.fees || errors.materials) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
-                        {navIndex === 2 && saved ? <div className='center'>Saved as Draft</div> : null}
-                        {/**Only display the submit button if ther are in the overview stage */}
-                        {navIndex === 2 ? <button type="submit">Submit Estimate</button> : null}
-                        {navIndex === 2 ? <button type="button" onClick={() => {
-                            postDraftData(values.materials, values.fees, "draft");
-                            setSaved(true);
-                        }}>
-                                            Save as draft
-                                        </button> : null}
                     </Form>
                 )}
             </Formik>
