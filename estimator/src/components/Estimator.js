@@ -59,7 +59,7 @@ const materialsValidation = Yup.object().shape({
 
 function determineBillables(initialValues, data){
     for(const key of Object.keys(initialValues)){
-        if(data.hasOwnProperty(key) && data[key].length > 0){
+        if(data.hasOwnProperty(key)){
             initialValues[key] = data[key];
         }else{
             initialValues[key] = [...billableSchema];

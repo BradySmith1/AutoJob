@@ -16,9 +16,40 @@ import React, {useEffect, useState} from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
+import billableList from "./JSONs/billableList.json"
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
-const DEAFULT_BILLABLES = ["fees", "materials"]
+
+async function packUsers(){
+    return new Promise((resolve) => {
+        axios.get('/users').then((response) => {
+            //Set the customer data to the axios response
+            var userArr = [];
+            for(const entry of response.data){
+                userArr.push({user: entry});
+            }
+            for(const key of Object.keys(billableList)){
+                axios.get("/library?auto_update=true&description=" + key).then((response) => {
+                    console.log(response);
+                    for(var user of userArr){
+                        if(response.data.length > 0){
+                            user[billableList[key]] = response.data;
+                        }
+                    }
+                })
+            }
+            resolve(userArr)
+        });
+    })
+}
+
+async function packDrafts(){
+    return new Promise((resolve) => {
+        axios.get('/estimate?status=draft').then((response) => {
+            resolve(response.data);
+        });
+    });
+}
 
 /**
  * This function takes in an array of json of customer data and creates an
@@ -68,32 +99,15 @@ function EstimateInfo(){
     useEffect(() => {
         try{
             //Get all the customer data
-            axios.get('/users').then((response) => {
-                //Set the customer data to the axios response
-                var userArr = [];
-                for(const entry of response.data){
-                    userArr.push({user: entry});
-                }
-                for(const billable of DEAFULT_BILLABLES){
-                    var name = billable.charAt(0).toUpperCase() + billable.slice(1);
-                    name = name.slice(0, -1);
-                    axios.get("/library?auto_update=true&description=" + name).then((response) => {
-                        console.log(response);
-                        for(var user of userArr){
-                            user[billable] = response.data;
-                        }
-                   })
-                }
-                console.log(userArr);
-                setCustomerData(userArr);
+            packUsers().then((data) => {
+                setCustomerData(data);
                 //Set the loading variable to false
                 setUserLoading(false);
-            });
-            axios.get('/estimate?status=draft').then((response) => {
-                setDraftData(response.data);
-                //Set the loading variable to false
+            } );
+            packDrafts().then((data) => {
+                setDraftData(data);
                 setEstimateLoading(false);
-            });
+            })
         } catch(error){
             //If an error occurs, log it
             console.log(error);
