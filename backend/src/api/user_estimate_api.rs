@@ -48,9 +48,9 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
     };
     if references.is_empty(){
         let mut hash = Document::new();
-        hash.insert("_id".to_string(), ObjectId::parse_str(id).unwrap());
-        return get_data(db, hash).await;
-    }
+        hash.insert("_id".to_string(), id);
+        return get_data(db, hash).await; //get data takes a id as a string and parses it
+    }                                           //inside the function
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
