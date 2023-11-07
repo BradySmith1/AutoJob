@@ -18,6 +18,7 @@ import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
+const DEAFULT_BILLABLES = ["fees", "materials"]
 
 /**
  * This function takes in an array of json of customer data and creates an
@@ -73,11 +74,22 @@ function EstimateInfo(){
                 for(const entry of response.data){
                     userArr.push({user: entry});
                 }
+                for(const billable of DEAFULT_BILLABLES){
+                    var name = billable.charAt(0).toUpperCase() + billable.slice(1);
+                    name = name.slice(0, -1);
+                    axios.get("/library?auto_update=true&description=" + name).then((response) => {
+                        console.log(response);
+                        for(var user of userArr){
+                            user[billable] = response.data;
+                        }
+                   })
+                }
+                console.log(userArr);
                 setCustomerData(userArr);
                 //Set the loading variable to false
                 setUserLoading(false);
             });
-            axios.get('/estimate/status_draft').then((response) => {
+            axios.get('/estimate?status=draft').then((response) => {
                 setDraftData(response.data);
                 //Set the loading variable to false
                 setEstimateLoading(false);
