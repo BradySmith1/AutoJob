@@ -149,7 +149,7 @@ function Library(props){
                     <h2>{props.name} Library</h2>
                     <div className="searchWrapper">
                         <input
-                            className="inputBox"
+                            className="inputBox search"
                             name="search"
                             type="text"
                             value={searchStr}
