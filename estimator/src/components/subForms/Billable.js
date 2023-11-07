@@ -66,7 +66,7 @@ function Billable(props){
             {/**Show either an import button or "imported" as well as a remove button
             * for this billable object
             */}
-            <div className="buttonsSection">
+            <div className="buttonSection">
                 {!props.stateArr[props.index] ? 
                     (
                         <button
