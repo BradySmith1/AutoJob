@@ -166,9 +166,10 @@ pub async fn update_user(
 /// it returns an HTTP 200 OK response with the JSON representation of the deleted userEstimate's details. If the provided ID
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[delete("/user/{id}")]
-pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, path: Path<String>) -> HttpResponse {
-    delete_data(db, path).await
+#[delete("/user")]
+pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<HashMap<String,
+    String>>) -> HttpResponse {
+    delete_data(db, query.into_inner()).await
 }
 
 /// Retrieve all userEstimate details via a GET request.

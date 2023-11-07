@@ -100,10 +100,11 @@ pub async fn update_library_entry(
 /// provided ID is empty or there's an error during the deletion process, it returns an HTTP 400
 /// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
 /// an error message.
-#[delete("/library/{id}")]
-pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, path: Path<String>) ->
+#[delete("/library")]
+pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<HashMap<String,
+    String>>) ->
                                                                                     HttpResponse {
-    delete_data(db, path).await
+    delete_data(db, query.into_inner()).await
 }
 
 /// Retrieve all materialLibrary entry details via a GET request.
