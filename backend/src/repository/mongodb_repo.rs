@@ -3,6 +3,7 @@ use std::process::exit;
 use dotenv::dotenv;
 use mongodb::{bson::{extjson::de::Error, doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
 use futures::stream::TryStreamExt;
+use mongodb::bson::Document;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 //add this
@@ -120,9 +121,7 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
-        let doc = attr.split("_").collect::<Vec<&str>>();
-        let filter = doc! {doc[0]: doc[1]};
+    pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, Error> {
         let mut cursor = self
             .col
             .find(filter, None)
@@ -171,9 +170,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_document(&self, id: &String) -> Result<DeleteResult, Error> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
-        let filter = doc! {"_id": obj_id};
+    pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, Error> {
         let user_detail = self
             .col
             .delete_one(filter, None)
