@@ -42,15 +42,6 @@ h3{
     padding-bottom: 20px;
 }
 
-.section{
-    width: 25%;
-    text-align: left;
-    padding-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .btn{
     background-color: #0055FF;
     cursor: pointer;

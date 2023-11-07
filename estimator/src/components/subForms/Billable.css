@@ -1,0 +1,115 @@
+.billableWrapper{
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    background-color: #191D23;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    position: relative;
+}
+
+.section{
+    width: 25%;
+    text-align: left;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 18px;
+}
+
+.buttonSection{
+    width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn{
+    background-color: #0055FF;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+    width: 100px;
+    border-style: solid;
+    border-radius: 25px;
+    transition-duration: 200ms;
+    border-width: 1.5px;
+    border-color: black;
+}
+
+.openOptions{
+    width: 40px !important;
+    margin-left: 20px;
+}
+
+.add{
+    height: 30px;
+    width: 200px !important;
+}
+
+.closeBtn{
+    left: 325px;
+    position: absolute;
+    bottom: -40px;
+}
+
+.btn:hover{
+    background-color: #00A3FF;
+}
+
+.fixedWrapper{
+    position: fixed;
+}
+
+.optionsMenu{
+    width: 200px;
+    height: 275px;
+    background-color: #2B303A;
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color:#0055FF;
+    z-index: 99;
+}
+
+.optionsButton{
+    width: 90%;
+    height: 33%;
+    cursor: pointer;
+    background-color: transparent;
+    color: white;
+    display: flex;
+    padding-left: 10px;
+    padding-right: 10px;
+    transition: 200ms;
+}
+
+.optionsButton:hover{
+    background-color: #adadad;
+}
+
+.remove{
+    justify-content: center;
+    align-items: center;
+}
+
+.tickBox{
+    justify-content: space-between;
+    align-items: center;
+}
+
+.middle{
+    border-top: 2px solid #0055FF;
+    border-bottom: 2px solid #0055FF;
+}
+
+.boxTick{
+    border-width: 5px;
+    border-style: solid;
+    border-color: #191D23;
+    background-color: #adadad;
+    height: 15px;
+    width: 15px;
+}

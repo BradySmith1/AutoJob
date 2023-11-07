@@ -8,7 +8,7 @@
  */
 import './Estimator.css';
 import { Formik, Form } from 'formik';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -57,6 +57,16 @@ const materialsValidation = Yup.object().shape({
     
 });
 
+function determineBillables(initialValues, data){
+    for(const key of Object.keys(initialValues)){
+        if(data.hasOwnProperty(key) && data[key].length > 0){
+            initialValues[key] = data[key];
+        }else{
+            initialValues[key] = [...billableSchema];
+        }
+    }
+}
+
 function constructData(userData, materials, fees, status){
     const customerData = JSON.parse(JSON.stringify(userData));
     const materialData = JSON.parse(JSON.stringify(materials));
@@ -84,13 +94,7 @@ function Estimator(props){
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
 
-    for(const key of Object.keys(initialValues)){
-        if(props.data.hasOwnProperty(key)){
-            initialValues[key] = props.data[key];
-        }else{
-            initialValues[key] = [...billableSchema];
-        }
-    }
+    determineBillables(initialValues, props.data);
 
     const postDraftData = (materialArr, feeArr, status) => {
 
@@ -108,7 +112,7 @@ function Estimator(props){
         }else{
             axios.post('/estimate', estimateData).then((response) => {
                 console.log(response);
-                axios.delete(`/user/${estimateData.user._id.$oid}`).then((response) => {
+                axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
                     console.log(response);
                     if(status === "complete"){
                         window.location.reload(false);
@@ -138,7 +142,6 @@ function Estimator(props){
                     </button>
                 </div>
             </div>
-
             <Formik
             initialValues={initialValues}
             validationSchema={materialsValidation}
@@ -180,7 +183,7 @@ function Estimator(props){
                             setSaved(true);
                         }}>
                                             Save as draft
-                                          </button> : null}
+                                        </button> : null}
                     </Form>
                 )}
             </Formik>
