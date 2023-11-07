@@ -90,37 +90,6 @@ impl<T: Model<T>> MongoRepo<T> {
         }
     }
 
-    /// Retrieve a user estimate from the userEstimate collection by its ID.
-    ///
-    /// # Parameters
-    ///
-    /// id : A string representing the ID of the user estimate to retrieve.
-    ///
-    /// # Returns
-    ///
-    /// Returns a Result containing the retrieved user estimate or an error.
-    ///
-    /// # Panics
-    ///
-    /// This function may panic if there are errors in parsing the provided ID string or
-    /// if there are issues with the MongoDB query.
-    pub async fn get_document_by_id(&self, id: &String) -> Result<T, String> {
-        let obj_id = match ObjectId::parse_str(id) {
-            Ok(obj_id) => obj_id,
-            Err(_) => {
-                return Err("Not a valid Id".to_string());
-            }
-        };
-        let filter = doc! {"_id": obj_id};
-        let user_detail = self
-            .col
-            .find_one(filter, None)
-            .await
-            .ok()
-            .expect("Error getting user's detail");
-        Ok(user_detail.unwrap())
-    }
-
     pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, Error> {
         let mut cursor = self
             .col
