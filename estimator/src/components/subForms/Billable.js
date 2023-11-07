@@ -3,12 +3,20 @@ import './Billable.css';
 import axios from 'axios';
 
 
-function determineBackgroundColor(element, boolean){
-    if(boolean){
+function determineBackgroundColor(element, auto_update){
+    if(auto_update === "true"){
         element.style.backgroundColor="#0055FF";
     }else{
         element.style.backgroundColor="#adadad";
     }
+}
+
+function toggle(strBool){
+    var newStrBool = "true";
+    if(strBool === "true"){
+        newStrBool = "false";
+    }
+    return newStrBool;
 }
 
 function useOutsideAlerter(ref, setDisplay) {
@@ -60,19 +68,26 @@ function Billable(props){
             */}
             <div className="buttonsSection">
                 {!props.stateArr[props.index] ? 
-                    <button
-                        type="button"
-                        className="btn"
-                        onClick={() => {
-                            //Here we are inserting this element of the library
-                            //into the form
-                            props.insert(0, props.library[props.index])
-                            props.setState(props.updateImported(props.stateArr, props.index))
-                        }}
-                    >
-                        Import
-                    </button>
-                    : <p>Imported</p>
+                    (
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={() => {
+                                //Here we are inserting this element of the library
+                                //into the form
+                                props.insert(0, props.library[props.index])
+                                props.setState(props.updateImported(props.stateArr, props.index))
+                            }}
+                        >
+                            Import
+                        </button>
+                    )
+                    :
+                    ( 
+                        <div className="mockBtn">
+                            Imported
+                        </div>
+                    )
                 }
                 <button
                     type="button"
@@ -82,9 +97,7 @@ function Billable(props){
                         var offsets = document.getElementById(props.index).getBoundingClientRect();
                         var right = offsets.left;
                         var menuOffset = right - 225;
-                        console.log(right)
                         var thisBillable = document.getElementById(billableID);
-                        console.log(thisBillable)
                         thisBillable.setAttribute("style", "right: " + menuOffset + "px");
                     }}
                 >
@@ -98,9 +111,10 @@ function Billable(props){
                             <div
                                 className="optionsButton tickBox"
                                 onClick={() => {
-                                    props.data.auto_update = !props.data.auto_update;
+                                    console.log(props.data.auto_update)
+                                    props.data.auto_update = toggle(props.data.auto_update);
+                                    console.log(props.data.auto_update);
                                     determineBackgroundColor(document.getElementById(importID), props.data.auto_update)
-                                    console.log(props.data);
                                     axios.put('/library/' + props.data._id.$oid, props.data).then(response => console.log(response));
                                 }}
                             >

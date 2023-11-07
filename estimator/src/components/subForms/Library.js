@@ -18,7 +18,7 @@ const initialValues = [
             price: 0,
             quantity: 1,
             description: "",
-            autoupdate: false
+            autoupdate: "false"
         }
     ]
 

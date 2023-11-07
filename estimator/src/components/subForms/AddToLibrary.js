@@ -30,7 +30,7 @@ function AddToLibrary(props){
             price: 0.0,
             quantity: 1,
             description: props.name,
-            auto_update: false
+            auto_update: "false"
         },
     
         //Declare a validation schema for the form
@@ -49,8 +49,8 @@ function AddToLibrary(props){
                 values._id = {"$oid" : response.data.insertedId.$oid};
                 console.log(response);
                 props.setValues([...props.values, values]);
+                resetForm();
             });
-            resetForm();
         }
     
     });

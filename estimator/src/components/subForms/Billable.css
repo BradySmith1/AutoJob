@@ -25,6 +25,18 @@
     justify-content: flex-end;
 }
 
+.mockBtn{
+    background-color: #0A5C36;
+    color: white;
+    font-size: 20px;
+    height: 30px;
+    width: 100px;
+    border-style: solid;
+    border-radius: 25px;
+    border-width: 1.5px;
+    border-color: black;
+}
+
 .btn{
     background-color: #0055FF;
     cursor: pointer;
