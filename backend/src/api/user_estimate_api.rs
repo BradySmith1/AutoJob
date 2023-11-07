@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
             model::form_data_model::UploadForm};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
@@ -10,6 +9,7 @@ use actix_multipart::{
 use actix_files::NamedFile;
 use actix_web::body::MessageBody;
 use actix_web::web::Query;
+use mongodb::bson::Document;
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
@@ -47,8 +47,8 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
         },
     };
     if references.is_empty(){
-        let mut hash = HashMap::new();
-        hash.insert("_id".to_string(), id.to_string());
+        let mut hash = Document::new();
+        hash.insert("_id".to_string(), ObjectId::parse_str(id).unwrap());
         return get_data(db, hash).await;
     }
 
@@ -93,8 +93,7 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user")]
-pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<HashMap<String,
-    String>>) -> HttpResponse {
+pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) -> HttpResponse {
     get_data(db, query.into_inner()).await
 }
 
@@ -167,8 +166,8 @@ pub async fn update_user(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/user")]
-pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<HashMap<String,
-    String>>) -> HttpResponse {
+pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) ->
+                                                                                    HttpResponse {
     delete_data(db, query.into_inner()).await
 }
 

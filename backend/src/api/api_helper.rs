@@ -1,7 +1,6 @@
-use std::collections::HashMap;
 use actix_web::HttpResponse;
 use actix_web::web::{Data};
-use mongodb::bson::doc;
+use mongodb::bson::{Document};
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
@@ -26,50 +25,23 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) 
     }
 }
 
-pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, query: HashMap<String,
-    String>) -> HttpResponse{
+pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>, query: Document) -> HttpResponse{
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
-    if query.contains_key("id") {
-        let id = query.get("id").unwrap();
-        let user_detail = db.get_document_by_id(id).await;
-        return match user_detail {
-            Ok(user) => HttpResponse::Ok().json(user),
-            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        };
-    }
-    let mut doc = doc! {};
-    for (key, value) in query.iter() {
-        doc.insert(key, value);
-    }
-    println!("{:?}", doc);
-    let user_detail = db.get_documents_by_attribute(doc).await;
+    let user_detail = db.get_documents_by_attribute(query).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
 }
 
-pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>, query: HashMap<String,
-    String>) ->
+pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>, query: Document) ->
                                                                                     HttpResponse {
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
-    if query.contains_key("id") {
-        let id = query.get("id").unwrap();
-        let user_detail = db.get_document_by_id(id).await;
-        return match user_detail {
-            Ok(user) => HttpResponse::Ok().json(user),
-            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        };
-    }
-    let mut doc = doc! {};
-    for (key, value) in query.iter() {
-        doc.insert(key, value);
-    }
-    let result = db.delete_document(doc).await;
+    let result = db.delete_document(query).await;
     match result {
         Ok(res) => {
             if res.deleted_count == 1 {

@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::{repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
+use mongodb::bson::Document;
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
@@ -48,8 +48,8 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
 #[get("/library")]
-pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<HashMap<String,
-    String>>) -> HttpResponse {
+pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
+                                                                                    HttpResponse {
     get_data(db, query.into_inner()).await
 }
 
@@ -101,8 +101,7 @@ pub async fn update_library_entry(
 /// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
 /// an error message.
 #[delete("/library")]
-pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<HashMap<String,
-    String>>) ->
+pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
                                                                                     HttpResponse {
     delete_data(db, query.into_inner()).await
 }

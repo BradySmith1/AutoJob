@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
 use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
+use mongodb::bson::Document;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 
 /// Creates a new jobEstimate via a POST request to the api web server
@@ -39,7 +39,7 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimate")]
 pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, query:
-Query<HashMap<String, String>>) -> HttpResponse {
+Query<Document>) -> HttpResponse {
     get_data(db, query.into_inner()).await
 }
 
@@ -87,8 +87,8 @@ pub async fn update_estimate(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/estimate")]
-pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<HashMap<String,
-    String>>) -> HttpResponse {
+pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Document>) ->
+                                                                                    HttpResponse {
     delete_data(db, query.into_inner()).await
 }
 
