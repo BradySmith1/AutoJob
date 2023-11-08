@@ -29,9 +29,6 @@ function Calculator(props){
     const [display, setDisplay] = useState(false);
     //Formik name, derrived from the props.name, used to name input fields
     const formikName = (props.name + "s").toLowerCase();
-    console.log(formikName);
-    console.log(props.values);
-
 
     return(
         <FieldArray name={(formikName)}>

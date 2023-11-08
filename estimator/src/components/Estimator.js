@@ -164,16 +164,16 @@ function Estimator(props){
             });
         }else{
             //If it doesnt have an id, this is not a draft so post it
+            console.log("in here")
             axios.post('/estimate', estimateData).then((response) => {
                 console.log(response);
+                props.data._id = {$oid: response.data.insertedId.$oid};
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                if(status === "complete"){
-                    axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
-                        console.log(response);
-                        window.location.reload(false);
-                    });
-                }
+                axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
+                    console.log(response);
+                    //window.location.reload(false);
+                });
             });
         }
     }
