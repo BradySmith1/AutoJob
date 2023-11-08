@@ -7,8 +7,8 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form, validateYupSchema } from 'formik';
-import React, { useState, useEffect } from "react";
+import { Formik, Form } from 'formik';
+import React, { useState } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -24,6 +24,16 @@ const billableSchema = [{
     description: '',
     auto_update: "false"
 }]
+
+function determineErrors(errors){
+    var bool = false;
+    for(const key of Object.keys(billableList)){
+        if(errors[billableList[key]]){
+            bool = true;
+        }
+    }
+    return bool;
+}
 
 function generateInitialValues(){
     var initialValues = {};
@@ -78,6 +88,9 @@ function constructData(user, billables, status){
     return estimateData;
 }
 
+const validationSchema = generateYupSchema();
+var initialValues = generateInitialValues();
+
 /**
  * This function displays the three stage form. It uses a nave index to
  * keep track of where the user is and displays the correct form stage
@@ -92,8 +105,6 @@ function Estimator(props){
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
 
-    const validationSchema = generateYupSchema();
-    var initialValues = generateInitialValues();
     determineBillables(initialValues, props.data);
 
     const postDraftData = (values, status) => {
@@ -109,15 +120,14 @@ function Estimator(props){
         }else{
             axios.post('/estimate', estimateData).then((response) => {
                 console.log(response);
-                axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
-                    console.log(response);
-                    if(status === "complete"){
+                if(status === "complete"){
+                    axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
+                        console.log(response);
                         window.location.reload(false);
-                    }
-                });
+                    });
+                }
             });
         }
-        //axios.delete(`/user/${props.data._id.$oid}`).then(response => console.log(response));
     }
 
     return(
@@ -126,7 +136,7 @@ function Estimator(props){
                 <h2>Three Stage Estimate Calculator</h2>
                 <div className='formNav'>
                     {Object.keys(billableList).map((key, index) => (
-                        <button className='button'
+                        <button className='button' key={index}
                                 onClick={() => {setNavIndex(index)}}>
                             {key}s
                         </button>
@@ -168,7 +178,7 @@ function Estimator(props){
                         (
                             <>
                                 <Overview values={values} />
-                                {(errors.fees || errors.materials) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                                {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                 {saved ? <div className='center'>Saved as Draft</div> : null}
                                 <button type="submit">Submit Estimate</button>
                                 <button type="button" onClick={() => {

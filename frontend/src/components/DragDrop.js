@@ -8,7 +8,7 @@
  */
 
 import './DragDrop.css';
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 const MAXIMAGES = 10;
 
@@ -64,6 +64,10 @@ function DragDrop(props){
     //to a hidden upload button
     const inputRef = useRef();
     const [valid, setValid] = useState(true);
+
+    useEffect(() => {
+        console.log(props.images);
+    },[props.images])
 
     /**
      * This function adds an image to the image array
@@ -138,7 +142,6 @@ function DragDrop(props){
                         //This button is connected to the drag and drop div through a reference
                         //On click, prompt for file upload
                         addImages(event.target.files);
-                        console.log(props.images);
                     }}
                     ref={inputRef}
                 >

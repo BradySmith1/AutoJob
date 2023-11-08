@@ -36,14 +36,13 @@ function getTotal(arr){
  * @returns JSX object with html of component
  */
 function Overview(props){
-    
+
     const [grandTotal, setGrandTotal] = useState(0);
 
     //On first render, get the totals of fees and values
     useEffect(() => {
         var total = 0;
         for(const key of Object.keys(billableList)){
-            console.log(props.values[billableList[key]])
             for(var i = 0; i < props.values[billableList[key]].length; i++){
                 total = total + (props.values[billableList[key]][i].price * props.values[billableList[key]][i].quantity);
             }
@@ -53,8 +52,8 @@ function Overview(props){
 
     return(
         <div className="overviewWrapper">
-            {Object.keys(billableList).map((key) => (
-                <div className="infoWrapper">
+            {Object.keys(billableList).map((key, index) => (
+                <div className="infoWrapper" key={index}>
                     <div className="headerWrapper">
                         <h2>{key} Costs</h2>
                         <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>

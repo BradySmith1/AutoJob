@@ -93,7 +93,10 @@ function EstimateForm(){
             });
             console.log(formData)
             //Post values to backend
-            axios.post('/user', formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => console.log(response));
+            axios.post('/user', formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => {
+                console.log(response);
+                window.location.reload(false);
+            });
 
             const token = captchaRef.current.getValue();
             //Reset the captcha
