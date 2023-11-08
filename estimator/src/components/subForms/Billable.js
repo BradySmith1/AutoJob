@@ -1,8 +1,24 @@
-import React, { useState, useRef, useEffect, useId } from "react";
+/**
+ * @version 1, November 8th, 2023
+ * @author Andrew Monroe and Brady Smith
+ * 
+ * This component displays a billable and all information in the billable.
+ * It has a pop-up advnaced menu to set the auto imprt, price scan, and
+ * remove from database features.
+ * 
+ * NOTE: Currently using a string as a boolean for auto imports
+ * since the backend cant query by booleans yet
+ */
+
+import React, { useState, useRef, useEffect, useId, Component } from "react";
 import './Billable.css';
 import axios from 'axios';
 
-
+/**
+ * Function to determine the background color of the tick box
+ * @param {HTML element} element, the element to change
+ * @param {String} auto_update, string to decide if we want to change color
+ */
 function determineBackgroundColor(element, auto_update){
     if(auto_update === "true"){
         element.style.backgroundColor="#0055FF";
@@ -11,6 +27,11 @@ function determineBackgroundColor(element, auto_update){
     }
 }
 
+/**
+ * This method simply toggles a string boolean
+ * @param {String} strBool 
+ * @returns newStrBool the toggles string boolean
+ */
 function toggle(strBool){
     var newStrBool = "true";
     if(strBool === "true"){
@@ -19,6 +40,13 @@ function toggle(strBool){
     return newStrBool;
 }
 
+/**
+ * Custom hook that determines if a click happened of screen anywhere off of
+ * the the reference component
+ * 
+ * @param {Component} ref the component to check for clicks
+ * @param {useRef} setDisplay set the display to false when clicked off
+ */
 function useOutsideAlerter(ref, setDisplay) {
     useEffect(() => {
       /**
@@ -38,15 +66,32 @@ function useOutsideAlerter(ref, setDisplay) {
     }, [ref]);
   }
 
+  /**
+   * This is the render function for displaying a billable. Contains
+   * all the html needed to display a billable.
+   * 
+   * @param {JSON} props data from the parent component
+   * @returns JSX object for a billable
+   */
 function Billable(props){
 
+    //ID for this billable
     const billableID = useId();
+    //ID for the auto import tick box
     const importID = useId();
+    //ID for the price scanning tick box
     const scanID = useId();
+    //Display for the more options menu
     const [display, setDisplay] = useState(false);
+    //Ref for the click alerter
     const wrapperRef = useRef(null);
+    //Call the click alerter 
     useOutsideAlerter(wrapperRef, setDisplay);
 
+    /**
+     * This useEffect is bound to display, and sets the background color
+     * of the auto import tick box to the correct color on first render.
+     */
     useEffect(() => {
         if(display){
             determineBackgroundColor(document.getElementById(importID), props.data.auto_update); 
@@ -93,7 +138,9 @@ function Billable(props){
                     type="button"
                     className="btn openOptions"
                     onClick={() => {
+                        //Open the more options menu on click
                         setDisplay(!display);
+                        //Determine position for the menu options
                         var offsets = document.getElementById(props.index).getBoundingClientRect();
                         var right = offsets.left;
                         var menuOffset = right - 225;
@@ -111,9 +158,8 @@ function Billable(props){
                             <div
                                 className="optionsButton tickBox"
                                 onClick={() => {
-                                    console.log(props.data.auto_update)
+                                    //On click, set modify the billable to auto import
                                     props.data.auto_update = toggle(props.data.auto_update);
-                                    console.log(props.data.auto_update);
                                     determineBackgroundColor(document.getElementById(importID), props.data.auto_update)
                                     axios.put('/library/' + props.data._id.$oid, props.data).then(response => console.log(response));
                                 }}

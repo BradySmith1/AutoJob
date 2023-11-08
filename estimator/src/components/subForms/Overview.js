@@ -39,10 +39,12 @@ function Overview(props){
 
     const [grandTotal, setGrandTotal] = useState(0);
 
-    //On first render, get the totals of fees and values
+    //On first render, get the grand total;
     useEffect(() => {
         var total = 0;
+        //Loop through the billables
         for(const key of Object.keys(billableList)){
+            //For each billable, get it's sub total
             for(var i = 0; i < props.values[billableList[key]].length; i++){
                 total = total + (props.values[billableList[key]][i].price * props.values[billableList[key]][i].quantity);
             }
@@ -52,10 +54,12 @@ function Overview(props){
 
     return(
         <div className="overviewWrapper">
+            {/**Map over the billable list to display each the overview for each billable array*/}
             {Object.keys(billableList).map((key, index) => (
                 <div className="infoWrapper" key={index}>
                     <div className="headerWrapper">
                         <h2>{key} Costs</h2>
+                        {/**display the grand total here */}
                         <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>
                     </div>
                     <div className="divide"></div>

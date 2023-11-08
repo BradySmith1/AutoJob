@@ -20,32 +20,48 @@ import billableList from "./JSONs/billableList.json"
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
 
+/**
+ * Packs a user estimate with auto imports
+ * @returns Promise for the packed user estimate
+ */
 async function packUsers(){
     return new Promise((resolve) => {
+        //Get all user estimates
         axios.get('/users').then((response) => {
-            //Set the customer data to the axios response
             var userArr = [];
+            //Push each user to a local array
             for(const entry of response.data){
                 userArr.push({user: entry});
             }
+            //For each billble array in the billable list
             for(const key of Object.keys(billableList)){
+                //Get the auto imports
                 axios.get("/library?auto_update=true&description=" + key).then((response) => {
                     console.log(response);
                     for(var user of userArr){
+                        //If auto imports exist
                         if(response.data.length > 0){
+                            //Add that array of billables to the user object
                             user[billableList[key]] = response.data;
                         }
                     }
                 })
             }
+            //resolve the user array
             resolve(userArr)
         });
     })
 }
 
+/**
+ * Get drafts from the backend
+ * @returns Promise of the drafts
+ */
 async function packDrafts(){
     return new Promise((resolve) => {
+        //Get the drafts
         axios.get('/estimate?status=draft').then((response) => {
+            //resolve the drafts
             resolve(response.data);
         });
     });
@@ -104,6 +120,7 @@ function EstimateInfo(){
                 //Set the loading variable to false
                 setUserLoading(false);
             } );
+            //Get all the draft data
             packDrafts().then((data) => {
                 setDraftData(data);
                 setEstimateLoading(false);

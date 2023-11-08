@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import './Library.css';
 import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
-import Billable from "./Billable"
+import Billable from "./Billable";
 
 //Initial values for the material library
 const initialValues = [
@@ -73,6 +73,12 @@ function updateImported(stateArr, index){
     return arrCopy;
 }
 
+/**
+ * Search a billable's name to see if it matches a given string
+ * @param {JSON} billabe 
+ * @param {String} searchStr 
+ * @returns 
+ */
 function searchString(billabe, searchStr){
     var contains = false;
     var billableName = billabe.name.toLowerCase();
@@ -112,12 +118,14 @@ function Library(props){
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
 
+    //Function for handling search
     const handleSearch = (event) =>{
         setSearchStr(event.target.value);
     }
 
+    //Use effect for grabbing all the relavent billables from the library
+    //on the first render
     useEffect(() => {
-
         try{
             //Get all billables from the library that have the needed description
             axios.get('/library?description=' + props.name).then((response) => {
@@ -160,9 +168,11 @@ function Library(props){
                     </div>
                     {/**Display a loading message if we haven't recieved the data yet */}
                     {loading ? <h3>Loading Data...</h3> : null}
-                    {/**If we arent loadin, map over the data */}
+                    {/**If we arent loading, map over the data */}
                     {!loading &&
                     library.map((billable, index) => (
+                        //If the billable name batches the search string,
+                        //render it
                         (searchString(billable, searchStr) ? 
                             (
                             <Billable 

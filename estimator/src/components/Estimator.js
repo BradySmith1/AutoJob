@@ -25,8 +25,15 @@ const billableSchema = [{
     auto_update: "false"
 }]
 
+/**
+ * This function determines if there are validation errors
+ * in the form schema
+ * @param {validationSchema} errors, the validation schema 
+ * @returns bool, boolean if there are errors or not
+ */
 function determineErrors(errors){
     var bool = false;
+    //Check for errors in each billable list
     for(const key of Object.keys(billableList)){
         if(errors[billableList[key]]){
             bool = true;
@@ -35,8 +42,14 @@ function determineErrors(errors){
     return bool;
 }
 
+/**
+ * Automatically generates initial values based off the
+ * billableList schema
+ * @returns initialValues, the initial values of the form
+ */
 function generateInitialValues(){
     var initialValues = {};
+    //Generate inital values from the billableList schema
     for(const key of Object.keys(billableList)){
         initialValues[billableList[key]] = [...billableSchema];
     }
@@ -44,6 +57,11 @@ function generateInitialValues(){
     return initialValues;
 }
 
+/**
+ * Automatically generates a Yup validation schema based off the
+ * billableList schema
+ * @returns formValidation
+ */
 function generateYupSchema(){
     var blankSchema = {};
     for(const key of Object.keys(billableList)){
@@ -67,6 +85,13 @@ function generateYupSchema(){
     return formValidation;
 }
 
+/**
+ * This method changes the initial values if estimateInfo
+ * has passed down pre-existing data in the form of drafts
+ * or auto imports.
+ * @param {*} initialValues 
+ * @param {*} data 
+ */
 function determineBillables(initialValues, data){
     for(const key of Object.keys(initialValues)){
         if(data.hasOwnProperty(key)){
@@ -75,20 +100,31 @@ function determineBillables(initialValues, data){
     }
 }
 
+/**
+ * This method constructs the data prior to posting to the
+ * backend
+ * @param {JSON} user the user object
+ * @param {JSON} billables the billables
+ * @param {String} status the status, complete or draft
+ * @returns 
+ */
 function constructData(user, billables, status){
     var estimateData = {...user};
+    //Add each billable list to the estimate data
     for(const key of Object.keys(billableList)){
         var billableArr = {};
         billableArr[billableList[key]] = [...billables[billableList[key]]];
         estimateData = {...estimateData, ...billableArr}
     }
-    //Merge the JSONs into one
+    //Add status to the estimate data
     estimateData = {...estimateData, status: status};
 
     return estimateData;
 }
 
+//Generate the yup schema
 const validationSchema = generateYupSchema();
+//Generate the initial values
 var initialValues = generateInitialValues();
 
 /**
@@ -105,21 +141,33 @@ function Estimator(props){
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
 
+    //Determine any pre-existing billables
     determineBillables(initialValues, props.data);
 
+    /**
+     * Post the form data to the backend
+     * @param {*} values values to post
+     * @param {*} status status of this form
+     */
     const postDraftData = (values, status) => {
         const estimateData = constructData(props.data, values, status);
 
+        //If this has an id, we know it's a draft
         if(estimateData.hasOwnProperty("_id")){
+            //Put it to the database
             axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
                 console.log(response);
+                //If complete, reload window
                 if(status === "complete"){
                     window.location.reload(false);
                 }
             });
         }else{
+            //If it doesnt have an id, this is not a draft so post it
             axios.post('/estimate', estimateData).then((response) => {
                 console.log(response);
+                //If the status is complete, delete from user estimates and
+                //refresh the page
                 if(status === "complete"){
                     axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
                         console.log(response);
@@ -135,6 +183,7 @@ function Estimator(props){
             <div className='divider'>
                 <h2>Three Stage Estimate Calculator</h2>
                 <div className='formNav'>
+                    {/**Map over billable list schema to determine form navigation buttons */}
                     {Object.keys(billableList).map((key, index) => (
                         <button className='button' key={index}
                                 onClick={() => {setNavIndex(index)}}>
@@ -159,6 +208,7 @@ function Estimator(props){
             our form values*/}
                 {({ values, errors, touched }) => (
                     <Form>
+                        {/**Map over billable list schema to generate stages of the estimate form */}
                         {Object.keys(billableList).map((key, index) => (
                             (navIndex === index ? 
                             (
@@ -174,8 +224,11 @@ function Estimator(props){
                             )
                         ))
                         }
+                        {/**If nav index is at the end of the billable list length */}
                         {navIndex === Object.keys(billableList).length ? 
                         (
+                            //Display the overview page as well as submit buttons and
+                            //any error messages
                             <>
                                 <Overview values={values} />
                                 {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}

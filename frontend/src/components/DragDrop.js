@@ -8,8 +8,9 @@
  */
 
 import './DragDrop.css';
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 
+//The maximum amount of allowed images
 const MAXIMAGES = 10;
 
 /**
@@ -33,6 +34,14 @@ function fileListToArray(fileList, imageArr){
     }
 }
 
+/**
+ * This function validates all the images to make sure they
+ * are png, jpg or jpeg, and they adding these images would not
+ * make the image array larger than max images.
+ * @param {*} fileList the added images
+ * @param {*} imageArr the existing images
+ * @returns valid, boolean for valid or not
+ */
 function validateAll(fileList, imageArr){
     var valid = true;
     for(var i = 0; i < fileList.length; i++){
@@ -43,6 +52,12 @@ function validateAll(fileList, imageArr){
     return valid;
 }
 
+/**
+ * This function validates one image. It makes sure it
+ * is of type jpg, png or jpeg
+ * @param {File} file the image to validate
+ * @returns valid, boolean if valid or not
+ */
 function validateOne(file){
     var valid = false;
     if(file.type === "image/jpg" || file.type === "image/png" || file.type === "image/jpeg"){
@@ -64,10 +79,6 @@ function DragDrop(props){
     //to a hidden upload button
     const inputRef = useRef();
     const [valid, setValid] = useState(true);
-
-    useEffect(() => {
-        console.log(props.images);
-    },[props.images])
 
     /**
      * This function adds an image to the image array
@@ -109,7 +120,9 @@ function DragDrop(props){
                 onDrop={handleDrop}
                 onClick={() => inputRef.current.click()}
             >   
-                {valid ? 
+                {valid ?
+                //Here we are displaying the normal drop box text if valid,
+                //or an error message if not valid 
                 (
                     <>
                     <br/>
