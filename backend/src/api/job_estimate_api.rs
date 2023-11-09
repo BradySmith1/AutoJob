@@ -21,7 +21,15 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 /// an error message.
 #[post("/estimate")]
 pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String) -> HttpResponse {
-    post_data(&db, &new_user).await
+    let json: JobEstimate = match serde_json::from_str(&new_user){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    post_data(&db, json).await
 }
 
 /// Retrieve jobEstimate details by their ID via a GET request.
@@ -40,7 +48,10 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 #[get("/estimate")]
 pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, query:
 Query<Document>) -> HttpResponse {
-    get_data(db, query.into_inner()).await
+    return match get_data(&db, query.into_inner()).await {
+        Ok(user) => HttpResponse::Ok().json(user),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }
 
 /// Update jobEstimate details by their ID via a PUT request.
@@ -70,7 +81,7 @@ pub async fn update_estimate(
     let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
     let update_result = db.update_document(&id, data).await;
-    push_update(update_result, db, id).await
+    push_update(update_result, &db, id).await
 }
 
 /// Delete jobEstimate details by their ID via a DELETE request.

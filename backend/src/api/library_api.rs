@@ -27,7 +27,21 @@ use crate::model::library_model::MaterialFee;
 #[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
                                                                                     HttpResponse {
-    post_data(&db, &new_user).await
+    let json: MaterialFee = match serde_json::from_str(&new_user){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    if json.auto_update.is_some() {
+        if json.store.is_none(){
+            return HttpResponse::BadRequest().body("auto_update field is true but no store was \
+            provided");
+        }
+    }
+    post_data(&db, json).await
 }
 
 /// Retrieve materialLibrary entry details by their ID via a GET request.
@@ -50,7 +64,11 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 #[get("/library")]
 pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
                                                                                     HttpResponse {
-    get_data(db, query.into_inner()).await
+   return match get_data(&db, query.into_inner()).await{
+        Ok(data) => HttpResponse::Ok().json(data),
+        Err(err) => HttpResponse::InternalServerError()
+            .body(err.to_string()),
+    };
 }
 
 /// Update materialLibrary entry details by their ID via a PUT request.
@@ -82,7 +100,7 @@ pub async fn update_library_entry(
     let mut data: MaterialFee = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
     let update_result: Result<UpdateResult, Error>= db.update_document(&id, data).await;
-    push_update(update_result, db, id).await
+    push_update(update_result, &db, id).await
 }
 
 /// Delete materialLibrary entry details by their ID via a DELETE request.

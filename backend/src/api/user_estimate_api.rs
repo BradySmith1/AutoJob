@@ -35,7 +35,15 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
     if user.is_empty() {
         return HttpResponse::BadRequest().body("invalid format for userEstimate");
     }
-    let json = post_data(&db, user).await.into_body().try_into_bytes().unwrap();
+    let json: UserEstimate = match serde_json::from_str(&user){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    let json = post_data(&db, json).await.into_body().try_into_bytes().unwrap();
     let mut id = std::str::from_utf8(&json).unwrap();
     id = id.rsplit("\"").collect::<Vec<&str>>()[1];
 
@@ -46,17 +54,20 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
             return HttpResponse::InternalServerError().body("Could not save files");
         },
     };
-    if references.is_empty(){
+    if references.is_empty() {
         let mut hash = Document::new();
         hash.insert("_id".to_string(), id);
-        return get_data(db, hash).await; //get data takes a id as a string and parses it
-    }                                           //inside the function
+        return match get_data(&db, hash).await { //get data takes a id as a string and parses it
+            Ok(user) => HttpResponse::Ok().json(user),//inside the function
+            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+        }
+    }
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
     let response = db.update_document(&id.to_string(), json_user).await;
-    push_update(response, db, id.to_string()).await
+    push_update(response, &db, id.to_string()).await
     //might want to just return a id
 }
 
@@ -94,7 +105,10 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user")]
 pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) -> HttpResponse {
-    get_data(db, query.into_inner()).await
+    return match get_data(&db, query.into_inner()).await {
+        Ok(user) => HttpResponse::Ok().json(user),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }
 
 #[get("/userimage")]
@@ -149,7 +163,7 @@ pub async fn update_user(
         images: new_user.images.to_owned(),
     };
     let update_result = db.update_document(&id, data).await;
-    push_update(update_result, db, id).await
+    push_update(update_result, &db, id).await
 }
 
 /// Delete userEstimate details by their ID via a DELETE request.

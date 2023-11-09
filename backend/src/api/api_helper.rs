@@ -6,17 +6,8 @@ use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
 
-pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) -> HttpResponse {
-    let data = serde_json::from_str(&new_user);
-    let json: T = match data{
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
-    };
-    let user_detail = db.create_document(json).await;
+pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_json: T) -> HttpResponse {
+    let user_detail = db.create_document(new_json).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(_) => HttpResponse::InternalServerError()
@@ -25,7 +16,8 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) 
     }
 }
 
-pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -> HttpResponse{
+pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document) ->
+                                                                                 Result<Vec<T>, Error> {
     let user_detail:Result<Vec<T>, Error>;
     if query.is_empty() {
         user_detail = db.get_all_documents().await;
@@ -38,10 +30,7 @@ pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -
         }
         user_detail = db.get_documents_by_attribute(query).await;
     }
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    user_detail
 }
 
 pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) ->
@@ -77,7 +66,7 @@ pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
 }
 
 pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, Error>, db:
-Data<MongoRepo<T>>, id: String) -> HttpResponse{
+&Data<MongoRepo<T>>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {
             if update.matched_count == 1 {

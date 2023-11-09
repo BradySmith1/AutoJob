@@ -18,11 +18,13 @@ pub struct MaterialFee {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_update: Option<String>,
     #[serde(default = "default_ttl", skip_serializing)]
-    pub ttl: String,
+    pub ttl: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub store: Option<String>,
 }
 
-fn default_ttl() -> String {
-    (Utc::now() + chrono::Duration::days(7)).to_string()
+fn default_ttl() -> Option<String> {
+    Some((Utc::now() + chrono::Duration::days(7)).to_string())
 }
 
 impl Model<MaterialFee> for MaterialFee {

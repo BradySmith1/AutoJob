@@ -21,7 +21,6 @@ use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_est
                                    get_estimate, update_estimate};
 use crate::api::library_api::{create_library_entry, delete_library_entry,
                               get_all_library_entries, get_library_entry, update_library_entry};
-use crate::api::scraper_api::get_scraper_data;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
@@ -71,6 +70,7 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
     std::env::set_var("IMAGE_PATH", "../images/");
+    std::env::set_var("WEB_CACHE_URL", "http://localhost:5000/cache");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -121,7 +121,6 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
-            .service(get_scraper_data)
             .service(index)
 
     })

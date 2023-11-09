@@ -1,7 +1,6 @@
-use std::process::{Command, Output, Stdio};
-use actix_web::{get, HttpResponse};
-use actix_web::web::Path;
-use crate::model::scraper_model::Library;
+use std::collections::HashMap;
+use actix_web::{HttpResponse};
+use actix_web::web::{ Query};
 
 /// Retrieve scraper data by material via a GET request.
 ///
@@ -16,37 +15,18 @@ use crate::model::scraper_model::Library;
 /// If the provided material is empty or there's an error during the retrieval process, it
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[get("/scrape/{company}/{material}")]
-pub async fn get_scraper_data(search: Path<(String, String)>) -> HttpResponse {
-    //formats the string to be used in the python script
-    let (company, material) = search.into_inner();
-    //todo fix this if statement it is not efficient
-    if company.eq("homedepot") || company.eq("lowes") {
-    }else{
-        return HttpResponse::BadRequest().body("invalid company");
-    }
-    let material_parsed = material.replace('_', " ");
-
-    //runs the python script and gets the output
-    let output: Output = Command::new("python3")
-        .arg("./src/scraper/scraper.py")
-        .arg(company)
-        .arg(material_parsed)
-        .stdout(Stdio::piped())
-        .output()
-        .expect("Could not run bash command");
-
-    //converts the output to a string
-    let data = String::from_utf8(output.stdout.clone()).unwrap();
-    if data.clone().eq("No products found") {
-        return HttpResponse::Ok().body(data);
-    }
-
-    //converts the string to a Library object and returns the requests data.
-    let result_json = serde_json::from_str::<Library>(&data);
-    match result_json {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(err) => HttpResponse::InternalServerError()
-            .body(err.to_string()),
+pub async fn get_scraper_data(Name: String, Store: String) -> HttpResponse {
+    let url = std::env::var("WEB_CACHE_URL").unwrap();
+    let client = reqwest::Client::new();
+    let res = client.get(&url);
+    let res = res.query(&[("Name", Name), ("Store", Store)]);
+    match res.send().await {
+        Ok(res) => {
+            let body = res.text().await.unwrap();
+            HttpResponse::Ok().body(body)
+        }
+        Err(err) => {
+            HttpResponse::InternalServerError().body(err.to_string())
+        }
     }
 }
