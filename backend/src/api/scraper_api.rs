@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-use actix_web::{HttpResponse};
-use actix_web::web::{ Query};
+use serde_derive::{Deserialize};
 
 /// Retrieve scraper data by material via a GET request.
 ///
@@ -15,18 +13,18 @@ use actix_web::web::{ Query};
 /// If the provided material is empty or there's an error during the retrieval process, it
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-pub async fn get_scraper_data(Name: String, Store: String) -> HttpResponse {
+pub async fn get_scraper_data(Name: String, Store: String) -> ScraperData {
     let url = std::env::var("WEB_CACHE_URL").unwrap();
     let client = reqwest::Client::new();
     let res = client.get(&url);
     let res = res.query(&[("Name", Name), ("Store", Store)]);
-    match res.send().await {
-        Ok(res) => {
-            let body = res.text().await.unwrap();
-            HttpResponse::Ok().body(body)
-        }
-        Err(err) => {
-            HttpResponse::InternalServerError().body(err.to_string())
-        }
-    }
+    let response = res.send().await.expect("Problem with the connection between the \
+    backend and the frontend.");
+    response.json::<ScraperData>().await.expect("No json was parsed")
+}
+
+#[derive(Deserialize)]
+pub struct ScraperData {
+    name: String,
+    price: String
 }
