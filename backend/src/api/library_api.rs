@@ -36,9 +36,13 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
         },
     };
     if json.auto_update.is_some() {
-        if json.store.is_none(){
+        if json.company.is_none(){
             return HttpResponse::BadRequest().body("auto_update field is true but no store was \
             provided");
+        }
+        let company = json.company.unwrap().to_owned();
+        if !company.eq("lowes") && !company.eq("homedepot"){
+            return HttpResponse::BadRequest().body("Invalid company name");
         }
     }
     post_data(&db, json).await

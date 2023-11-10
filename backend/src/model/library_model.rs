@@ -20,7 +20,7 @@ pub struct MaterialFee {
     #[serde(default = "default_ttl", skip_serializing)]
     pub ttl: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub store: Option<String>,
+    pub company: Option<String>, //will need to change this to store later down the line.
 }
 
 fn default_ttl() -> Option<String> {

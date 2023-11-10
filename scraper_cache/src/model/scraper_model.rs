@@ -1,3 +1,4 @@
+use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
@@ -17,8 +18,11 @@ pub struct Library {
 #[derive(Clone)]
 #[allow(non_snake_case)]
 pub struct Product {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<ObjectId>,
     pub name: String,
-    pub price: f32
+    pub price: f32,
+    pub company: String
 }
 
 impl Model<Product> for Product {

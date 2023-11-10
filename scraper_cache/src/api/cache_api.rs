@@ -1,17 +1,15 @@
+use std::collections::HashMap;
 use actix_web::{web::{Data}, HttpResponse, get};
 use actix_web::web::Form;
-use model::material_model::Material;
-use crate::api::scraper_api::get_scraper_data;
-use crate::model;
-use crate::model::form_data_model::GetForm;
 use crate::repository::mongodb_repo::MongoRepo;
 
 #[get("/cache")]
-pub async fn get_cached_materials(cache: Data<MongoRepo<Material>>, Form(form): Form<GetForm>) ->
+pub async fn get_cached_materials(cache: Data<MongoRepo<Product>>, Form(form):
+Form<HashMap<String, String>>) ->
                                                                                      HttpResponse {
-    let material: String = "name_".to_string() + &form.material;
+    //Form comes in format of {name: {}, store: {}}
     let returned_materials = match cache.
-        get_documents_by_attribute(&material).await {
+        get_documents_by_attribute(&form.into()).await {
         Ok(materials) => materials,
         Err(_) => {
             println!("Error: Could not get materials from the cache.");
@@ -19,7 +17,8 @@ pub async fn get_cached_materials(cache: Data<MongoRepo<Material>>, Form(form): 
         }
     };
     if returned_materials.len() == 0 {
-        let material = match get_scraper_data(&form.company, &form.material).await{
+        let material = match get_scraper_data(&form.get("company").unwrap(),
+                                              &form.get("material").unwrap()).await{
             Ok(material) => material,
             Err(string) => {
                 if string.eq("No Products Found"){
@@ -37,15 +36,14 @@ pub async fn get_cached_materials(cache: Data<MongoRepo<Material>>, Form(form): 
 }
 
 use std::process::{Command, Output, Stdio};
-use crate::model::material_model::Material;
-use crate::model::scraper_model::Library;
+use crate::model::scraper_model::{Library, Product};
 
-pub async fn get_scraper_data(company: &String, material: &String) -> Result<Material, String> {
+pub async fn get_scraper_data(company: &String, material: &String) -> Result<Product, String> {
     //runs the python script and gets the output
     let output: Output = Command::new("python3")
         .arg("./src/scraper/scraper.py")
-        .arg(company)
-        .arg(material)
+        .arg(&company)
+        .arg(&material)
         .stdout(Stdio::piped())
         .output()
         .expect("Could not run bash command");
@@ -64,11 +62,10 @@ pub async fn get_scraper_data(company: &String, material: &String) -> Result<Mat
 
     //TODO might want to change this but should work right now.
     let product = result_json.available_products[0].clone();
-    Ok(Material {
+    Ok(Product {
         id: None,
         name: product.name,
         price: product.price,
-        quantity: 0.0,
-        description: "material".to_string(),
+        company: company.to_string(),
     })
 }

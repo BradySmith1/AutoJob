@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::process::exit;
 use dotenv::dotenv;
@@ -115,9 +116,10 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
-        let doc = attr.split("_").collect::<Vec<&str>>();
-        let filter = doc! {doc[0]: doc[1]};
+    pub async fn get_documents_by_attribute(&self, attributes: &HashMap<String, String>) ->
+                                                                                   Result<Vec<T>, Error> {
+        let filter = doc! {"name": attributes.get("name").unwrap(), "store": attributes.get
+            ("store")};
         let mut cursor = self
             .col
             .find(filter, None)

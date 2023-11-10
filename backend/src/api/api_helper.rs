@@ -33,8 +33,7 @@ pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document)
     user_detail
 }
 
-pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) ->
-                                                                                    HttpResponse {
+pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -> HttpResponse {
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
