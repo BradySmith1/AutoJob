@@ -9,7 +9,8 @@ use actix_web::web::Data;
 use console::Style;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use repository::mongodb_repo::MongoRepo;
-use crate::model::scraper_model::Product;
+use crate::api::cache_api::get_cached_materials;
+use crate::model::scraper_model::{ReturnProduct};
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -61,14 +62,14 @@ pub async fn main() -> std::io::Result<()> {
     let blue = Style::new()
         .blue();
     let prefix = "127.0.0.1:";
-    let port = 3001;
+    let port = 5000;
     let target = format!("{}{}", prefix, port);
 
     //checks if MongoDB instance is running
-    //check_mongodb();
+    check_mongodb();
 
     // Initializes the different Mongodb collection connections.
-    let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;
+    let db_cache: MongoRepo<ReturnProduct> = MongoRepo::init("materialCache").await;
     let db_cache_data = Data::new(db_cache);
 
     let ssl = ssl_builder();
@@ -81,6 +82,7 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .app_data(db_cache_data.clone())
+            .service(get_cached_materials)
 
     })
         .bind_openssl(&target, ssl)?

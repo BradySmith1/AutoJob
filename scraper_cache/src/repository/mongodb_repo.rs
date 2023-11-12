@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::env;
 use std::process::exit;
 use dotenv::dotenv;
@@ -10,6 +9,7 @@ use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 use mongodb::results::{DeleteResult, UpdateResult};
 use serde_json::json;
 use crate::model::model_trait::Model;
+use crate::model::form_model::ScraperForm;
 
 /// A struct representing a MongoDB repository for user estimates.
 pub struct MongoRepo<T> {
@@ -116,10 +116,9 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn get_documents_by_attribute(&self, attributes: &HashMap<String, String>) ->
+    pub async fn get_documents_by_attribute(&self, attributes: &ScraperForm) ->
                                                                                    Result<Vec<T>, Error> {
-        let filter = doc! {"name": attributes.get("name").unwrap(), "store": attributes.get
-            ("store")};
+        let filter = doc! {"name": &attributes.name, "company": &attributes.company};
         let mut cursor = self
             .col
             .find(filter, None)
