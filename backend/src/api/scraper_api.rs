@@ -1,4 +1,22 @@
-use serde_derive::{Deserialize};
+use std::collections::HashMap;
+use actix_web::{get, HttpResponse};
+use actix_web::web::Query;
+use serde_derive::{Deserialize, Serialize};
+
+#[get("/scrape")]
+pub async fn instant_web_scrape(query: Query<HashMap<String, String>>) -> HttpResponse {
+    let map = query.into_inner();
+    let name = match map.get("name"){
+        Some(name) => name,
+        None => return HttpResponse::BadRequest().body("Invalid name"),
+    };
+    let company = match map.get("company"){
+        Some(company) => company,
+        None => return HttpResponse::BadRequest().body("Invalid company"),
+    };
+    let scraper_data = get_scraper_data(name.to_string(), company.to_string()).await;
+    HttpResponse::Ok().json(scraper_data)
+}
 
 /// Retrieve scraper data by material via a GET request.
 ///
@@ -18,13 +36,15 @@ pub async fn get_scraper_data(name: String, company: String) -> ScraperData {
     let client = reqwest::Client::new();
     let res = client.get(&url);
     let res = res.query(&[("name", name), ("company", company)]);
+    let res = res.timeout(std::time::Duration::from_secs(5));
     let response = res.send().await.expect("Problem with the connection between the \
     backend and the frontend.");
     response.json::<ScraperData>().await.expect("No json was parsed")
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ScraperData {
-    name: String,
-    price: String
+    pub name: String,
+    pub price: String,
+    pub company: String
 }

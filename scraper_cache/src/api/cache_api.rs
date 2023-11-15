@@ -4,7 +4,7 @@ use crate::model::form_model::ScraperForm;
 use actix_web::web::Query;
 
 #[get("/cache")]
-pub async fn get_cached_materials(cache: Data<MongoRepo<ReturnProduct>>, query:
+pub async fn get_cached_materials(cache: Data<MongoRepo<Product>>, query:
 Query<ScraperForm>) ->
                                                                                      HttpResponse {
     //Form comes in format of {name: {}, store: {}}
@@ -13,7 +13,7 @@ Query<ScraperForm>) ->
         Ok(materials) => materials,
         Err(_) => {
             println!("No documents in the cache. Proceeding to scraping.");
-            Vec::<ReturnProduct>::new()
+            Vec::<Product>::new()
         }
     };
     if returned_materials.len() == 0 {
@@ -36,9 +36,9 @@ Query<ScraperForm>) ->
 }
 
 use std::process::{Command, Output, Stdio};
-use crate::model::scraper_model::{ReturnProduct, ScraperLibrary};
+use crate::model::scraper_model::{Product, ScraperLibrary};
 
-pub async fn get_scraper_data(company: &String, material: &String) -> Result<ReturnProduct,
+pub async fn get_scraper_data(company: &String, material: &String) -> Result<Product,
     String> {
     //runs the python script and gets the output
     let output: Output = Command::new("python3")
@@ -65,7 +65,7 @@ pub async fn get_scraper_data(company: &String, material: &String) -> Result<Ret
     //TODO might want to change this but should work right now.
     let mut product = result_json.available_products[0].clone();
     product.name = product.name.replace(" ", "_");
-    Ok(ReturnProduct {
+    Ok(Product {
         id: None,
         name: material.clone(),
         price: product.price,

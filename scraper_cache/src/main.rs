@@ -10,7 +10,7 @@ use console::Style;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use repository::mongodb_repo::MongoRepo;
 use crate::api::cache_api::get_cached_materials;
-use crate::model::scraper_model::{ReturnProduct};
+use crate::model::scraper_model::{Product};
 
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
@@ -69,7 +69,7 @@ pub async fn main() -> std::io::Result<()> {
     check_mongodb();
 
     // Initializes the different Mongodb collection connections.
-    let db_cache: MongoRepo<ReturnProduct> = MongoRepo::init("materialCache").await;
+    let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;
     let db_cache_data = Data::new(db_cache);
 
     let ssl = ssl_builder();

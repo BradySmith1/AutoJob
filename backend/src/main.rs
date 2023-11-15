@@ -9,6 +9,8 @@ mod repository;
 mod model;
 
 use std::io::{Read};
+use clokwerk::{AsyncScheduler, TimeUnits};
+use std::time::Duration;
 use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
@@ -19,8 +21,8 @@ use repository::mongodb_repo::MongoRepo;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
                                    get_estimate, update_estimate};
-use crate::api::library_api::{create_library_entry, delete_library_entry,
-                              get_all_library_entries, get_library_entry, update_library_entry};
+use crate::api::library_api::{check_library, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
+use crate::api::scraper_api::instant_web_scrape;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
@@ -95,6 +97,19 @@ pub async fn main() -> std::io::Result<()> {
 
     let ssl = ssl_builder();
 
+    let mut scheduler = AsyncScheduler::new();
+    scheduler
+        .every(30.minutes())
+        .run(|| async { check_library(MongoRepo::init("materialFeeLibrary").await).await; });
+
+    tokio::spawn(async move {
+        loop {
+            scheduler.run_pending().await;
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+    });
+
+
     println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
 
     // Creation of the api server
@@ -121,6 +136,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
+            .service(instant_web_scrape)
             .service(index)
 
     })

@@ -27,7 +27,7 @@ pub struct ScraperProduct {
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
-pub struct ReturnProduct {
+pub struct Product {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub name: String,
@@ -42,7 +42,7 @@ impl Model<ScraperProduct> for ScraperProduct {
     }
 }
 
-impl Model<ReturnProduct> for ReturnProduct {
+impl Model<Product> for Product {
 
     fn to_string(&self) -> String {
         to_string(self).unwrap()

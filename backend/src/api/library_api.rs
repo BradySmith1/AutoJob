@@ -35,9 +35,9 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },
     };
-    if json.auto_update.is_some() {
+    if json.auto_update.is_some() && json.auto_update.clone().unwrap().eq("true") {
         if json.company.is_none(){
-            return HttpResponse::BadRequest().body("auto_update field is true but no store was \
+            return HttpResponse::BadRequest().body("auto_update field is true but no company was \
             provided");
         }
         let company = json.clone().company.unwrap();
@@ -145,4 +145,37 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 #[get("/libraries")]
 pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
     get_all_data(db).await
+}
+
+pub async fn check_library(db: MongoRepo<MaterialFee>){
+    println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
+    let materials = match db.get_all_documents().await{
+        Ok(materials) => materials,
+        Err(_) => {
+            println!("Could not retrieve materials from database");
+            return;
+        }
+    };
+    for material in materials{
+        if material.auto_update.is_some() && material.auto_update.clone().unwrap().eq("true") {
+            let ttl = material.ttl.clone().unwrap();
+            let now = chrono::Utc::now().timestamp().to_string();
+            if now > ttl {
+                let mut new_material = material.clone();
+                let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
+                                                                             material.company
+                                                                                 .unwrap()
+                                                                                 .clone()).await;
+                new_material.price = scraper_data.price.parse().unwrap();
+                new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string
+                ());
+                let update_result: Result<UpdateResult, Error>= db.update_document(&material.id.unwrap().to_string(), new_material).await;
+                match update_result {
+                    Ok(_) => println!("Updated material: {}", material.name),
+                    Err(_) => println!("Could not update material: {}", material.name),
+                }
+            }
+
+        }
+    }
 }
