@@ -94,7 +94,7 @@ function Billable(props){
      */
     useEffect(() => {
         if(display){
-            determineBackgroundColor(document.getElementById(importID), props.data.auto_update); 
+            determineBackgroundColor(document.getElementById(importID), props.billable.data.auto_update); 
         }
     }, [display])
 
@@ -102,17 +102,17 @@ function Billable(props){
         <div className="billableWrapper" ref={wrapperRef} id={props.index}>
             {/**Show the name of the billable item */}
             <div className="section">
-                {props.data.name}
+                {props.billable.data.name}
             </div>
             {/**Show the price of the billable item */}
             <div className="section">
-                ${props.data.price}
+                ${props.billable.data.price}
             </div>
             {/**Show either an import button or "imported" as well as a remove button
             * for this billable object
             */}
             <div className="buttonSection">
-                {!props.stateArr[props.index] ? 
+                {!props.billable.imported ? 
                     (
                         <button
                             type="button"
@@ -120,8 +120,8 @@ function Billable(props){
                             onClick={() => {
                                 //Here we are inserting this element of the library
                                 //into the form
-                                props.insert(0, props.library[props.index])
-                                props.setState(props.updateImported(props.stateArr, props.index))
+                                props.insertBillable(props.billable.data)
+                                props.billable.imported = true;
                             }}
                         >
                             Import
@@ -142,10 +142,10 @@ function Billable(props){
                         setDisplay(!display);
                         //Determine position for the menu options
                         var offsets = document.getElementById(props.index).getBoundingClientRect();
-                        var right = offsets.left;
-                        var menuOffset = right - 225;
+                        var menuOffset = offsets.right;
                         var thisBillable = document.getElementById(billableID);
-                        thisBillable.setAttribute("style", "right: " + menuOffset + "px");
+                        thisBillable.style.left = menuOffset + "px";
+                        thisBillable.style.top = (offsets.top - 115) + "px";
                     }}
                 >
                     ...
@@ -159,9 +159,9 @@ function Billable(props){
                                 className="optionsButton tickBox"
                                 onClick={() => {
                                     //On click, set modify the billable to auto import
-                                    props.data.auto_update = toggle(props.data.auto_update);
-                                    determineBackgroundColor(document.getElementById(importID), props.data.auto_update)
-                                    axios.put('/library/' + props.data._id.$oid, props.data).then(response => console.log(response));
+                                    props.billable.data.auto_update = toggle(props.billable.data.auto_update);
+                                    determineBackgroundColor(document.getElementById(importID), props.billable.data.auto_update)
+                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then(response => console.log(response));
                                 }}
                             >
                                 Auto Import
@@ -185,10 +185,7 @@ function Billable(props){
                                     onClick={() => {
                                         //Here we are removing this element from the library
                                         //when the x button is clicked
-                                        var libCopy = [...props.library];
-                                        libCopy.splice(props.index, 1);
-                                        axios.delete(`/library?_id=${props.data._id.$oid}`).then(response => console.log(response));
-                                        props.setLibrary(libCopy);
+                                        props.removeFromLibrary(props.index);
                                         setDisplay(false);
                                     }}
                                 >

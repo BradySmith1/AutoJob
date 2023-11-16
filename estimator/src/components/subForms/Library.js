@@ -11,33 +11,20 @@ import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
 
-//Initial values for the material library
-const initialValues = [
-        {
-            name: "",
-            price: 0,
-            quantity: 1,
-            description: "",
-            autoupdate: "false"
-        }
-    ]
-
 /**
  * This function compares everything in the estimate form to the
  * material library to determine if it is already imported or not.
  * 
- * @param {billabe[]} formData data that is already in the form
+ * @param {billable[]} formData data that is already in the form
  * @param {billable[]} billableData data that is in the library
  * @returns 
  */
 function trackImported(formData, billableData){
     //Declare and empty state array
-    var stateArr = [];
 
     //Loop through the library
     for(var i = 0; i < billableData.length; i++){;
-        var billable = billableData[i];
-        var tracked = false;
+        var billable = billableData[i].data;
 
         //Loop through what's currently in the form
         for(var j = 0; j < formData.length; j++){
@@ -47,30 +34,11 @@ function trackImported(formData, billableData){
             //Mark it as imported
             if(billable.name === data.name
                 && billable.price === data.price){
-                tracked = true;
+                billableData[i].imported = true;
             }
 
         }
-        stateArr.push(tracked);
     }
-    return stateArr;
-}
-
-/**
- * This function updates the state array to track a newly
- * imported billable object
- * 
- * @param {boolean[]} stateArr the state array
- * @param {number} index the index to update the state array at
- * @returns 
- */
-function updateImported(stateArr, index){
-    //copy array
-    var arrCopy = [...stateArr];
-    //set index to true
-    arrCopy[index] = true;
-    //return the copy
-    return arrCopy;
 }
 
 /**
@@ -108,9 +76,8 @@ function searchString(billabe, searchStr){
 function Library(props){
 
     //Use state for the library
-    const [library, setLibrary] = useState(initialValues);
+    const [library, setLibrary] = useState([]);
     //Use state for the state array
-    const [stateArr, setState] = useState([]);
     const [searchStr, setSearchStr] = useState("");
     //Use state to determine whether or not to display the add
     //billabel popup form
@@ -123,6 +90,28 @@ function Library(props){
         setSearchStr(event.target.value);
     }
 
+    const addToLibrary = (billable) =>{
+        axios.post('/library', billable).then((response) => {
+            billable._id = {"$oid" : response.data.insertedId.$oid};
+            console.log(response);
+            setLibrary([...library, {data: billable, imported: false}]);
+        });
+    }
+
+    const removeFromLibrary = (index) =>{
+        var libCopy = [...library];
+        libCopy.splice(index, 1);
+        axios.delete(`/library?_id=${library[index].data._id.$oid}`).then((response) => {
+            console.log(response)
+            setLibrary(libCopy);
+        });
+    }
+
+    const insertBillable = (billable) =>{
+        props.insert(0, billable);
+        billable.imported = true;
+    }
+
     //Use effect for grabbing all the relavent billables from the library
     //on the first render
     useEffect(() => {
@@ -130,9 +119,14 @@ function Library(props){
             //Get all billables from the library that have the needed description
             axios.get('/library?description=' + props.name).then((response) => {
                 //initialize the state array
-                setState(trackImported(props.data, response.data));
+                var vallueArr = [];
+                for(const billable of response.data){
+                    vallueArr.push({data: billable, imported: false});
+                }
                 //Initialize the library
-                setLibrary(response.data);
+                trackImported(props.data, vallueArr);
+                console.log(vallueArr);
+                setLibrary(vallueArr);
                 //Set the loading variable to false
                 setLoading(false);
             });
@@ -173,17 +167,14 @@ function Library(props){
                     library.map((billable, index) => (
                         //If the billable name batches the search string,
                         //render it
-                        (searchString(billable, searchStr) ? 
+                        (searchString(billable.data, searchStr) ? 
                             (
                             <Billable 
-                                data={billable}
-                                stateArr={stateArr}
-                                setState={setState}
-                                insert={props.insert}
+                                billable={billable}
+                                insertBillable={insertBillable}
                                 library={library}
-                                setLibrary={setLibrary}
+                                removeFromLibrary={removeFromLibrary}
                                 index={index}
-                                updateImported={updateImported}
                                 key={index}
                             />
                             )
@@ -215,8 +206,7 @@ function Library(props){
             {/**If display has been set to true, display the add to library form */}
             {display ? 
                 <AddToLibrary 
-                    values={library}
-                    setValues={setLibrary}
+                    addToLibrary={addToLibrary}
                     name={props.name}
                     setDisplay={setDisplay}
             /> : null}

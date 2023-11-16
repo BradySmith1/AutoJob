@@ -15,7 +15,6 @@ import * as Yup from "yup"
 /**
  * 
  * @param {JSON object} props 
- *      props.values the values of the library
  *      props.setValues function to change the values of the library
  *      props.name name of the billable
  *      props.setDisplay controls when to stop rendering this component
@@ -45,12 +44,8 @@ function AddToLibrary(props){
 
         //submit function for the form
         onSubmit: (values, { resetForm }) => {
-            axios.post('/library', values).then((response) => {
-                values._id = {"$oid" : response.data.insertedId.$oid};
-                console.log(response);
-                props.setValues([...props.values, values]);
-                resetForm();
-            });
+            props.addToLibrary(values);
+            resetForm();
         }
     
     });
