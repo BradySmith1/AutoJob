@@ -8,7 +8,7 @@
 }
 
 .materialsForm{
-    margin-top: 50px;
+    margin-top: 40px;
     text-align: center;
     padding-bottom: 100px;
     position: relative;
@@ -47,6 +47,13 @@
 
 .button:hover{
     background-color: #00A3FF;
+}
+
+.large{
+    width: auto !important;
+    height: 50px !important;
+    font-size: 30 !important; 
+    border-radius: 10px;
 }
 
 .center{

@@ -16,7 +16,8 @@ import React, {useEffect, useState} from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
-import billableList from "./JSONs/billableList.json"
+import billableList from "./JSONs/billableList.json";
+import Library from "./subForms/Library.js";
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
 
@@ -106,6 +107,7 @@ function EstimateInfo(){
     const [userLoading, setUserLoading] = useState(true);
     const [estimateLoading, setEstimateLoading] = useState(true);
     const [images, setImages] = useState(defaultImages);
+    const [libDisplay, setLibDisplay] = useState(false);
 
     //Declare a use state variable that holds the default customer data
     const [customerData, setCustomerData] = useState([DEFAULT_ESTIMATE_DATA]);
@@ -170,6 +172,13 @@ function EstimateInfo(){
                     />}
                 </div>
             </div>
+            {libDisplay ? 
+            (<Library 
+                setDisplay={setLibDisplay}
+                name="Material"
+            />) 
+            : 
+            (null)}
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
             {currentCustomerData.user.fName !== "" 
                 ?
@@ -213,6 +222,12 @@ function EstimateInfo(){
                 : 
                 null
             }
+            <button className="button large fixedBtn"
+                onClick={() => {
+                    setLibDisplay(true);
+                }}>
+                Access Library
+            </button>
         </div>
     );
 }

@@ -112,27 +112,31 @@ function Billable(props){
             * for this billable object
             */}
             <div className="buttonSection">
-                {!props.billable.imported ? 
-                    (
-                        <button
-                            type="button"
-                            className="btn"
-                            onClick={() => {
-                                //Here we are inserting this element of the library
-                                //into the form
-                                props.insertBillable(props.billable.data)
-                                props.billable.imported = true;
-                            }}
-                        >
-                            Import
-                        </button>
-                    )
+                {props.insertBillable !== undefined ? 
+                    ((!props.billable.imported ? 
+                        (
+                            <button
+                                type="button"
+                                className="btn"
+                                onClick={() => {
+                                    //Here we are inserting this element of the library
+                                    //into the form
+                                    props.insertBillable(props.billable.data)
+                                    props.billable.imported = true;
+                                }}
+                            >
+                                Import
+                            </button>
+                        )
+                        :
+                        ( 
+                            <div className="mockBtn">
+                                Imported
+                            </div>
+                        )
+                    ))
                     :
-                    ( 
-                        <div className="mockBtn">
-                            Imported
-                        </div>
-                    )
+                    (null)
                 }
                 <button
                     type="button"

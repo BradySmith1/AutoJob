@@ -10,6 +10,7 @@ import './Library.css';
 import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
+import billableList from "../JSONs/billableList.json";
 
 /**
  * This function compares everything in the estimate form to the
@@ -94,16 +95,17 @@ function Library(props){
         axios.post('/library', billable).then((response) => {
             billable._id = {"$oid" : response.data.insertedId.$oid};
             console.log(response);
-            setLibrary([...library, {data: billable, imported: false}]);
+            const tempBillables = [...library.billables, {data: billable, imported: false}]
+            setLibrary({name: library.name, billables: tempBillables});
         });
     }
 
     const removeFromLibrary = (index) =>{
-        var libCopy = [...library];
+        var libCopy = [...library.billables];
         libCopy.splice(index, 1);
-        axios.delete(`/library?_id=${library[index].data._id.$oid}`).then((response) => {
+        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`).then((response) => {
             console.log(response)
-            setLibrary(libCopy);
+            setLibrary({name: library.name, billables: libCopy});
         });
     }
 
@@ -112,28 +114,30 @@ function Library(props){
         billable.imported = true;
     }
 
+    const getLibrary = (name) =>{
+        setLoading(true);
+
+        axios.get('/library?description=' + name).then((response) => {
+            //initialize the state array
+            var vallueArr = [];
+            for(const billable of response.data){
+                vallueArr.push({data: billable, imported: false});
+            }
+            //Initialize the library
+            if(props.data !== undefined){
+                trackImported(props.data, vallueArr);
+            }
+            setLibrary({name: name, billables: vallueArr});
+            //Set the loading variable to false
+            setLoading(false);
+        });
+    }
+
     //Use effect for grabbing all the relavent billables from the library
     //on the first render
     useEffect(() => {
-        try{
-            //Get all billables from the library that have the needed description
-            axios.get('/library?description=' + props.name).then((response) => {
-                //initialize the state array
-                var vallueArr = [];
-                for(const billable of response.data){
-                    vallueArr.push({data: billable, imported: false});
-                }
-                //Initialize the library
-                trackImported(props.data, vallueArr);
-                console.log(vallueArr);
-                setLibrary(vallueArr);
-                //Set the loading variable to false
-                setLoading(false);
-            });
-        } catch(error){
-            //If an error occurs, log it
-            console.log(error);
-        }
+        //Get all billables from the library that have the needed description
+        getLibrary(props.name);
 
         //Hide the scrollbar on the body while the library is open
         document.body.style.overflowY = 'hidden';
@@ -147,8 +151,17 @@ function Library(props){
         <div className="pageContainer">
             <div className="overflowWrapper">
                 <div className="contentContainer">
+                    <div className="libNav">
+                        {props.data === undefined && Object.keys(billableList).map((key, index) => (
+                                <button className='button' key={index}
+                                        onClick={() => {getLibrary(key)}}>
+                                    {key}s
+                                </button>
+                            ))
+                        }
+                    </div>
                     {/**Titles for each column of the form */}
-                    <h2>{props.name} Library</h2>
+                    <h2>{library.name} Library</h2>
                     <div className="searchWrapper">
                         <input
                             className="inputBox search"
@@ -164,19 +177,27 @@ function Library(props){
                     {loading ? <h3>Loading Data...</h3> : null}
                     {/**If we arent loading, map over the data */}
                     {!loading &&
-                    library.map((billable, index) => (
+                    library.billables.map((billable, index) => (
                         //If the billable name batches the search string,
                         //render it
                         (searchString(billable.data, searchStr) ? 
                             (
-                            <Billable 
-                                billable={billable}
-                                insertBillable={insertBillable}
-                                library={library}
-                                removeFromLibrary={removeFromLibrary}
-                                index={index}
-                                key={index}
-                            />
+                                (props.data !== undefined ? 
+                                    (<Billable 
+                                        billable={billable}
+                                        insertBillable={insertBillable}
+                                        removeFromLibrary={removeFromLibrary}
+                                        index={index}
+                                        key={index}
+                                    />) 
+                                    : 
+                                    (<Billable 
+                                        billable={billable}
+                                        removeFromLibrary={removeFromLibrary}
+                                        index={index}
+                                        key={index}
+                                    />)
+                                )
                             )
                         : null )
                     ))}
@@ -189,7 +210,7 @@ function Library(props){
                             setDisplay(true);
                         }}    
                     >
-                        Add New {props.name}
+                        Add New {library.name}
                     </button>
                 </div>
                 <button
@@ -207,7 +228,7 @@ function Library(props){
             {display ? 
                 <AddToLibrary 
                     addToLibrary={addToLibrary}
-                    name={props.name}
+                    name={library.name}
                     setDisplay={setDisplay}
             /> : null}
         </div>

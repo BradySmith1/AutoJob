@@ -20,6 +20,13 @@ h2{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 40px;
+}
+
+.fixedBtn{
+    position: fixed;
+    top: 20px;
+    right: 20px;
 }
 
 .selectWrapper{
@@ -64,4 +71,8 @@ h2{
 .info{
     color: white;
     font-size: 20px;
+}
+
+.largeBtn{
+
 }
