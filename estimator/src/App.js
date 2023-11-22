@@ -8,6 +8,7 @@
 import './App.css';
 import './components/EstimateInfo.js'
 import EstimateInfo from './components/EstimateInfo.js';
+import React from 'react';
 
 /**
  * Modified this App function from the default to have a header and the estimate

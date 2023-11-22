@@ -170,44 +170,46 @@ function EstimateInfo(){
                     />}
                 </div>
             </div>
-            <div className="customerInfo">
-                <div className="infoContainer">
-                    <div className="infoElement">
-                        <h2 className="infoHeading">Contact</h2>
-                        <div className="info">
-                            {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br/>
-                            {currentCustomerData.user.email}
-                        </div>
-                    </div>
-                    <div className="infoElement">
-                        <h2 className="infoHeading">Address</h2>
-                        <div className="info">
-                            {currentCustomerData.user.strAddr} <br/>
-                            {currentCustomerData.user.city} {currentCustomerData.user.state} {currentCustomerData.user.zip}
-                        </div>
-                    </div>
-                </div>
-                <div className="infoContainer">
-                    <div className="infoElement">
-                        <h2 className="infoHeading">Surfaces and Measurements</h2>
-                        <div className="info">
-                            {currentCustomerData.user.measurements}
-                        </div>
-                    </div>
-                    <div className="infoElement">
-                        <h2 className="infoHeading">Job Details</h2>
-                        <div className="info">
-                        {currentCustomerData.user.details}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <ImageCarousel images={images} />
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
             {currentCustomerData.user.fName !== "" 
-                ? 
-                <Estimator data={currentCustomerData} 
-                key={currentCustomerData.user._id.$oid}/> 
+                ?
+                <>
+                    <div className="customerInfo">
+                        <div className="infoContainer">
+                            <div className="infoElement">
+                                <h2 className="infoHeading">Contact</h2>
+                                <div className="info">
+                                    {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br/>
+                                    {currentCustomerData.user.email}
+                                </div>
+                            </div>
+                            <div className="infoElement">
+                                <h2 className="infoHeading">Address</h2>
+                                <div className="info">
+                                    {currentCustomerData.user.strAddr} <br/>
+                                    {currentCustomerData.user.city} {currentCustomerData.user.state} {currentCustomerData.user.zip}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="infoContainer">
+                            <div className="infoElement">
+                                <h2 className="infoHeading">Surfaces and Measurements</h2>
+                                <div className="info">
+                                    {currentCustomerData.user.measurements}
+                                </div>
+                            </div>
+                            <div className="infoElement">
+                                <h2 className="infoHeading">Job Details</h2>
+                                <div className="info">
+                                {currentCustomerData.user.details}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ImageCarousel images={images} />
+                    <Estimator data={currentCustomerData} 
+                    key={currentCustomerData.user._id.$oid}/> 
+                </>
                 : 
                 null
             }

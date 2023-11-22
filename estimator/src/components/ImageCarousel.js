@@ -7,7 +7,7 @@
  * brings up the full screen image carousel to view them better.
  */
 import "./ImageCarousel.css"
-import { useState } from "react";
+import React, { useState } from "react";
 
 const URLHEADER = "userimage?reference=";
 

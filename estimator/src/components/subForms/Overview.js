@@ -53,29 +53,32 @@ function Overview(props){
     }, []);
 
     return(
-        <div className="overviewWrapper">
-            {/**Map over the billable list to display each the overview for each billable array*/}
-            {Object.keys(billableList).map((key, index) => (
-                <div className="infoWrapper" key={index}>
-                    <div className="headerWrapper">
-                        <h2>{key} Costs</h2>
-                        {/**display the grand total here */}
-                        <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>
-                    </div>
-                    <div className="divide"></div>
-                    {/**Map over the materials and display name, price, and quantity */}
-                    {props.values[billableList[key]].map((billable) => (
-                        <div className="contentWrapper">
-                            {billable.name !== '' ? <h3>{billable.name}</h3> : null}
-                            {billable.name !== '' ? <h3>${billable.price}</h3> : null}
-                            {billable.name !== '' ? <h3>Qty: {billable.quantity}</h3> : null}
+        <>
+            <h2>Estimate Overview</h2>
+            <div className="overviewWrapper">
+                {/**Map over the billable list to display each the overview for each billable array*/}
+                {Object.keys(billableList).map((key, index) => (
+                    <div className="infoWrapper" key={index}>
+                        <div className="headerWrapper">
+                            <h2>{key} Costs</h2>
+                            {/**display the grand total here */}
+                            <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>
                         </div>
-                    ))}
-                </div>
-            ))}
-            {/**Display grand total */}
-            <h2 className="grandTotal">Total: ${grandTotal}</h2>
-        </div>
+                        <div className="divide"></div>
+                        {/**Map over the materials and display name, price, and quantity */}
+                        {props.values[billableList[key]].map((billable) => (
+                            <div className="contentWrapper">
+                                {billable.name !== '' ? <h3>{billable.name}</h3> : null}
+                                {billable.name !== '' ? <h3>${billable.price}</h3> : null}
+                                {billable.name !== '' ? <h3>Qty: {billable.quantity}</h3> : null}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+                {/**Display grand total */}
+                <h2 className="grandTotal">Total: ${grandTotal}</h2>
+            </div>
+        </>
     );
 }
 

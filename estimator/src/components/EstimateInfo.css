@@ -51,9 +51,12 @@ h2{
 }
 
 .infoElement{
-    width: 50%;
+    width: 45%;
     border-left-style: solid;
     border-left-color: #0055FF;
+    border-width: 5px;
+    background-color: #191D23;
+    border-radius: 10px;
     height: 200px;
     padding-left: 10px;
 }
