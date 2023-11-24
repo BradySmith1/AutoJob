@@ -1,7 +1,6 @@
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use chrono::{Utc};
 use crate::model::model_trait::Model;
 
 /// Represents a material. This will be used to represent a material in the materials array.
@@ -17,14 +16,10 @@ pub struct MaterialFee {
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_update: Option<String>,
-    #[serde(default = "default_ttl", skip_serializing)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub ttl: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub company: Option<String>, //will need to change this to store later down the line.
-}
-
-fn default_ttl() -> Option<String> {
-    Some((Utc::now() + chrono::Duration::days(7)).to_string())
 }
 
 impl Model<MaterialFee> for MaterialFee {

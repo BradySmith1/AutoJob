@@ -72,7 +72,7 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
     std::env::set_var("IMAGE_PATH", "../images/");
-    std::env::set_var("WEB_CACHE_URL", "http://localhost:5000/cache");
+    std::env::set_var("WEB_CACHE_URL", "https://localhost:5000/cache");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -99,7 +99,7 @@ pub async fn main() -> std::io::Result<()> {
 
     let mut scheduler = AsyncScheduler::new();
     scheduler
-        .every(30.minutes())
+        .every(5.minutes())
         .run(|| async { check_library(MongoRepo::init("materialFeeLibrary").await).await; });
 
     tokio::spawn(async move {

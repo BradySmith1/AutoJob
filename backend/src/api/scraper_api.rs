@@ -33,18 +33,21 @@ pub async fn instant_web_scrape(query: Query<HashMap<String, String>>) -> HttpRe
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 pub async fn get_scraper_data(name: String, company: String) -> ScraperData {
     let url = std::env::var("WEB_CACHE_URL").unwrap();
-    let client = reqwest::Client::new();
+    //let client = reqwest::Client::new();  //this is used when not using a self-signed cert
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
     let res = client.get(&url);
     let res = res.query(&[("name", name), ("company", company)]);
-    let res = res.timeout(std::time::Duration::from_secs(5));
-    let response = res.send().await.expect("Problem with the connection between the \
-    backend and the frontend.");
+    let res = res.timeout(std::time::Duration::from_secs(15));
+    let response = res.send().await.unwrap();
     response.json::<ScraperData>().await.expect("No json was parsed")
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct ScraperData {
     pub name: String,
-    pub price: String,
+    pub price: f32,
     pub company: String
 }

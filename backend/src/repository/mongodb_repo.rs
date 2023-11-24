@@ -159,7 +159,6 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are issues with the MongoDB query.
     pub async fn get_all_documents(&self) -> Result<Vec<T>, Error> {
-        println!("Getting all documents");
         let mut cursors = self
             .col
             .find(None, None)
