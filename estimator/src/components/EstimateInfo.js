@@ -34,24 +34,27 @@ async function packUsers(){
             for(const entry of response.data){
                 userArr.push({user: entry});
             }
-            //For each billble array in the billable list
-            for(const key of Object.keys(billableList)){
-                //Get the auto imports
-                axios.get("/library?auto_update=true&description=" + key).then((response) => {
-                    console.log(response);
-                    for(var user of userArr){
-                        //If auto imports exist
-                        if(response.data.length > 0){
-                            //Add that array of billables to the user object
-                            user[billableList[key]] = response.data;
-                        }
-                    }
-                })
-            }
             //resolve the user array
             resolve(userArr)
         });
     })
+}
+
+async function getAutoImports(){
+    return new Promise((resolve) => {
+        var autoImports = {};
+        for(const key of Object.keys(billableList)){
+            //Get the auto imports
+            axios.get("/library?auto_update=true&description=" + key).then((response) => {
+                console.log(response);
+                if(response.data.length > 0){
+                    //Add that array of billables to the user object
+                    autoImports[billableList[key]] = response.data;
+                }
+            })
+        }
+        resolve(autoImports);
+    });
 }
 
 /**
@@ -90,6 +93,7 @@ function populateDropDown(data){
 }
 
 const defaultImages = [];
+var autoImports = {};
 
 /**
  * This function returns the JSX object for the estimate calculator and
@@ -115,22 +119,20 @@ function EstimateInfo(){
 
     //This function runs when the page is first loaded
     useEffect(() => {
-        try{
-            //Get all the customer data
-            packUsers().then((data) => {
-                setCustomerData(data);
-                //Set the loading variable to false
-                setUserLoading(false);
-            } );
-            //Get all the draft data
-            packDrafts().then((data) => {
-                setDraftData(data);
-                setEstimateLoading(false);
-            })
-        } catch(error){
-            //If an error occurs, log it
-            console.log(error);
-        }
+        //Get all the customer data
+        packUsers().then((data) => {
+            setCustomerData(data);
+            //Set the loading variable to false
+            setUserLoading(false);
+        } );
+        //Get all the draft data
+        packDrafts().then((data) => {
+            setDraftData(data);
+            setEstimateLoading(false);
+        })
+        getAutoImports().then((data) => {
+            autoImports = data;
+        });
     }, [])
 
     //This function handles the change of the selected drop down
@@ -140,8 +142,11 @@ function EstimateInfo(){
         setCurrentCustomerData(selectedOption.value);
         if(selectedOption.value.user.hasOwnProperty("images")){
             setImages(selectedOption.value.user.images);
-        }else{
-            setImages([]);
+        }
+        if(!selectedOption.value.hasOwnProperty("_id")){
+            var estimateData = {...autoImports};
+            estimateData.user = selectedOption.value.user;
+            setCurrentCustomerData(estimateData);
         }
     }
 
