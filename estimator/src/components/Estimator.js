@@ -13,7 +13,8 @@ import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
-import billableList from './JSONs/billableList.json'
+import billableList from './JSONs/billableList.json';
+import Message from './utilComponents/Message.js';
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects
@@ -231,13 +232,18 @@ function Estimator(props){
                             //any error messages
                             <>
                                 <Overview values={values} />
-                                {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
-                                {saved ? <div className='center'>Saved as Draft</div> : null}
                                 <button type="submit">Submit Estimate</button>
                                 <button type="button" onClick={() => {
                                     postDraftData(values, "draft");
                                     setSaved(true);
                                 }}>Save as Draft</button>
+                                {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                                {saved ? <div className='center'>
+                                    <Message
+                                        timeout={300000}
+                                        message={"Saved as Draft"}
+                                        setDisplay={setSaved} />
+                                </div> : null}
                             </>
                         )
                         :
