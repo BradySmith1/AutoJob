@@ -167,9 +167,9 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_document(&self, id: &String) -> Result<DeleteResult, Error> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
-        let filter = doc! {"_id": obj_id};
+    pub async fn delete_document(&self, id: ObjectId) -> Result<DeleteResult,
+        Error> {
+        let filter = doc! {"_id": id};
         let user_detail = self
             .col
             .delete_one(filter, None)

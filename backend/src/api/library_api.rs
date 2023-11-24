@@ -158,29 +158,22 @@ pub async fn check_library(db: MongoRepo<MaterialFee>){
         }
     };
     for material in materials{
+        //ttl is still implemented. however i dont know if i need it or not. I might just deal with
+        //the time to live in the web scraper api
         if material.auto_update.is_some() && material.auto_update.clone().unwrap().eq("true") {
-
-            let ttl = material.ttl.clone().unwrap();
-            //let now = chrono::Utc::now().to_string();
-            let now = (chrono::Utc::now() + chrono::Duration::days(7)).to_string();
-            if now > ttl || now.eq(&ttl) {
-                let mut new_material = material.clone();
-                let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
-                                                                             material.company
-                                                                                 .unwrap()
-                                                                                 .clone()).await;
-                new_material.price = scraper_data.price;
-                new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string
-                ());
-                let update_result: Result<UpdateResult, Error>= db.update_document(&material.id.unwrap().to_string(), new_material).await;
-                match update_result {
-                    Ok(_) => println!("Updated material: {}, {}", material.name, material.company
-                        .unwrap()),
-                    Err(_) => println!("Could not update material: {}, {}", material.name, material.company
-                        .unwrap()),
-                }
+            let mut new_material = material.clone();
+            let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
+                                                                         material.company.clone()
+                                                                             .unwrap()).await;
+            new_material.price = scraper_data.price;
+            new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
+            let update_result: Result<UpdateResult, Error>= db.update_document(&material.id.unwrap().to_string(), new_material).await;
+            match update_result {
+                Ok(_) => println!("Updated material: {}, {}", material.name, material.company
+                    .clone().unwrap()),
+                Err(_) => println!("Could not update material: {}, {}", material.name, material.company
+                    .clone().unwrap()),
             }
-
         }
     }
 }

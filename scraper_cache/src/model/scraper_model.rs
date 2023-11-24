@@ -28,11 +28,12 @@ pub struct ScraperProduct {
 #[derive(Clone)]
 #[allow(non_snake_case)]
 pub struct Product {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub name: String,
     pub price: f32,
-    pub company: String
+    pub company: String,
+    pub ttl: String
 }
 
 impl Model<ScraperProduct> for ScraperProduct {

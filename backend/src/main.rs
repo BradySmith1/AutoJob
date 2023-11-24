@@ -99,7 +99,7 @@ pub async fn main() -> std::io::Result<()> {
 
     let mut scheduler = AsyncScheduler::new();
     scheduler
-        .every(5.minutes())
+        .every(1.minutes())
         .run(|| async { check_library(MongoRepo::init("materialFeeLibrary").await).await; });
 
     tokio::spawn(async move {

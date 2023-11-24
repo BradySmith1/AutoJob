@@ -17,22 +17,34 @@ Query<ScraperForm>) ->
         }
     };
     if returned_materials.len() == 0 {
-        let material = match get_scraper_data(&query.company,
-                                              &query.name).await{
-            Ok(material) => material,
-            Err(string) => {
-                if string.eq("No Products Found") || string.eq("EOF while parsing a value at line 1 column 0"){
-                    return HttpResponse::NotFound().finish();
-                }
-                println!("{}", string);
-                return HttpResponse::InternalServerError().body(string);
-            }
-        };
-        let _ = cache.create_document(material.clone()).await.unwrap();
-        HttpResponse::Ok().json(material)
-    }else{
-        HttpResponse::Ok().json(returned_materials[0].clone())
+        return scrape_and_cache(cache, &query.name, &query.company).await;
     }
+    let cloned_material = returned_materials[0].clone();
+    let now = chrono::Utc::now().to_string();
+    //let now = (chrono::Utc::now() + chrono::Duration::days(7)).to_string();
+    let ttl = cloned_material.ttl;
+    if now > ttl || now.eq(&ttl) {
+        cache.delete_document(cloned_material.id.unwrap()).await.unwrap();
+        return scrape_and_cache(cache, &query.name, &query.company).await;
+    }
+    return HttpResponse::Ok().json(returned_materials[0].clone());
+}
+
+async fn scrape_and_cache(cache: Data<MongoRepo<Product>>, name: &String, company: &String)
+    -> HttpResponse{
+    let material = match get_scraper_data(company,
+                                          name).await{
+        Ok(material) => material,
+        Err(string) => {
+            if string.eq("No Products Found") || string.eq("EOF while parsing a value at line 1 column 0"){
+                return HttpResponse::NotFound().finish();
+            }
+            println!("{}", string);
+            return HttpResponse::InternalServerError().body(string);
+        }
+    };
+    let _ = cache.create_document(material.clone()).await.unwrap();
+    return HttpResponse::Ok().json(material);
 }
 
 use std::process::{Command, Output, Stdio};
@@ -69,6 +81,7 @@ pub async fn get_scraper_data(company: &String, material: &String) -> Result<Pro
         id: None,
         name: material.clone(),
         price: product.price,
-        company: company.clone()
+        company: company.clone(),
+        ttl: (chrono::Utc::now() + chrono::Duration::days(7)).to_string(),
     })
 }
