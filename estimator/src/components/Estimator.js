@@ -141,6 +141,7 @@ function Estimator(props){
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
+    const [postError, setPostError] = useState(false);
 
     //Determine any pre-existing billables
     determineBillables(initialValues, props.data);
@@ -152,29 +153,39 @@ function Estimator(props){
      */
     const postDraftData = (values, status) => {
         const estimateData = constructData(props.data, values, status);
+        setPostError(false);
 
         //If this has an id, we know it's a draft
         if(estimateData.hasOwnProperty("_id")){
             //Put it to the database
-            axios.put('/estimate/'+ props.data._id.$oid, estimateData).then((response) => {
+            axios.put('/estimate/'+ props.data._id.$oid, estimateData, {timeout: 3000}).then((response) => {
                 console.log(response);
+                setSaved(true);
                 //If complete, reload window
                 if(status === "complete"){
                     window.location.reload(false);
                 }
+            }).catch((error) => {
+                console.log(error.message);
+                setPostError(true);
             });
         }else{
             //If it doesnt have an id, this is not a draft so post it
-            console.log("in here")
-            axios.post('/estimate', estimateData).then((response) => {
+            axios.post('/estimate', estimateData, {timeout: 3000}).then((response) => {
                 console.log(response);
                 props.data._id = {$oid: response.data.insertedId.$oid};
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                axios.delete(`/user?_id=${estimateData.user._id.$oid}`).then((response) => {
+                axios.delete(`/user?_id=${estimateData.user._id.$oid}`, {timeout: 3000}).then((response) => {
                     console.log(response);
                     //window.location.reload(false);
+                }).catch((error) => {
+                    console.log(error.message);
+                    setPostError(true);
                 });
+            }).catch((error) => {
+                console.log(error.message);
+                setPostError(true);
             });
         }
     }
@@ -235,13 +246,17 @@ function Estimator(props){
                                 <button type="submit">Submit Estimate</button>
                                 <button type="button" onClick={() => {
                                     postDraftData(values, "draft");
-                                    setSaved(true);
                                 }}>Save as Draft</button>
                                 {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                 {saved ? <div className='center'>
                                     <Message
-                                        timeout={300000}
+                                        timeout={3000}
                                         message={"Saved as Draft"}
+                                        setDisplay={setSaved} />
+                                </div> : null}
+                                {postError ? <div className='center'>
+                                    <Message
+                                        message={"A network error has occured, could not save estimate. Try again later."}
                                         setDisplay={setSaved} />
                                 </div> : null}
                             </>

@@ -18,6 +18,7 @@ import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 import billableList from "./JSONs/billableList.json";
 import Library from "./subForms/Library.js";
+import Message from "./utilComponents/Message.js";
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
 
@@ -158,7 +159,14 @@ function EstimateInfo(){
                     <h2 id="selectTitle">{customerData.length} Customers Waiting for an Estimate</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {userLoading ? <h2>loading...</h2> : <Select 
+                    {userLoading ? 
+                    <Message 
+                        message={"Loading..."}
+                        errorMessage={"This is taking a while. Still loading..."}
+                        finalErrorMessage={"A network error may have occured. Try again later."}
+                        finalTimeout={20000}
+                        timeout={10000}/> 
+                    : <Select 
                     className="select" 
                     options={populateDropDown(customerData)}
                     onChange={handleChange} 
@@ -169,7 +177,14 @@ function EstimateInfo(){
                     <h2 id="selectTitle">{draftData.length} Unfinished Estimate Drafts</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {estimateLoading ? <h2>loading...</h2> : <Select 
+                    {estimateLoading ? 
+                    <Message 
+                        message={"Loading..."}
+                        errorMessage={"This is taking a while. Still loading..."}
+                        finalErrorMessage={"A network error may have occured. Try again later."}
+                        finalTimeout={20000}
+                        timeout={10000}/> 
+                    : <Select 
                     className="select" 
                     options={populateDropDown(draftData)}
                     onChange={handleChange}

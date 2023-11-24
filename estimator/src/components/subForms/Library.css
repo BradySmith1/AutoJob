@@ -37,6 +37,9 @@ h3{
 
 .overflowWrapper{
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .materialContainer{

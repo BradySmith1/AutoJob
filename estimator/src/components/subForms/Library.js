@@ -11,6 +11,7 @@ import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
 import billableList from "../JSONs/billableList.json";
+import Message from "../utilComponents/Message.js";
 
 /**
  * This function compares everything in the estimate form to the
@@ -86,27 +87,38 @@ function Library(props){
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
 
+    const [removeError, setRemoveError] = useState(false);
+    const [addError, setAddError] = useState(false);
+
     //Function for handling search
     const handleSearch = (event) =>{
         setSearchStr(event.target.value);
     }
 
     const addToLibrary = (billable) =>{
-        axios.post('/library', billable).then((response) => {
+        axios.post('/library', billable, {timeout: 3000}).then((response) => {
             billable._id = {"$oid" : response.data.insertedId.$oid};
             console.log(response);
             const tempBillables = [...library.billables, {data: billable, imported: false}]
             setLibrary({name: library.name, billables: tempBillables});
-        });
+        }).catch((error) => {
+            console.log(error.message);
+            setAddError(true);
+        }
+        );
     }
 
     const removeFromLibrary = (index) =>{
         var libCopy = [...library.billables];
         libCopy.splice(index, 1);
-        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`).then((response) => {
+        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then((response) => {
             console.log(response)
             setLibrary({name: library.name, billables: libCopy});
-        });
+        }).catch((error) => {
+            console.log(error.message);
+            setRemoveError(true);
+        }
+        );
     }
 
     const insertBillable = (billable) =>{
@@ -174,7 +186,14 @@ function Library(props){
                         </input>
                     </div>
                     {/**Display a loading message if we haven't recieved the data yet */}
-                    {loading ? <h3>Loading Data...</h3> : null}
+                    {loading ? 
+                    <Message 
+                    message={"Loading data..."}
+                    errorMessage={"This is taking a while. Still loading..."}
+                    finalErrorMessage={"A network error may have occured. Try again later."}
+                    finalTimeout={20000}
+                    timeout={10000}/> 
+                    : null}
                     {/**If we arent loading, map over the data */}
                     {!loading &&
                     library.billables.map((billable, index) => (
@@ -223,6 +242,22 @@ function Library(props){
                     >
                         Close
                 </button>
+                {addError ? 
+                (<Message
+                    timeout={5000}
+                    message={"Network error, could not add to library."}
+                    setDisplay={setAddError}
+                />) 
+                : 
+                null}
+                {removeError ? 
+                (<Message
+                    timeout={5000}
+                    message={"Network error, could not remove from library."}
+                    setDisplay={setRemoveError}
+                />) 
+                : 
+                null}
             </div>
             {/**If display has been set to true, display the add to library form */}
             {display ? 

@@ -8,6 +8,7 @@
 import './App.css';
 import './components/EstimateInfo.js'
 import EstimateInfo from './components/EstimateInfo.js';
+import ErrorBoundry from './components/utilComponents/ErrorBoundry.js';
 import React from 'react';
 
 /**
@@ -22,7 +23,9 @@ function App() {
       <div className='TitleBar'>
         <h1>Estimate Calculator</h1>
       </div>
-      <EstimateInfo />
+      <ErrorBoundry fallback="A network error has occured. Please try again later.">
+        <EstimateInfo />
+      </ErrorBoundry>
     </div>
   );
 }
