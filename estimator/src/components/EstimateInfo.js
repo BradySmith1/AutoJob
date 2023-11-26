@@ -143,6 +143,8 @@ function EstimateInfo(){
         setCurrentCustomerData(selectedOption.value);
         if(selectedOption.value.user.hasOwnProperty("images")){
             setImages(selectedOption.value.user.images);
+        }else{
+            setImages([]);
         }
         if(!selectedOption.value.hasOwnProperty("_id")){
             var estimateData = {...autoImports};
