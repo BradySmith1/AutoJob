@@ -85,7 +85,14 @@ impl<T: Model<T>> MongoRepo<T> {
         }
     }
 
-    /// TODO need to do documentation for mongo Repo
+    /// Gets a document in a MongoDB database based on a filter applied by a certain amount of
+    /// attributes.
+    ///
+    /// # Parameters
+    /// filter : A Document that contains the attributes to filter by.
+    ///
+    /// # Returns
+    /// Returns a Result containing a vector of documents that match the filter or an error.
     pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, Error> {
         let mut cursor = self
             .col
@@ -105,6 +112,15 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
+    /// Updates a document in a MongoDB database based on a id and a document containing the new
+    /// document in the database.
+    ///
+    /// # Parameters
+    /// id : A reference to a String representing the ID of the document to update.
+    /// updated_user : A Document that contains the new document to update the old document with.
+    ///
+    /// # Returns
+    /// Returns a Result containing the updated document or an error.
     pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
