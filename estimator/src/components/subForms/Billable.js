@@ -166,6 +166,10 @@ function Billable(props){
                                     props.billable.data.auto_update = toggle(props.billable.data.auto_update);
                                     determineBackgroundColor(document.getElementById(importID), props.billable.data.auto_update)
                                     axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then(response => console.log(response));
+                                    if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.auto_update === "true"){
+                                        props.insertBillable(props.billable.data)
+                                        props.billable.imported = true;
+                                    }
                                 }}
                             >
                                 Auto Import
