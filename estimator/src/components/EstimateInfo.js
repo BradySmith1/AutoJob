@@ -19,6 +19,7 @@ import ImageCarousel from "./ImageCarousel";
 import billableList from "./JSONs/billableList.json";
 import Library from "./subForms/Library.js";
 import Message from "./utilComponents/Message.js";
+import dropDownData from "./JSONs/dropDown.json";
 
 const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
 
@@ -96,27 +97,30 @@ function EstimateInfo(){
     
     //Declare a boolean loading use state to keep track of when the
     //axios get request returns what we need
-    const [userLoading, setUserLoading] = useState(true);
-    const [estimateLoading, setEstimateLoading] = useState(true);
+    // const [userLoading, setUserLoading] = useState(true);
+    // const [estimateLoading, setEstimateLoading] = useState(true);
     const [images, setImages] = useState(defaultImages);
     const [libDisplay, setLibDisplay] = useState(false);
 
     //Declare a use state variable that holds the default customer data
-    const [customerData, setCustomerData] = useState([DEFAULT_ESTIMATE_DATA]);
-    const [draftData, setDraftData] = useState([DEFAULT_ESTIMATE_DATA]);
+    const [dropDown, setDropDown] = useState(dropDownData);
+    // const [customerData, setCustomerData] = useState([DEFAULT_ESTIMATE_DATA]);
+    // const [draftData, setDraftData] = useState([DEFAULT_ESTIMATE_DATA]);
 
     //This function runs when the page is first loaded
     useEffect(() => {
         //Get all the customer data
         packUsers().then((data) => {
-            setCustomerData(data);
-            setUserLoading(false);
+            setDropDown(dropDown => ({...dropDown, users: data, userLoading: false}));
+            // setCustomerData(data);
+            // setUserLoading(false);
         })
 
         //Get all the draft data
         packDrafts().then((data) => {
-            setDraftData(data);
-            setEstimateLoading(false);
+            setDropDown(dropDown => ({...dropDown, drafts: data, draftsLoading: false}));
+            // setDraftData(data);
+            // setEstimateLoading(false);
         })
     }, [])
 
@@ -148,10 +152,10 @@ function EstimateInfo(){
         <div className='estimateInfo'>
             <div className='dropDown'>
                 <div className="selectWrapper">
-                    <h2 id="selectTitle">{customerData.length} Customers Waiting for an Estimate</h2>
+                    <h2 id="selectTitle">{dropDown.users.length} Customers Waiting for an Estimate</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {userLoading ? 
+                    {dropDown.userLoading ? 
                     <Message 
                         message={"Loading..."}
                         errorMessage={"This is taking a while. Still loading..."}
@@ -160,16 +164,16 @@ function EstimateInfo(){
                         timeout={10000}/> 
                     : <Select 
                     className="select" 
-                    options={populateDropDown(customerData)}
+                    options={populateDropDown(dropDown.users)}
                     onChange={handleChange} 
                     placeholder='Select Customer...'
                     />}
                 </div>
                 <div className="selectWrapper">
-                    <h2 id="selectTitle">{draftData.length} Unfinished Estimate Drafts</h2>
+                    <h2 id="selectTitle">{dropDown.drafts.length} Unfinished Estimate Drafts</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {estimateLoading ? 
+                    {dropDown.estimateLoading ? 
                     <Message 
                         message={"Loading..."}
                         errorMessage={"This is taking a while. Still loading..."}
@@ -178,7 +182,7 @@ function EstimateInfo(){
                         timeout={10000}/> 
                     : <Select 
                     className="select" 
-                    options={populateDropDown(draftData)}
+                    options={populateDropDown(dropDown.drafts)}
                     onChange={handleChange}
                     placeholder='Select Draft...' 
                     />}
