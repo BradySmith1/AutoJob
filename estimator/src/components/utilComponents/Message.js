@@ -4,16 +4,20 @@ function Message(props){
 
     const [message, setMessage] = useState("");
 
+    const determineDisplay = () => {
+        if(props.setDisplay !== undefined){
+            props.setDisplay(false);
+        }else{
+            setMessage(props.errorMessage);
+        }
+    }
+
     useEffect(() => {
         setMessage(props.message);
 
         if(props.timeout !== undefined){
             setTimeout(() => {
-                if(props.setDisplay !== undefined){
-                    props.setDisplay(false);
-                }else{
-                    setMessage(props.errorMessage);
-                }
+                determineDisplay();
             }, props.timeout);
         }
 
@@ -23,6 +27,12 @@ function Message(props){
             }, props.finalTimeout);
         }
     }, []);
+    
+    useEffect(() => {
+        if(props.errorCondition === true){
+            setMessage(props.finalErrorMessage);
+        }
+    });
 
     return (
         <div className='messageContainer'>
