@@ -12,13 +12,11 @@ use crate::model::library_model::MaterialFee;
 /// Creates a new library entry via a POST request to the api web server
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// data storage.
 /// new_user: A JSON object representing the job estimate to be created.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry is created
 /// successfully, it returns an HTTP 200 OK response with the JSON representation of the created
 /// materialLibrary entry. If there's
@@ -52,13 +50,11 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 /// Retrieve materialLibrary entry details by their ID via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the v with the specified ID is
 /// found,
 /// it returns an HTTP 200 OK response with the JSON representation of the materialLibrary
@@ -79,14 +75,12 @@ pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Do
 /// Update materialLibrary entry details by their ID via a PUT request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 /// new_user : A JSON object representing the materialLibrary entry estimate to be updated.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
 /// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
 /// updated materialLibrary entry's details. If the provided ID is empty or there's an error
@@ -111,13 +105,11 @@ pub async fn update_library_entry(
 /// Delete materialLibrary entry details by their ID via a DELETE request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with
 /// the specified ID is found, it returns an HTTP 200 OK response with a success message. If the
 /// provided ID is empty or there's an error during the deletion process, it returns an HTTP 400
@@ -132,12 +124,10 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 /// Retrieve all materialLibrary entry details via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
 /// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
 /// materialLibrary entry's details. If the provided ID is empty or there's an error during the
@@ -148,6 +138,12 @@ pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpRe
     get_all_data(db).await
 }
 
+/// This is the function that runs on a timer in the main function that checks the current
+/// MaterialLibrary for if there are products needing to be auto updated.
+///
+/// # Parameters
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
 pub async fn check_library(db: MongoRepo<MaterialFee>){
     println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
     let materials = match db.get_all_documents().await{

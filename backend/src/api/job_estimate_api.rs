@@ -9,12 +9,10 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
 /// new_user: A JSON object representing the job estimate to be created.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the jobEstimate is created successfully,
 /// it returns an HTTP 200 OK response with the JSON representation of the created jobEstimate. If there's
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
@@ -35,12 +33,10 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 /// Retrieve jobEstimate details by their ID via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
 /// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
@@ -57,13 +53,11 @@ Query<Document>) -> HttpResponse {
 /// Update jobEstimate details by their ID via a PUT request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 /// new_user : A JSON object representing the jobEstimate estimate to be updated.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
 /// it returns an HTTP 200 OK response with the JSON representation of the updated jobEstimate's details. If the provided ID
 /// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
@@ -87,12 +81,10 @@ pub async fn update_estimate(
 /// Delete jobEstimate details by their ID via a DELETE request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
 /// it returns an HTTP 200 OK response with a success message. If the provided ID
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
@@ -106,11 +98,9 @@ pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Docu
 /// Retrieve all jobEstimate details via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for jobEstimate data storage.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the jobEstimate with the specified ID is found,
 /// it returns an HTTP 200 OK response with the JSON representation of the jobEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
