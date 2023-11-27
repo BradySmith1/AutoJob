@@ -21,7 +21,9 @@ const MAXIMAGES = 10;
  * @param {FileList} fileList the web api FileList object
  * @param {File[]} imageArr array of File Objects
  */
-function fileListToArray(fileList, imageArr){
+function fileListToArray(fileList, imageArr, setErrors){
+    var valid = true;
+    var errorArr = ["Invalid Files"];
     //Loop through the fileList
     for(var i = 0; i < fileList.length; i++){
         //Filter anything that isnt an image
@@ -30,26 +32,23 @@ function fileListToArray(fileList, imageArr){
             Object.assign(fileList[i], {preview: URL.createObjectURL(fileList[i])});
             //Push to image array
             imageArr.push(fileList[i]);
+        }else{
+            valid = false;
+            errorArr.push(determineError(imageArr.length, fileList[i]));
         }
     }
+    setErrors(errorArr);
+    return valid
 }
 
-/**
- * This function validates all the images to make sure they
- * are png, jpg or jpeg, and they adding these images would not
- * make the image array larger than max images.
- * @param {*} fileList the added images
- * @param {*} imageArr the existing images
- * @returns valid, boolean for valid or not
- */
-function validateAll(fileList, imageArr){
-    var valid = true;
-    for(var i = 0; i < fileList.length; i++){
-        if(!validateOne(fileList[i]) || i >= imageArr.length){
-            valid = false;
-        }
+function determineError(index, file){
+    var errorMessage = "";
+    if(index >= MAXIMAGES){
+        errorMessage = file.name + " exceeds limit.";
+    }else{
+        errorMessage = file.name + " is not an image."; 
     }
-    return valid;
+    return errorMessage;
 }
 
 /**
@@ -79,6 +78,7 @@ function DragDrop(props){
     //to a hidden upload button
     const inputRef = useRef();
     const [valid, setValid] = useState(true);
+    const [imageErrors, setImageErrors] = useState([]);
 
     /**
      * This function adds an image to the image array
@@ -87,8 +87,7 @@ function DragDrop(props){
      */
     const addImages = (fileList) => {
         var imageArr = [...props.images];
-        fileListToArray(fileList, imageArr);
-        if(!validateAll(fileList, imageArr)){
+        if(!fileListToArray(fileList, imageArr, setImageErrors)){
             setValid(false);
         }else{
             setValid(true);
@@ -120,32 +119,14 @@ function DragDrop(props){
                 onDrop={handleDrop}
                 onClick={() => inputRef.current.click()}
             >   
-                {valid ?
-                //Here we are displaying the normal drop box text if valid,
-                //or an error message if not valid 
-                (
-                    <>
-                    <br/>
-                    <br/>
-                    Drop Images Here 
-                    <br/>
-                    Or Click to Upload 
-                    <br/>
-                    <br/>
-                    Images: {props.images.length}/{MAXIMAGES}
-                    </>
-                )
-                :
-                (
-                    <>
-                    <br/>
-                    <br/>
-                    Invalid Files
-                    <br/>
-                    <br/>
-                    Images: {props.images.length}/{MAXIMAGES}
-                    </>
-                )}
+                <br/>
+                <br/>
+                Drop Images Here 
+                <br/>
+                Or Click to Upload 
+                <br/>
+                <br/>
+                Images: {props.images.length}/{MAXIMAGES}
                 <input
                     type="file"
                     accept="image/png, image/jpeg, image/jpg"
@@ -160,6 +141,15 @@ function DragDrop(props){
                 >
                 </input>
             </div>
+            {!valid ? 
+                (<div className='imageErrors'>
+                    {imageErrors.map((currentElement, index) => (
+                        <div className='imageError' key={index}>
+                            <h3 className='errorMessage'>{currentElement}</h3>
+                        </div>
+                    ))}
+                </div>) 
+            : null}
             <div className="imageContainer">
                 {/**Map over the images to create thumbnails */}
                 {props.images.map((image, index) => (

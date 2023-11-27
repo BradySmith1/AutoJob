@@ -39,3 +39,14 @@
     top: 0;
     right: 0;
 }
+
+.imageErrors{
+    margin-top: 20px;
+}
+
+.errorMessage{
+    padding: 0px !important;
+    margin-bottom: 5px !important;
+    margin-top: 0px !important;
+    color: red;
+}

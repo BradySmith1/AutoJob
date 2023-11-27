@@ -99,7 +99,6 @@ function Library(props){
     const addToLibrary = (billable) =>{
         axios.post('/library', billable, {timeout: 3000}).then((response) => {
             billable._id = {"$oid" : response.data.insertedId.$oid};
-            console.log(response);
             const tempBillables = [...library.billables, {data: billable, imported: false}]
             setLibrary({name: library.name, billables: tempBillables});
         }).catch((error) => {
@@ -112,8 +111,7 @@ function Library(props){
     const removeFromLibrary = (index) =>{
         var libCopy = [...library.billables];
         libCopy.splice(index, 1);
-        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then((response) => {
-            console.log(response)
+        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
             setLibrary({name: library.name, billables: libCopy});
         }).catch((error) => {
             console.log(error.message);
