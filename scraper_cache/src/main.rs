@@ -12,6 +12,7 @@ use repository::mongodb_repo::MongoRepo;
 use crate::api::cache_api::get_cached_materials;
 use crate::model::scraper_model::{Product};
 
+/// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
         .stdout(Stdio::piped())
@@ -32,6 +33,7 @@ fn check_mongodb() {
     }
 }
 
+/// This function creates a SslAcceptorBuilder that is used to create a SslAcceptor.
 fn ssl_builder() -> SslAcceptorBuilder {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
@@ -72,6 +74,7 @@ pub async fn main() -> std::io::Result<()> {
     let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;
     let db_cache_data = Data::new(db_cache);
 
+    // Creates the ssl builder to use with the HTTP server
     let ssl = ssl_builder();
 
     println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));

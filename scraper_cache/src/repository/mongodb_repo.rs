@@ -116,6 +116,14 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
+    /// Gets a document in a MongoDB database based on a filter applied by a certain amount of
+    /// attributes.
+    ///
+    /// # Parameters
+    /// filter : A Document that contains the attributes to filter by.
+    ///
+    /// # Returns
+    /// Returns a Result containing a vector of documents that match the filter or an error.
     pub async fn get_documents_by_attribute(&self, attributes: &ScraperForm) ->
                                                                                    Result<Vec<T>, Error> {
         let filter = doc! {"name": &attributes.name, "company": &attributes.company};
@@ -137,6 +145,18 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
+    /// Delete a user estimate from the userEstimate collection based on the objectID.
+    ///
+    /// # Arguments
+    /// id : A reference to a String representing the ID of the job estimate to delete.
+    ///
+    /// # Returns
+    /// Returns a Result containing the deleted JobEstimate if successful, or an
+    /// Error if there are any issues with the deletion.
+    ///
+    /// # Panics
+    /// This function may panic if there are errors in parsing the provided ID string or
+    /// if there are issues with the MongoDB query.
     pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();

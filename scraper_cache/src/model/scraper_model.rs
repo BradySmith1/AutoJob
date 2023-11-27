@@ -24,6 +24,15 @@ pub struct ScraperProduct {
     pub price: f32
 }
 
+/// Represents one scrapped piece of data. This will be used to represent a scrape in the
+/// scraped array.
+///
+/// # Fields
+/// id: The id of the product in relation to the MongoDB database
+/// name: The name of the product
+/// price: The price of the product in the form of a f32 type
+/// company: The company that the product is from
+/// ttl: The time to live of the product
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]

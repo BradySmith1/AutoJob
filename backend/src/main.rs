@@ -27,6 +27,7 @@ use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
 
+/// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
         .stdout(Stdio::piped())
@@ -47,6 +48,10 @@ fn check_mongodb() {
     }
 }
 
+/// This function creates an SSL builder for the Actix web server.
+///
+/// # Returns
+/// Returns an SslAcceptorBuilder for the Actix web server.
 fn ssl_builder() -> SslAcceptorBuilder {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
@@ -91,17 +96,21 @@ pub async fn main() -> std::io::Result<()> {
     let db_material_library: MongoRepo<MaterialFee> = MongoRepo::init("materialFee\
     Library").
         await;
+    // Creates the App data for the different Mongodb collections to be used with the HTTP server.
     let db_user_data = Data::new(db_user);
     let db_estimate_data = Data::new(db_estimate);
     let db_library_data = Data::new(db_material_library);
 
+    // Creates the SSL builder for the Actix web server.
     let ssl = ssl_builder();
 
+    // Creates the scheduler for the Actix web server that runs the web scraper at a certain
+    // interval.
+    let time_interval: u32 = 5;
     let mut scheduler = AsyncScheduler::new();
     scheduler
-        .every(1.minutes())
+        .every(time_interval.minutes())
         .run(|| async { check_library(MongoRepo::init("materialFeeLibrary").await).await; });
-
     tokio::spawn(async move {
         loop {
             scheduler.run_pending().await;
