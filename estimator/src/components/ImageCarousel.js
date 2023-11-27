@@ -60,7 +60,7 @@ function ImageCarousel(props){
                         : 
                         (
                             <button 
-                            className="navBtn"
+                            className="navBtn btn"
                             onClick={() => {
                                 //On click, decrement the image index
                                 setImgIndex(index => index - 1);
@@ -82,7 +82,7 @@ function ImageCarousel(props){
                         : 
                         (
                             <button 
-                            className="navBtn"
+                            className="navBtn btn"
                             onClick={() => {
                                 //On click, increment the image index
                                 setImgIndex(index => index + 1);
@@ -91,7 +91,7 @@ function ImageCarousel(props){
                         )}
                     </div>
                     <button 
-                        className="closeButton"
+                        className="btn"
                         onClick={() => {
                             //Close the carousel on click.
                             setDisplay(false);
