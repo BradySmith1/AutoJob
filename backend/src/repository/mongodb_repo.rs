@@ -1,7 +1,7 @@
 use std::env;
 use std::process::exit;
 use dotenv::dotenv;
-use mongodb::{bson::{extjson::de::Error, doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
+use mongodb::{bson::{doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
 use futures::stream::TryStreamExt;
 use mongodb::bson::Document;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason;
@@ -93,13 +93,13 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Returns
     /// Returns a Result containing a vector of documents that match the filter or an error.
-    pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, Error> {
-        let mut cursor = self
-            .col
-            .find(filter, None)
-            .await
-            .ok()
-            .expect("Error getting details. Check if filter is correct");
+    pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, String> {
+        let mut cursor = match self.col.find(filter, None).await {
+            Ok(curs)   => curs,
+            Err(_) => {
+                return Err("Filter is not a valid Document".to_string())
+            }
+        };
         let mut users: Vec<T> = Vec::new();
         while let Some(user) = cursor
             .try_next()
@@ -122,17 +122,16 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Returns
     /// Returns a Result containing the updated document or an error.
     pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
-        Error> {
+        String> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};
         let doc = json!({"$set": updated_user});
         let doc = bson::to_document(&doc).unwrap();
-        let updated_doc = self
-            .col
-            .update_one(filter, doc, None)
-            .await
-            .ok()
-            .expect("Error updating user");
+        let updated_doc = match self.col
+            .update_one(filter, doc, None).await{
+            Ok(doc) => doc,
+            Err(_) => return Err("Error updating document".to_string()),
+        };
         Ok(updated_doc)
     }
 
@@ -148,13 +147,11 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, Error> {
-        let user_detail = self
-            .col
-            .delete_one(filter, None)
-            .await
-            .ok()
-            .expect("Error deleting user");
+    pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, String> {
+        let user_detail = match self.col.delete_one(filter, None).await{
+            Ok(doc) => doc,
+            Err(_) => return Err("Error deleting document".to_string()),
+        };
         Ok(user_detail)
     }
 
@@ -165,7 +162,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Panics
     /// This function may panic if there are issues with the MongoDB query.
-    pub async fn get_all_documents(&self) -> Result<Vec<T>, Error> {
+    pub async fn get_all_documents(&self) -> Result<Vec<T>, String> {
         let mut cursors = self
             .col
             .find(None, None)

@@ -1,7 +1,6 @@
 use actix_web::HttpResponse;
 use actix_web::web::{Data};
 use mongodb::bson::{doc, Document};
-use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
@@ -35,8 +34,9 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_json: T) -> Htt
 /// # Returns
 /// A Result object containing the retrieved data. or an error if the data could not be retrieved.
 pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document) ->
-                                                                                 Result<Vec<T>, Error> {
-    let user_detail:Result<Vec<T>, Error>;
+                                                                                 Result<Vec<T>,
+                                                                                     String> {
+    let user_detail:Result<Vec<T>, String>;
     if query.is_empty() {
         user_detail = db.get_all_documents().await;
     }else{
@@ -112,7 +112,7 @@ pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
 /// it returns an HTTP 200 OK response with the JSON representation of the created document.
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response.
 /// If the id is not a valid ID, it returns a HTTP Not Found Error Response.
-pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, Error>, db:
+pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, String>, db:
 &Data<MongoRepo<T>>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {

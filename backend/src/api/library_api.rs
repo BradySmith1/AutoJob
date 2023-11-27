@@ -4,7 +4,6 @@ use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
 use mongodb::bson::Document;
-use mongodb::bson::extjson::de::Error;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::MaterialFee;
@@ -98,7 +97,7 @@ pub async fn update_library_entry(
     };
     let mut data: MaterialFee = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
-    let update_result: Result<UpdateResult, Error>= db.update_document(&id, data).await;
+    let update_result: Result<UpdateResult, String>= db.update_document(&id, data).await;
     push_update(update_result, &db, id).await
 }
 
@@ -163,7 +162,8 @@ pub async fn check_library(db: MongoRepo<MaterialFee>){
                                                                              .unwrap()).await;
             new_material.price = scraper_data.price;
             new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
-            let update_result: Result<UpdateResult, Error>= db.update_document(&material.id.unwrap().to_string(), new_material).await;
+            let update_result: Result<UpdateResult, String> = db.update_document(&material.id
+                .unwrap().to_string(), new_material).await;
             match update_result {
                 Ok(_) => println!("Updated material: {}, {}", material.name, material.company
                     .clone().unwrap()),
