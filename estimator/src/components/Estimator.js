@@ -94,9 +94,12 @@ function generateYupSchema(){
  * @param {*} data 
  */
 function determineBillables(initialValues, data){
+    console.log(data);
     for(const key of Object.keys(initialValues)){
         if(data.hasOwnProperty(key)){
             initialValues[key] = data[key];
+        }else{
+            initialValues[key] = billableSchema;
         }
     }
 }
@@ -227,7 +230,7 @@ function Estimator(props){
                                         values={values[billableList[key]]} 
                                         name={key} 
                                         errors={errors} 
-                                        touched={touched} 
+                                        touched={touched}
                                 />):(null))
                         ))
                         }

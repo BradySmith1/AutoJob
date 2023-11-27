@@ -56,7 +56,7 @@ async function getAutoImports(){
  */
 async function packDrafts(){
         //Get the drafts
-        const response = await axios.get('/estimate?status=draft')
+        const response = await axios.get('/estimate?status=draft');
         return response.data;
 }
 
@@ -68,7 +68,6 @@ async function packDrafts(){
  * @returns {[Json Object]} outputData
  */
 function populateDropDown(data){
-    console.log(data);
     //Create an empty array
     var outputData = []
     //loop through the customer data
@@ -125,23 +124,22 @@ function EstimateInfo(){
     //item.
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
-        console.log(selectedOption);
-        if(selectedOption.value.user.hasOwnProperty("images")){
-            setImages(selectedOption.value.user.images);
-        }else{
-            setImages([]);
-        }
+
         if(!selectedOption.value.hasOwnProperty("_id")){
             getAutoImports().then((data) => {
-                console.log(data);
-                console.log("In here");
                 var estimateData = {...data};
                 estimateData.user = selectedOption.value.user;
-                console.log(estimateData);
+                console.log(JSON.stringify(estimateData));
                 setCurrentCustomerData(estimateData);
             });
         }else{
             setCurrentCustomerData(selectedOption.value);
+        }
+
+        if(selectedOption.value.user.hasOwnProperty("images")){
+            setImages(selectedOption.value.user.images);
+        }else{
+            setImages([]);
         }
     }
 
@@ -230,8 +228,10 @@ function EstimateInfo(){
                         </div>
                     </div>
                     <ImageCarousel images={images} />
-                    <Estimator data={currentCustomerData} 
-                    key={currentCustomerData.user._id.$oid}/> 
+                    <Estimator 
+                        data={currentCustomerData} 
+                        key={currentCustomerData.user._id.$oid}
+                    /> 
                 </>
                 : 
                 null
