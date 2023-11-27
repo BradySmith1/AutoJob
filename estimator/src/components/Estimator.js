@@ -223,17 +223,12 @@ function Estimator(props){
                         {/**Map over billable list schema to generate stages of the estimate form */}
                         {Object.keys(billableList).map((key, index) => (
                             (navIndex === index ? 
-                            (
-                                <Calculator 
-                                    values={values[billableList[key]]} 
-                                    name={key} 
-                                    errors={errors} 
-                                    touched={touched} 
-                                />            
-                            )
-                            : 
-                            (null)
-                            )
+                                (<Calculator 
+                                        values={values[billableList[key]]} 
+                                        name={key} 
+                                        errors={errors} 
+                                        touched={touched} 
+                                />):(null))
                         ))
                         }
                         {/**If nav index is at the end of the billable list length */}
@@ -243,8 +238,8 @@ function Estimator(props){
                             //any error messages
                             <>
                                 <Overview values={values} />
-                                <button type="submit">Submit Estimate</button>
-                                <button type="button" onClick={() => {
+                                <button type="submit" className='button large'>Submit Estimate</button>
+                                <button type="button" className='button large' onClick={() => {
                                     postDraftData(values, "draft");
                                 }}>Save as Draft</button>
                                 {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
@@ -260,11 +255,7 @@ function Estimator(props){
                                         setDisplay={setSaved} />
                                 </div> : null}
                             </>
-                        )
-                        :
-                        (
-                            null
-                        )
+                        ):(null)
                         }
                     </Form>
                 )}

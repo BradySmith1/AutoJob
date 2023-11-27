@@ -10,6 +10,7 @@ import './Calculator.css';
 import { FieldArray, Field, ErrorMessage} from 'formik';
 import React, { useState } from "react";
 import Library from './Library';
+import billableList from '../JSONs/billableList.json';
 
 /**
  * This method returns the calculator component. It is a
@@ -28,7 +29,7 @@ function Calculator(props){
     //Use state used to keep track of if the material libaray should be displayed or not.
     const [display, setDisplay] = useState(false);
     //Formik name, derrived from the props.name, used to name input fields
-    const formikName = (props.name + "s").toLowerCase();
+    const formikName = billableList[props.name];
 
     return(
         <FieldArray name={(formikName)}>
@@ -107,20 +108,20 @@ function Calculator(props){
                     {/*In this on click fuction, we are pushing a new empty billable to the array*/}
                     <button
                         type="button"
-                        className="secondary"
+                        className="button medium"
                         onClick={() => push({ name: '', price: 0.0, quantity: 1.0, description: props.name, auto_update: "false"})}
                     >
-                        Add {props.name}
+                        + Add New {props.name}
                     </button>
                     {/**In this click function, we are setting display to true so that we can display the material library */}
                     <button
                         type="button"
-                        className="secondary"
+                        className="button medium"
                         onClick={() => {
                             setDisplay(true);
                         }}
                     >
-                        Import {props.name}
+                        + Import {props.name}
                     </button>
                     {/**If display is true, display the material library */}
                     {display ? <Library 

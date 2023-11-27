@@ -27,35 +27,27 @@ const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "st
  * @returns Promise for the packed user estimate
  */
 async function packUsers(){
-    return new Promise((resolve) => {
-        //Get all user estimates
-        axios.get('/users').then((response) => {
-            var userArr = [];
-            //Push each user to a local array
-            for(const entry of response.data){
-                userArr.push({user: entry});
-            }
-            //resolve the user array
-            resolve(userArr)
-        });
-    })
+        const response = await axios.get('/users');
+        console.log(response.data);
+        var userArr = [];
+        //Push each user to a local array
+        for(const entry of response.data){
+            userArr.push({user: entry});
+        }
+        return userArr;
 }
 
 async function getAutoImports(){
-    return new Promise((resolve) => {
         var autoImports = {};
         for(const key of Object.keys(billableList)){
             //Get the auto imports
-            axios.get("/library?auto_update=true&description=" + key).then((response) => {
-                console.log(response);
-                if(response.data.length > 0){
-                    //Add that array of billables to the user object
-                    autoImports[billableList[key]] = response.data;
-                }
-            })
+            const response = await axios.get("/library?auto_update=true&description=" + key);
+            if(response.data.length > 0){
+                //Add that array of billables to the user object
+                autoImports[billableList[key]] = response.data;
+            }
         }
-        resolve(autoImports);
-    });
+        return autoImports;
 }
 
 /**
@@ -63,13 +55,9 @@ async function getAutoImports(){
  * @returns Promise of the drafts
  */
 async function packDrafts(){
-    return new Promise((resolve) => {
         //Get the drafts
-        axios.get('/estimate?status=draft').then((response) => {
-            //resolve the drafts
-            resolve(response.data);
-        });
-    });
+        const response = await axios.get('/estimate?status=draft')
+        return response.data;
 }
 
 /**
@@ -80,6 +68,7 @@ async function packDrafts(){
  * @returns {[Json Object]} outputData
  */
 function populateDropDown(data){
+    console.log(data);
     //Create an empty array
     var outputData = []
     //loop through the customer data
@@ -94,7 +83,6 @@ function populateDropDown(data){
 }
 
 const defaultImages = [];
-var autoImports = {};
 
 /**
  * This function returns the JSX object for the estimate calculator and
@@ -123,33 +111,37 @@ function EstimateInfo(){
         //Get all the customer data
         packUsers().then((data) => {
             setCustomerData(data);
-            //Set the loading variable to false
             setUserLoading(false);
-        } );
+        })
+
         //Get all the draft data
         packDrafts().then((data) => {
             setDraftData(data);
             setEstimateLoading(false);
         })
-        getAutoImports().then((data) => {
-            autoImports = data;
-        });
     }, [])
 
     //This function handles the change of the selected drop down
     //item.
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
-        setCurrentCustomerData(selectedOption.value);
+        console.log(selectedOption);
         if(selectedOption.value.user.hasOwnProperty("images")){
             setImages(selectedOption.value.user.images);
         }else{
             setImages([]);
         }
         if(!selectedOption.value.hasOwnProperty("_id")){
-            var estimateData = {...autoImports};
-            estimateData.user = selectedOption.value.user;
-            setCurrentCustomerData(estimateData);
+            getAutoImports().then((data) => {
+                console.log(data);
+                console.log("In here");
+                var estimateData = {...data};
+                estimateData.user = selectedOption.value.user;
+                console.log(estimateData);
+                setCurrentCustomerData(estimateData);
+            });
+        }else{
+            setCurrentCustomerData(selectedOption.value);
         }
     }
 
