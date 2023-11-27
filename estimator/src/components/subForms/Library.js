@@ -87,6 +87,7 @@ function Library(props){
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
 
+    const [getError, setGetError] = useState(false);
     const [removeError, setRemoveError] = useState(false);
     const [addError, setAddError] = useState(false);
 
@@ -142,6 +143,8 @@ function Library(props){
             setLibrary({name: name, billables: vallueArr});
             //Set the loading variable to false
             setLoading(false);
+        }).catch((error) => {
+            setGetError(true);
         });
     }
 
@@ -192,7 +195,8 @@ function Library(props){
                     errorMessage={"This is taking a while. Still loading..."}
                     finalErrorMessage={"A network error may have occured. Try again later."}
                     finalTimeout={20000}
-                    timeout={10000}/> 
+                    timeout={10000}
+                    errorCondition={getError} />
                     : null}
                     {/**If we arent loading, map over the data */}
                     {!loading &&

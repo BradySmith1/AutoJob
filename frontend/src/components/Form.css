@@ -90,3 +90,11 @@ h2 {
     border-radius: 20px;
     padding: 10px;
 }
+
+.errorWrapper {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    color: white;
+}

@@ -12,7 +12,7 @@
 
 import "./EstimateInfo.css";
 import axios from 'axios';
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
@@ -21,44 +21,44 @@ import Library from "./subForms/Library.js";
 import Message from "./utilComponents/Message.js";
 import dropDownData from "./JSONs/dropDown.json";
 
-const DEFAULT_ESTIMATE_DATA = {user: {"fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": ""}};
+const DEFAULT_ESTIMATE_DATA = { user: { "fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": "" } };
 
 /**
  * Packs a user estimate with auto imports
  * @returns Promise for the packed user estimate
  */
-async function packUsers(){
-        const response = await axios.get('/users');
-        console.log(response.data);
-        var userArr = [];
-        //Push each user to a local array
-        for(const entry of response.data){
-            userArr.push({user: entry});
-        }
-        return userArr;
+async function packUsers() {
+    const response = await axios.get('/users');
+    console.log(response.data);
+    var userArr = [];
+    //Push each user to a local array
+    for (const entry of response.data) {
+        userArr.push({ user: entry });
+    }
+    return userArr;
 }
 
-async function getAutoImports(){
-        var autoImports = {};
-        for(const key of Object.keys(billableList)){
-            //Get the auto imports
-            const response = await axios.get("/library?auto_update=true&description=" + key);
-            if(response.data.length > 0){
-                //Add that array of billables to the user object
-                autoImports[billableList[key]] = response.data;
-            }
+async function getAutoImports() {
+    var autoImports = {};
+    for (const key of Object.keys(billableList)) {
+        //Get the auto imports
+        const response = await axios.get("/library?auto_update=true&description=" + key);
+        if (response.data.length > 0) {
+            //Add that array of billables to the user object
+            autoImports[billableList[key]] = response.data;
         }
-        return autoImports;
+    }
+    return autoImports;
 }
 
 /**
  * Get drafts from the backend
  * @returns Promise of the drafts
  */
-async function packDrafts(){
-        //Get the drafts
-        const response = await axios.get('/estimate?status=draft');
-        return response.data;
+async function packDrafts() {
+    //Get the drafts
+    const response = await axios.get('/estimate?status=draft');
+    return response.data;
 }
 
 /**
@@ -68,14 +68,14 @@ async function packDrafts(){
  * @param {[Json Object]} data 
  * @returns {[Json Object]} outputData
  */
-function populateDropDown(data){
+function populateDropDown(data) {
     //Create an empty array
     var outputData = []
     //loop through the customer data
-    data.forEach(entry =>{
+    data.forEach(entry => {
         //Push a json for the drop down, made from customer data
         outputData.push(
-            {value: entry, label: entry.user.fName + " " + entry.user.lName}
+            { value: entry, label: entry.user.fName + " " + entry.user.lName }
         );
     });
     //return the array of Jsons for the drop down.
@@ -90,11 +90,11 @@ const defaultImages = [];
  * 
  * @returns JSX object for estimate calculator
  */
-function EstimateInfo(){
-    
+function EstimateInfo() {
+
     //Declare a use state variable that holds the currently selected customer data
     const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
-    
+
     //Declare a boolean loading use state to keep track of when the
     //axios get request returns what we need
     const [images, setImages] = useState(defaultImages);
@@ -103,17 +103,23 @@ function EstimateInfo(){
     //Declare a use state variable that holds the default customer data
     const [dropDown, setDropDown] = useState(dropDownData);
 
+    const [networkError, setNetworkError] = useState(false);
+
     //This function runs when the page is first loaded
     useEffect(() => {
         //Get all the customer data
         packUsers().then((data) => {
-            setDropDown(dropDown => ({...dropDown, users: data, userLoading: false}));
-        })
+            setDropDown(dropDown => ({ ...dropDown, users: data, userLoading: false }));
+        }).catch((error) => {
+            setNetworkError(true);
+        });
 
         //Get all the draft data
         packDrafts().then((data) => {
-            setDropDown(dropDown => ({...dropDown, drafts: data, draftsLoading: false}));
-        })
+            setDropDown(dropDown => ({ ...dropDown, drafts: data, draftsLoading: false }));
+        }).catch((error) => {
+            setNetworkError(true);
+        });
     }, [])
 
     //This function handles the change of the selected drop down
@@ -121,74 +127,76 @@ function EstimateInfo(){
     const handleChange = (selectedOption) => {
         //Set the current customer data to the selected value
 
-        if(!selectedOption.value.hasOwnProperty("_id")){
+        if (!selectedOption.value.hasOwnProperty("_id")) {
             getAutoImports().then((data) => {
-                var estimateData = {...data};
+                var estimateData = { ...data };
                 estimateData.user = selectedOption.value.user;
                 console.log(JSON.stringify(estimateData));
                 setCurrentCustomerData(estimateData);
             });
-        }else{
+        } else {
             setCurrentCustomerData(selectedOption.value);
         }
 
-        if(selectedOption.value.user.hasOwnProperty("images")){
+        if (selectedOption.value.user.hasOwnProperty("images")) {
             setImages(selectedOption.value.user.images);
-        }else{
+        } else {
             setImages([]);
         }
     }
 
     //Return the json object containing all html for this page
-    return(
+    return (
         <div className='estimateInfo'>
             <div className='dropDown'>
                 <div className="selectWrapper">
                     <h2 id="selectTitle">{dropDown.users.length} Customers Waiting for an Estimate</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {dropDown.userLoading ? 
-                    <Message 
-                        message={"Loading..."}
-                        errorMessage={"This is taking a while. Still loading..."}
-                        finalErrorMessage={"A network error may have occured. Try again later."}
-                        finalTimeout={20000}
-                        timeout={10000}/> 
-                    : <Select 
-                    className="select" 
-                    options={populateDropDown(dropDown.users)}
-                    onChange={handleChange} 
-                    placeholder='Select Customer...'
-                    />}
+                    {dropDown.userLoading ?
+                        <Message
+                            message={"Loading..."}
+                            errorMessage={"This is taking a while. Still loading..."}
+                            finalErrorMessage={"A network error may have occured. Try again later."}
+                            finalTimeout={20000}
+                            timeout={10000}
+                            errorCondition={networkError} />
+                        : <Select
+                            className="select"
+                            options={populateDropDown(dropDown.users)}
+                            onChange={handleChange}
+                            placeholder='Select Customer...'
+                        />}
                 </div>
                 <div className="selectWrapper">
                     <h2 id="selectTitle">{dropDown.drafts.length} Unfinished Estimate Drafts</h2>
                     {/*If axios has not responded, display an h2 that says loading
                     otherwise, show the drop down */}
-                    {dropDown.estimateLoading ? 
-                    <Message 
-                        message={"Loading..."}
-                        errorMessage={"This is taking a while. Still loading..."}
-                        finalErrorMessage={"A network error may have occured. Try again later."}
-                        finalTimeout={20000}
-                        timeout={10000}/> 
-                    : <Select 
-                    className="select" 
-                    options={populateDropDown(dropDown.drafts)}
-                    onChange={handleChange}
-                    placeholder='Select Draft...' 
-                    />}
+                    {dropDown.draftsLoading ?
+                        <Message
+                            message={"Loading..."}
+                            errorMessage={"This is taking a while. Still loading..."}
+                            finalErrorMessage={"A network error may have occured. Try again later."}
+                            finalTimeout={20000}
+                            timeout={10000}
+                            errorCondition={networkError} />
+                        : <Select
+                            className="select"
+                            options={populateDropDown(dropDown.drafts)}
+                            onChange={handleChange}
+                            placeholder='Select Draft...'
+                        />}
                 </div>
             </div>
-            {libDisplay ? 
-            (<Library 
-                setDisplay={setLibDisplay}
-                name="Material"
-            />) 
-            : 
-            (null)}
+            {libDisplay ?
+                (<Library
+                    setDisplay={setLibDisplay}
+                    name="Material"
+                />)
+                :
+                (null)}
             {/**Only display the calculator if there is a selected customer, and give it a key so it refreshes*/}
-            {currentCustomerData.user.fName !== "" 
+            {currentCustomerData.user.fName !== ""
                 ?
                 <>
                     <div className="customerInfo">
@@ -196,14 +204,14 @@ function EstimateInfo(){
                             <div className="infoElement">
                                 <h2 className="infoHeading">Contact</h2>
                                 <div className="info">
-                                    {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br/>
+                                    {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br />
                                     {currentCustomerData.user.email}
                                 </div>
                             </div>
                             <div className="infoElement">
                                 <h2 className="infoHeading">Address</h2>
                                 <div className="info">
-                                    {currentCustomerData.user.strAddr} <br/>
+                                    {currentCustomerData.user.strAddr} <br />
                                     {currentCustomerData.user.city} {currentCustomerData.user.state} {currentCustomerData.user.zip}
                                 </div>
                             </div>
@@ -218,18 +226,18 @@ function EstimateInfo(){
                             <div className="infoElement">
                                 <h2 className="infoHeading">Job Details</h2>
                                 <div className="info">
-                                {currentCustomerData.user.details}
+                                    {currentCustomerData.user.details}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <ImageCarousel images={images} />
-                    <Estimator 
-                        data={currentCustomerData} 
+                    <Estimator
+                        data={currentCustomerData}
                         key={currentCustomerData.user._id.$oid}
-                    /> 
+                    />
                 </>
-                : 
+                :
                 null
             }
             <button className="button large fixedBtn"

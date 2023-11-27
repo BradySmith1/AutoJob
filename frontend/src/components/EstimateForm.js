@@ -23,11 +23,12 @@ import axios from 'axios';
  * 
  * @returns JSX object, the customer estimate form
  */
-function EstimateForm(){
+function EstimateForm() {
 
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
     const [images, setImages] = useState([]);
+    const [networkError, setNetworkError] = useState(false);
 
     //Formik data
     const formik = useFormik({
@@ -56,7 +57,7 @@ function EstimateForm(){
 
             email: Yup.string()
                 .email("Invalid email address")
-                .required("Required"),  
+                .required("Required"),
 
             strAddr: Yup.string()
                 .max(100, "Must be 100 characters or less")
@@ -83,19 +84,23 @@ function EstimateForm(){
         }),
 
         //This function runs when the submit button is clicked
-        onSubmit: (values, {resetForm}) => {
+        onSubmit: (values, { resetForm }) => {
             //Create form data object
             var formData = new FormData();
             formData.append("user", JSON.stringify(values))
             //Add images to form data
-            images.forEach(file=>{
+            images.forEach(file => {
                 formData.append("files", file);
             });
             console.log(formData)
             //Post values to backend
-            axios.post('/user', formData, {headers: { 'Content-Type': 'multipart/form-data' }}).then(response => {
+            axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(response => {
                 console.log(response);
                 window.location.reload(false);
+                resetForm();
+                setImages([]);
+            }).catch((error) => {
+                setNetworkError(true);
             });
 
             const token = captchaRef.current.getValue();
@@ -103,11 +108,9 @@ function EstimateForm(){
             captchaRef.current.reset();
 
             //Reset form and images
-            resetForm();
-            setImages([]);
         }
     });
-    
+
     //JSX object, html for the form
     //onChange, onBlur, and value fields of each input are handled by formik
     return (
@@ -116,10 +119,10 @@ function EstimateForm(){
 
                 <div className="inputAndLabel half">
                     <h2>First Name</h2>
-                    <input 
-                        className="singleLineInput inputBox" 
-                        type="text" 
-                        id="fName" 
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="fName"
                         name="fName"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -131,10 +134,10 @@ function EstimateForm(){
 
                 <div className="inputAndLabel half">
                     <h2>Last Name</h2>
-                    <input 
-                        className="singleLineInput inputBox" 
-                        type="text" 
-                        id="lName" 
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="lName"
                         name="lName"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -148,10 +151,10 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Email</h2>
-                <input 
-                    className="singleLineInput inputBox" 
-                    type="text" 
-                    id="email" 
+                <input
+                    className="singleLineInput inputBox"
+                    type="text"
+                    id="email"
                     name="email"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -163,10 +166,10 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Street Address</h2>
-                <input 
-                    className="singleLineInput inputBox" 
-                    type="text" 
-                    id="strAddr" 
+                <input
+                    className="singleLineInput inputBox"
+                    type="text"
+                    id="strAddr"
                     name="strAddr"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -180,10 +183,10 @@ function EstimateForm(){
 
                 <div className="inputAndLabel third">
                     <h2>City</h2>
-                    <input 
-                        className="singleLineInput inputBox" 
-                        type="text" 
-                        id="city" 
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="city"
                         name="city"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -195,10 +198,10 @@ function EstimateForm(){
 
                 <div className="inputAndLabel third">
                     <h2>State</h2>
-                    <input 
-                        className="singleLineInput inputBox" 
-                        type="text" 
-                        id="state" 
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="state"
                         name="state"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -210,10 +213,10 @@ function EstimateForm(){
 
                 <div className="inputAndLabel third">
                     <h2>Zip</h2>
-                    <input 
-                        className="singleLineInput inputBox" 
-                        type="text" 
-                        id="zip" 
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="zip"
                         name="zip"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -227,11 +230,11 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Include Any Surfaces and Their Square Footage</h2>
-                <textarea 
-                    className="multiLineInput inputBox" 
-                    type="text" 
-                    id="measurments" 
-                    name="measurements" 
+                <textarea
+                    className="multiLineInput inputBox"
+                    type="text"
+                    id="measurments"
+                    name="measurements"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.measurements}
@@ -247,10 +250,10 @@ function EstimateForm(){
 
             <div className="inputAndLabel">
                 <h2>Include Any Other Details of the Job</h2>
-                <textarea 
-                    className="multiLineInput inputBox" 
-                    type="text" 
-                    id="details" 
+                <textarea
+                    className="multiLineInput inputBox"
+                    type="text"
+                    id="details"
                     name="details"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -259,14 +262,19 @@ function EstimateForm(){
                 {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.details && formik.errors.details ? <p className="Error">{formik.errors.details}</p> : null}
             </div>
+            {networkError ? 
+                (<div className='errorWrapper'>
+                    <h3>Network error, could not submit. Try again later.</h3>
+                </div>) : (null)
+            }
             <div className="captcha">
-                <ReCAPTCHA 
+                <ReCAPTCHA
                     sitekey={process.env.REACT_APP_SITE_KEY}
-                    ref={captchaRef} 
+                    ref={captchaRef}
                 />
             </div>
-            <input 
-                type="submit" 
+            <input
+                type="submit"
                 id="submitButton"
             />
         </form>

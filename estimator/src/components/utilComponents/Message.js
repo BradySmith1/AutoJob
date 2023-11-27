@@ -24,6 +24,12 @@ function Message(props){
         }
     }, []);
 
+    useEffect(() => {
+        if(props.errorCondition !== undefined && props.errorCondition === true){
+            setMessage(props.finalErrorMessage);
+        }
+    });
+
     return (
         <div className='messageContainer'>
             <h3 className='message'>{message}</h3>
