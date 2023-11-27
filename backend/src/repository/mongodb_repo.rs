@@ -22,11 +22,9 @@ impl<T: Model<T>> MongoRepo<T> {
     /// Initialize a MongoDB repository for sepcified collection.
     ///
     /// # Returns
-    ///
     /// Returns a MongoRepoUser struct containing a MongoDB collection for user estimates.
     ///
     /// # Panics
-    ///
     /// This function may panic if there are errors during environment variable loading,
     /// connection URL parsing, or if it cannot establish a connection to the MongoDB server.
     pub async fn init(collection_name: &str) -> Self {
@@ -63,15 +61,12 @@ impl<T: Model<T>> MongoRepo<T> {
     /// This function creates a new user estimate in the userEstimate collection.
     ///
     /// # Parameters
-    ///
     ///  new_user : A UserEstimate struct that contains the user's estimate information.
     ///
     /// # Returns
-    ///
     /// Returns a Result containing the InsertOneResult or an error.
     ///
     /// # Panics
-    ///
     /// This function may panic if there are errors during the insert operation.
     pub async fn create_document(&self, new_user: T) -> Result<InsertOneResult,
         ConnectionCheckoutFailedReason> {
@@ -90,6 +85,14 @@ impl<T: Model<T>> MongoRepo<T> {
         }
     }
 
+    /// Gets a document in a MongoDB database based on a filter applied by a certain amount of
+    /// attributes.
+    ///
+    /// # Parameters
+    /// filter : A Document that contains the attributes to filter by.
+    ///
+    /// # Returns
+    /// Returns a Result containing a vector of documents that match the filter or an error.
     pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, Error> {
         let mut cursor = self
             .col
@@ -109,6 +112,15 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
+    /// Updates a document in a MongoDB database based on a id and a document containing the new
+    /// document in the database.
+    ///
+    /// # Parameters
+    /// id : A reference to a String representing the ID of the document to update.
+    /// updated_user : A Document that contains the new document to update the old document with.
+    ///
+    /// # Returns
+    /// Returns a Result containing the updated document or an error.
     pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
@@ -127,16 +139,13 @@ impl<T: Model<T>> MongoRepo<T> {
     /// Delete a user estimate from the userEstimate collection based on the objectID.
     ///
     /// # Arguments
-    ///
     /// id : A reference to a String representing the ID of the job estimate to delete.
     ///
     /// # Returns
-    ///
     /// Returns a Result containing the deleted JobEstimate if successful, or an
     /// Error if there are any issues with the deletion.
     ///
     /// # Panics
-    ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
     pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, Error> {
@@ -152,14 +161,11 @@ impl<T: Model<T>> MongoRepo<T> {
     /// Retrieve all user estimates from the userEstimate collection.
     ///
     /// # Returns
-    ///
     /// Returns a Result containing a vector of all user estimates or an error.
     ///
     /// # Panics
-    ///
     /// This function may panic if there are issues with the MongoDB query.
     pub async fn get_all_documents(&self) -> Result<Vec<T>, Error> {
-        println!("Getting all documents");
         let mut cursors = self
             .col
             .find(None, None)

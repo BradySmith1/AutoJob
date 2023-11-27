@@ -6,17 +6,18 @@ use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
 
-pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) -> HttpResponse {
-    let data = serde_json::from_str(&new_user);
-    let json: T = match data{
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
-    };
-    let user_detail = db.create_document(json).await;
+/// A helper function used to create a new document in the database.
+///
+/// # Parameters
+/// db: A Data object containing the MongoRepo object.
+/// new_json: A JSON object containing the data to be added to the database.
+///
+/// # Returns
+/// An HttpResponse representing the result of the operation. If the document is created,
+/// it returns an HTTP 200 OK response with the JSON representation of the created document.
+/// If the document is not created, it returns an HTTP 500 Internal Server Error response
+pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_json: T) -> HttpResponse {
+    let user_detail = db.create_document(new_json).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(_) => HttpResponse::InternalServerError()
@@ -25,7 +26,16 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_user: &String) 
     }
 }
 
-pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -> HttpResponse{
+/// A helper function used to get a document in the database.
+///
+/// # Parameters
+/// db: A Data object containing the MongoRepo object.
+/// query: A MongoDB Document object containing the query to be used to retrieve the data.
+///
+/// # Returns
+/// A Result object containing the retrieved data. or an error if the data could not be retrieved.
+pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document) ->
+                                                                                 Result<Vec<T>, Error> {
     let user_detail:Result<Vec<T>, Error>;
     if query.is_empty() {
         user_detail = db.get_all_documents().await;
@@ -38,14 +48,19 @@ pub async fn get_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -
         }
         user_detail = db.get_documents_by_attribute(query).await;
     }
-    match user_detail {
-        Ok(user) => HttpResponse::Ok().json(user),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    user_detail
 }
 
-pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) ->
-                                                                                    HttpResponse {
+/// A helper function used to delete a document in the database.
+///
+/// # Parameters
+/// db: A Data object containing the MongoRepo object.
+/// query: A MongoDB Document object containing the query to be used to delete the data.
+///
+/// # Returns
+/// returns an HTTP 200 OK response with the JSON representation of the deleted document.
+/// If the document is not deleted, it returns an HTTP 500 Internal Server Error response
+pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -> HttpResponse {
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
@@ -68,6 +83,15 @@ pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document
     }
 }
 
+/// A helper function used to get all documents in the database.
+///
+/// # Parameters
+/// db: A Data object containing the MongoRepo object.
+///
+/// # Returns
+/// An HttpResponse representing the result of the operation. If the document is created,
+/// it returns an HTTP 200 OK response with the JSON representation of the created document.
+/// If the document is not created, it returns an HTTP 500 Internal Server Error response.
 pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
     let users = db.get_all_documents().await;
     match users {
@@ -76,8 +100,20 @@ pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
     }
 }
 
+/// A helper function used to update a document in the database.
+///
+/// # Parameters
+/// result: A Result object containing the result of the update operation.
+/// db: A Data object containing the MongoRepo object.
+/// id: The id of a object in the form of a string.
+///
+/// # Returns
+/// An HttpResponse representing the result of the operation. If the document is updated,
+/// it returns an HTTP 200 OK response with the JSON representation of the created document.
+/// If the document is not created, it returns an HTTP 500 Internal Server Error response.
+/// If the id is not a valid ID, it returns a HTTP Not Found Error Response.
 pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, Error>, db:
-Data<MongoRepo<T>>, id: String) -> HttpResponse{
+&Data<MongoRepo<T>>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {
             if update.matched_count == 1 {

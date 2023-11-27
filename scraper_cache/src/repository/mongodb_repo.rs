@@ -9,6 +9,7 @@ use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 use mongodb::results::{DeleteResult, UpdateResult};
 use serde_json::json;
 use crate::model::model_trait::Model;
+use crate::model::form_model::ScraperForm;
 
 /// A struct representing a MongoDB repository for user estimates.
 pub struct MongoRepo<T> {
@@ -115,9 +116,17 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(user_detail.unwrap())
     }
 
-    pub async fn get_documents_by_attribute(&self, attr: &String) -> Result<Vec<T>, Error> {
-        let doc = attr.split("_").collect::<Vec<&str>>();
-        let filter = doc! {doc[0]: doc[1]};
+    /// Gets a document in a MongoDB database based on a filter applied by a certain amount of
+    /// attributes.
+    ///
+    /// # Parameters
+    /// filter : A Document that contains the attributes to filter by.
+    ///
+    /// # Returns
+    /// Returns a Result containing a vector of documents that match the filter or an error.
+    pub async fn get_documents_by_attribute(&self, attributes: &ScraperForm) ->
+                                                                                   Result<Vec<T>, Error> {
+        let filter = doc! {"name": &attributes.name, "company": &attributes.company};
         let mut cursor = self
             .col
             .find(filter, None)
@@ -136,6 +145,18 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
+    /// Delete a user estimate from the userEstimate collection based on the objectID.
+    ///
+    /// # Arguments
+    /// id : A reference to a String representing the ID of the job estimate to delete.
+    ///
+    /// # Returns
+    /// Returns a Result containing the deleted JobEstimate if successful, or an
+    /// Error if there are any issues with the deletion.
+    ///
+    /// # Panics
+    /// This function may panic if there are errors in parsing the provided ID string or
+    /// if there are issues with the MongoDB query.
     pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
@@ -166,9 +187,9 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_document(&self, id: &String) -> Result<DeleteResult, Error> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
-        let filter = doc! {"_id": obj_id};
+    pub async fn delete_document(&self, id: ObjectId) -> Result<DeleteResult,
+        Error> {
+        let filter = doc! {"_id": id};
         let user_detail = self
             .col
             .delete_one(filter, None)

@@ -12,13 +12,11 @@ use crate::model::library_model::MaterialFee;
 /// Creates a new library entry via a POST request to the api web server
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// data storage.
 /// new_user: A JSON object representing the job estimate to be created.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry is created
 /// successfully, it returns an HTTP 200 OK response with the JSON representation of the created
 /// materialLibrary entry. If there's
@@ -27,19 +25,36 @@ use crate::model::library_model::MaterialFee;
 #[post("/library")]
 pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
                                                                                     HttpResponse {
-    post_data(&db, &new_user).await
+    let mut json: MaterialFee = match serde_json::from_str(&new_user){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    if json.auto_update.is_some() && json.auto_update.clone().unwrap().eq("true") {
+        if json.company.is_none(){
+            return HttpResponse::BadRequest().body("auto_update field is true but no company was \
+            provided");
+        }
+        let company = json.clone().company.unwrap();
+        if !company.eq("lowes") && !company.eq("homedepot"){
+            return HttpResponse::BadRequest().body("Invalid company name");
+        }
+        json.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
+    }
+    post_data(&db, json).await
 }
 
 /// Retrieve materialLibrary entry details by their ID via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the v with the specified ID is
 /// found,
 /// it returns an HTTP 200 OK response with the JSON representation of the materialLibrary
@@ -50,20 +65,22 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
 #[get("/library")]
 pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
                                                                                     HttpResponse {
-    get_data(db, query.into_inner()).await
+   return match get_data(&db, query.into_inner()).await{
+        Ok(data) => HttpResponse::Ok().json(data),
+        Err(err) => HttpResponse::InternalServerError()
+            .body(err.to_string()),
+    };
 }
 
 /// Update materialLibrary entry details by their ID via a PUT request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 /// new_user : A JSON object representing the materialLibrary entry estimate to be updated.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
 /// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
 /// updated materialLibrary entry's details. If the provided ID is empty or there's an error
@@ -82,19 +99,17 @@ pub async fn update_library_entry(
     let mut data: MaterialFee = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
     let update_result: Result<UpdateResult, Error>= db.update_document(&id, data).await;
-    push_update(update_result, db, id).await
+    push_update(update_result, &db, id).await
 }
 
 /// Delete materialLibrary entry details by their ID via a DELETE request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 /// path : A Path object containing the job ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with
 /// the specified ID is found, it returns an HTTP 200 OK response with a success message. If the
 /// provided ID is empty or there's an error during the deletion process, it returns an HTTP 400
@@ -109,12 +124,10 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 /// Retrieve all materialLibrary entry details via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the materialLibrary entry with the
 /// specified ID is found, it returns an HTTP 200 OK response with the JSON representation of the
 /// materialLibrary entry's details. If the provided ID is empty or there's an error during the
@@ -123,4 +136,40 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 #[get("/libraries")]
 pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
     get_all_data(db).await
+}
+
+/// This is the function that runs on a timer in the main function that checks the current
+/// MaterialLibrary for if there are products needing to be auto updated.
+///
+/// # Parameters
+/// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
+/// entry data storage.
+pub async fn check_library(db: MongoRepo<MaterialFee>){
+    println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
+    let materials = match db.get_all_documents().await{
+        Ok(materials) => materials,
+        Err(_) => {
+            println!("Could not retrieve materials from database");
+            return;
+        }
+    };
+    for material in materials{
+        //ttl is still implemented. however i dont know if i need it or not. I might just deal with
+        //the time to live in the web scraper api
+        if material.auto_update.is_some() && material.auto_update.clone().unwrap().eq("true") {
+            let mut new_material = material.clone();
+            let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
+                                                                         material.company.clone()
+                                                                             .unwrap()).await;
+            new_material.price = scraper_data.price;
+            new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
+            let update_result: Result<UpdateResult, Error>= db.update_document(&material.id.unwrap().to_string(), new_material).await;
+            match update_result {
+                Ok(_) => println!("Updated material: {}, {}", material.name, material.company
+                    .clone().unwrap()),
+                Err(_) => println!("Could not update material: {}, {}", material.name, material.company
+                    .clone().unwrap()),
+            }
+        }
+    }
 }

@@ -7,6 +7,13 @@ use crate::model::model_trait::Model;
 use crate::model::user_model::UserEstimate;
 
 /// Represents a job estimate. This is the model that will be used to create JSON objects.
+///
+/// # Fields
+/// id: Renamed to _id and is used to store the MongoDB generated id
+/// user: A UserEstimate Struct
+/// materials: A list of MaterialFee structs that are materials, if there are any.
+/// fees: A list of MaterialFee structs that are fees, if there are any.
+/// status: The status of the job estimate. Either a draft of a completed estimate.
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(non_snake_case)]
 pub struct JobEstimate {

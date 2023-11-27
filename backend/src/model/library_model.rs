@@ -1,10 +1,20 @@
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use chrono::{Utc};
 use crate::model::model_trait::Model;
 
-/// Represents a material. This will be used to represent a material in the materials array.
+/// Represents a material or fee. This will be used to represent a material or in the materials
+/// array.
+///
+/// # Fields
+/// id: Renamed to _id and is used to store the MongoDB generated id
+/// name: The name of the material or fee
+/// price: The price of a material/fee in the form of a f32 type
+/// quantity: The quantity of the material/fee in the form of a f32 type
+/// description: The description of the material/fee
+/// auto_update: Either empty or true. If true the price will be auto updated in the background
+/// ttl: the time to live of the material in the backend
+/// company: Either lowes or homedepot
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
@@ -17,12 +27,11 @@ pub struct MaterialFee {
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_update: Option<String>,
-    #[serde(default = "default_ttl", skip_serializing)]
-    pub ttl: String,
-}
-
-fn default_ttl() -> String {
-    (Utc::now() + chrono::Duration::days(7)).to_string()
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ttl: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company: Option<String>, //will need to change this to the store or region later down the
+    // line.
 }
 
 impl Model<MaterialFee> for MaterialFee {

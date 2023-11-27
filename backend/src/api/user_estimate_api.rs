@@ -1,5 +1,5 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
-            model::form_data_model::UploadForm};
+            model::form_data_model::UserEstimateUploadForm};
 use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
 use actix_multipart::{
     form::{
@@ -29,13 +29,21 @@ use crate::model::image_model::Image;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form): MultipartForm<UploadForm>) ->
+pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form): MultipartForm<UserEstimateUploadForm>) ->
                                                                                                             HttpResponse {
     let user: &String = &form.user.to_string();
     if user.is_empty() {
         return HttpResponse::BadRequest().body("invalid format for userEstimate");
     }
-    let json = post_data(&db, user).await.into_body().try_into_bytes().unwrap();
+    let json: UserEstimate = match serde_json::from_str(&user){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+    };
+    let json = post_data(&db, json).await.into_body().try_into_bytes().unwrap();
     let mut id = std::str::from_utf8(&json).unwrap();
     id = id.rsplit("\"").collect::<Vec<&str>>()[1];
 
@@ -46,21 +54,32 @@ pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form):
             return HttpResponse::InternalServerError().body("Could not save files");
         },
     };
-    if references.is_empty(){
+    if references.is_empty() {
         let mut hash = Document::new();
         hash.insert("_id".to_string(), id);
-        return get_data(db, hash).await; //get data takes a id as a string and parses it
-    }                                           //inside the function
+        return match get_data(&db, hash).await { //get data takes a id as a string and parses it
+            Ok(user) => HttpResponse::Ok().json(user),//inside the function
+            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+        }
+    }
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
     let response = db.update_document(&id.to_string(), json_user).await;
-    push_update(response, db, id.to_string()).await
+    push_update(response, &db, id.to_string()).await
     //might want to just return a id
 }
 
-async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
+/// A helper function to save files to a certain part of the computer.
+///
+/// # Parameters
+/// form: A struct UploadForm that is used to temporarily store the images before persisting them.
+/// id: The id the user has, this is used to create the name of a folder.
+///
+/// # Returns
+/// Returns a result of a vec of image references and where to find them in the computer.
+async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>,
     Error> {
     let mut image_vec: Vec<Value> = vec![];
     if form.files.len() == 0 {
@@ -82,21 +101,30 @@ async fn save_files(form: UploadForm, id: &str) -> Result<Vec<Value>,
 /// Retrieve userEstimate details by their ID via a GET request.
 ///
 /// # Parameters
-///
 /// db : A Data object containing a MongoDB repository (MongoRepoUser) for userEstimate data storage.
 /// path : A Path object containing the user ID as a string extracted from the request URL.
 ///
 /// # Returns
-///
 /// An HttpResponse representing the result of the operation. If the userEstimate with the specified ID is found,
 /// it returns an HTTP 200 OK response with the JSON representation of the userEstimate's details. If the provided ID
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user")]
 pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) -> HttpResponse {
-    get_data(db, query.into_inner()).await
+    return match get_data(&db, query.into_inner()).await {
+        Ok(user) => HttpResponse::Ok().json(user),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }
 
+/// A helper function to get a image through a file path
+///
+/// # Parameters
+/// req: The whole HttpRequest, this is used to find the image path through one of its querys
+///
+/// # Returns
+/// Returns a HttpRequest with either a OK 200 response with the images or a 500 Bad Request
+/// response if the image cannot be found.
 #[get("/userimage")]
 pub async fn get_image(req: HttpRequest) -> HttpResponse {
     let name_query =  &req.query_string().to_string();
@@ -149,7 +177,7 @@ pub async fn update_user(
         images: new_user.images.to_owned(),
     };
     let update_result = db.update_document(&id, data).await;
-    push_update(update_result, db, id).await
+    push_update(update_result, &db, id).await
 }
 
 /// Delete userEstimate details by their ID via a DELETE request.

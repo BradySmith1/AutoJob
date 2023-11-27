@@ -9,8 +9,10 @@ use actix_web::web::Data;
 use console::Style;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use repository::mongodb_repo::MongoRepo;
-use model::material_model::Material;
+use crate::api::cache_api::get_cached_materials;
+use crate::model::scraper_model::{Product};
 
+/// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
     let output = Command::new("./src/repository/check_mongodb_running.sh")
         .stdout(Stdio::piped())
@@ -31,6 +33,7 @@ fn check_mongodb() {
     }
 }
 
+/// This function creates a SslAcceptorBuilder that is used to create a SslAcceptor.
 fn ssl_builder() -> SslAcceptorBuilder {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
@@ -61,16 +64,17 @@ pub async fn main() -> std::io::Result<()> {
     let blue = Style::new()
         .blue();
     let prefix = "127.0.0.1:";
-    let port = 3001;
+    let port = 5000;
     let target = format!("{}{}", prefix, port);
 
     //checks if MongoDB instance is running
     check_mongodb();
 
     // Initializes the different Mongodb collection connections.
-    let db_cache: MongoRepo<Material> = MongoRepo::init("materialCache").await;
+    let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;
     let db_cache_data = Data::new(db_cache);
 
+    // Creates the ssl builder to use with the HTTP server
     let ssl = ssl_builder();
 
     println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
@@ -81,6 +85,7 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .app_data(db_cache_data.clone())
+            .service(get_cached_materials)
 
     })
         .bind_openssl(&target, ssl)?

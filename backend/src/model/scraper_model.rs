@@ -4,6 +4,9 @@ use crate::model::model_trait::Model;
 
 /// Represents one scrapped piece of data. This will be used to represent a scrape in the
 /// scraped array.
+///
+/// # Fields
+/// available_products: A list of products available in a library
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
@@ -13,6 +16,10 @@ pub struct Library {
 
 /// Represents one scrapped piece of data. This will be used to represent a scrape in the
 /// scraped array.
+///
+/// # Fields
+/// name: The name of a product
+/// price: The price of a product in the form of a f32 type
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]

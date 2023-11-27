@@ -1,37 +1,115 @@
 use actix_web::{web::{Data}, HttpResponse, get};
-use actix_web::web::Form;
-use model::material_model::Material;
-use crate::api::scraper_api::get_scraper_data;
-use crate::model;
-use crate::model::form_data_model::GetForm;
 use crate::repository::mongodb_repo::MongoRepo;
+use crate::model::form_model::ScraperForm;
+use actix_web::web::Query;
 
+/// Does two things, either gets the cached data from the database or scrapes the data and caches
+/// it to the database
+///
+/// # Parameters
+/// cache: The cache that will be used to store the data
+/// query: The query that will be used to get the data from the cache
+///
+/// # Returns
+/// HttpResponse: The response that will be sent to the client, either a response 200 OK with the
+/// scraped data or a Internal server error 500 with the error message.
 #[get("/cache")]
-pub async fn get_cached_materials(cache: Data<MongoRepo<Material>>, Form(form): Form<GetForm>) ->
+pub async fn get_cached_materials(cache: Data<MongoRepo<Product>>, query:
+Query<ScraperForm>) ->
                                                                                      HttpResponse {
-    let material: String = "name_".to_string() + &form.material;
+    //Form comes in format of {name: {}, store: {}}
     let returned_materials = match cache.
-        get_documents_by_attribute(&material).await {
+        get_documents_by_attribute(&query).await {
         Ok(materials) => materials,
         Err(_) => {
-            println!("Error: Could not get materials from the cache.");
-            return HttpResponse::InternalServerError().finish();
+            println!("No documents in the cache. Proceeding to scraping.");
+            Vec::<Product>::new()
         }
     };
     if returned_materials.len() == 0 {
-        let material = match get_scraper_data(&form.company, &form.material).await{
-            Ok(material) => material,
-            Err(string) => {
-                if string.eq("No Products Found"){
-                    return HttpResponse::NotFound().finish();
-                }
-                println!("Error: Could not get materials from the scraper.");
-                return HttpResponse::InternalServerError().finish();
-            }
-        };
-        let material = cache.create_document(material.clone()).await.unwrap();
-        HttpResponse::Ok().json(material)
-    }else{
-        HttpResponse::Ok().json(returned_materials[0].clone())
+        return scrape_and_cache(cache, &query.name, &query.company).await;
     }
+    let cloned_material = returned_materials[0].clone();
+    let now = chrono::Utc::now().to_string();
+    //let now = (chrono::Utc::now() + chrono::Duration::days(7)).to_string();
+    let ttl = cloned_material.ttl;
+    if now > ttl || now.eq(&ttl) {
+        cache.delete_document(cloned_material.id.unwrap()).await.unwrap();
+        return scrape_and_cache(cache, &query.name, &query.company).await;
+    }
+    return HttpResponse::Ok().json(returned_materials[0].clone());
+}
+
+/// A helper function that Scrapes the data and caches it to the database
+///
+/// # Parameters
+/// cache: The cache that will be used to store the data
+/// name: The name of the material that will be scraped
+/// company: The company that will be scraped
+///
+/// # Returns
+/// HttpResponse: The response that will be sent to the client, either a response 200 OK with the
+/// scraped data or a Internal server error 500 with the error message.
+async fn scrape_and_cache(cache: Data<MongoRepo<Product>>, name: &String, company: &String)
+    -> HttpResponse{
+    let material = match get_scraper_data(company,
+                                          name).await{
+        Ok(material) => material,
+        Err(string) => {
+            if string.eq("No Products Found") || string.eq("EOF while parsing a value at line 1 column 0"){
+                return HttpResponse::NotFound().finish();
+            }
+            println!("{}", string);
+            return HttpResponse::InternalServerError().body(string);
+        }
+    };
+    let _ = cache.create_document(material.clone()).await.unwrap();
+    return HttpResponse::Ok().json(material);
+}
+
+use std::process::{Command, Output, Stdio};
+use crate::model::scraper_model::{Product, ScraperLibrary};
+
+/// A helper function that runs the python script and gets the data from the script
+///
+/// # Parameters
+/// company: The company that will be scraped
+/// material: The material that will be scraped
+///
+/// # Returns
+/// Result<Product, String>: The result of the function, either a Product or a String
+pub async fn get_scraper_data(company: &String, material: &String) -> Result<Product,
+    String> {
+    //runs the python script and gets the output
+    let output: Output = Command::new("python3")
+        .arg("./src/scraper/scraper.py")
+        .arg(company)
+        .arg(material)
+        .stdout(Stdio::piped())
+        .output()
+        .expect("Could not run bash command");
+
+    //converts the output to a string
+    let data = String::from_utf8(output.stdout.clone()).unwrap();
+    if data.clone().eq("No products found") {
+        return Err("No Products Found".to_string());
+    }
+
+    //println!("{}", &data);
+    //converts the string to a Library object and returns the requests data.
+    let result_json = match serde_json::from_str::<ScraperLibrary>(&data) {
+        Ok(user) => user,
+        Err(err) => return Err(err.to_string()),
+    };
+
+    //TODO might want to change this but should work right now.
+    let mut product = result_json.available_products[0].clone();
+    product.name = product.name.replace(" ", "_");
+    Ok(Product {
+        id: None,
+        name: material.clone(),
+        price: product.price,
+        company: company.clone(),
+        ttl: (chrono::Utc::now() + chrono::Duration::days(7)).to_string(),
+    })
 }
