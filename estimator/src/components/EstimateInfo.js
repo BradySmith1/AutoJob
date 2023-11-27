@@ -97,30 +97,22 @@ function EstimateInfo(){
     
     //Declare a boolean loading use state to keep track of when the
     //axios get request returns what we need
-    // const [userLoading, setUserLoading] = useState(true);
-    // const [estimateLoading, setEstimateLoading] = useState(true);
     const [images, setImages] = useState(defaultImages);
     const [libDisplay, setLibDisplay] = useState(false);
 
     //Declare a use state variable that holds the default customer data
     const [dropDown, setDropDown] = useState(dropDownData);
-    // const [customerData, setCustomerData] = useState([DEFAULT_ESTIMATE_DATA]);
-    // const [draftData, setDraftData] = useState([DEFAULT_ESTIMATE_DATA]);
 
     //This function runs when the page is first loaded
     useEffect(() => {
         //Get all the customer data
         packUsers().then((data) => {
             setDropDown(dropDown => ({...dropDown, users: data, userLoading: false}));
-            // setCustomerData(data);
-            // setUserLoading(false);
         })
 
         //Get all the draft data
         packDrafts().then((data) => {
             setDropDown(dropDown => ({...dropDown, drafts: data, draftsLoading: false}));
-            // setDraftData(data);
-            // setEstimateLoading(false);
         })
     }, [])
 

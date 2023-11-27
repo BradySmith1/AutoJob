@@ -149,6 +149,14 @@ function Estimator(props){
     //Determine any pre-existing billables
     determineBillables(initialValues, props.data);
 
+    const handleSubmission = (status) => {
+        if(status === "complete"){
+            window.location.reload(false);
+        }else{
+            setSaved(true);
+        }
+    }
+
     /**
      * Post the form data to the backend
      * @param {*} values values to post
@@ -161,13 +169,9 @@ function Estimator(props){
         //If this has an id, we know it's a draft
         if(estimateData.hasOwnProperty("_id")){
             //Put it to the database
-            axios.put('/estimate/'+ props.data._id.$oid, estimateData, {timeout: 3000}).then((response) => {
-                console.log(response);
-                setSaved(true);
+            axios.put('/estimate/'+ props.data._id.$oid, estimateData, {timeout: 3000}).then(() => {
                 //If complete, reload window
-                if(status === "complete"){
-                    window.location.reload(false);
-                }
+                handleSubmission(status);
             }).catch((error) => {
                 console.log(error.message);
                 setPostError(true);
@@ -175,13 +179,11 @@ function Estimator(props){
         }else{
             //If it doesnt have an id, this is not a draft so post it
             axios.post('/estimate', estimateData, {timeout: 3000}).then((response) => {
-                console.log(response);
                 props.data._id = {$oid: response.data.insertedId.$oid};
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                axios.delete(`/user?_id=${estimateData.user._id.$oid}`, {timeout: 3000}).then((response) => {
-                    console.log(response);
-                    //window.location.reload(false);
+                axios.delete(`/user?_id=${estimateData.user._id.$oid}`, {timeout: 3000}).then(() => {
+                    handleSubmission(status);
                 }).catch((error) => {
                     console.log(error.message);
                     setPostError(true);
