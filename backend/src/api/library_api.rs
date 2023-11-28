@@ -32,7 +32,7 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },
     };
-    if json.auto_update.is_some() && json.auto_update.clone().unwrap().eq("true") {
+    if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
         if json.company.is_none(){
             return HttpResponse::BadRequest().body("auto_update field is true but no company was \
             provided");
@@ -155,7 +155,7 @@ pub async fn check_library(db: MongoRepo<MaterialFee>){
     for material in materials{
         //ttl is still implemented. however i dont know if i need it or not. I might just deal with
         //the time to live in the web scraper api
-        if material.auto_update.is_some() && material.auto_update.clone().unwrap().eq("true") {
+        if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
             let mut new_material = material.clone();
             let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
                                                                          material.company.clone()

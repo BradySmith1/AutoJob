@@ -30,7 +30,8 @@ pub struct UserEstimate {
     pub strAddr: String,
     pub city: String,
     pub state: String,
-    pub zip: String, //might make this a int
+    pub zip: String,
+    pub phoneNumber: String,
     pub measurements: String,
     pub details: String,
     #[serde(skip_serializing_if = "Option::is_none")]

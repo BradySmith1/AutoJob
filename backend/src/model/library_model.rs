@@ -25,8 +25,8 @@ pub struct MaterialFee {
     pub price: f32,
     pub quantity: f32,
     pub description: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub auto_update: Option<String>,
+    pub autoImport: String,
+    pub autoUpdate: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ttl: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

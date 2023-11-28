@@ -172,6 +172,7 @@ pub async fn update_user(
         city: new_user.city.to_owned(),
         state: new_user.state.to_owned(),
         zip: new_user.zip.to_owned(),
+        phoneNumber: new_user.phoneNumber.to_owned(),
         measurements: new_user.measurements.to_owned(),
         details: new_user.details.to_owned(),
         images: new_user.images.to_owned(),
