@@ -86,7 +86,7 @@ function Calculator(props){
                                 <div className='errors'><ErrorMessage name={`${formikName}.${index}.quantity`} component='div'/></div>
                             </div>
                             {/**This displays the subtotal for the column */}
-                            <div className='col'>
+                            <div className='col totalCol'>
                                 <div className='label'> Sub Total </div>
                                 <div className='totalContainer'>
                                     <div className='total'> 

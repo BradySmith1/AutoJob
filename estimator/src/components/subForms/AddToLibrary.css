@@ -33,3 +33,10 @@
     width: 90%;
     margin-left: 10%;
 }
+
+@media (max-width: 1235px) {
+    .formContainer{
+        margin-left: 0px;
+        margin-top: 80px;
+    }
+}

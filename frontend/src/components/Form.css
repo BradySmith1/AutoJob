@@ -98,3 +98,9 @@ h2 {
     align-items: center;
     color: white;
 }
+
+@media (max-width: 1200px) {
+    #estimateForm {
+        width: 80%;
+    }
+}
