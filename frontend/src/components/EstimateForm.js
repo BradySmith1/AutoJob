@@ -9,11 +9,11 @@
  * request to our backend, and react-google-captcha for the captcha.
  */
 
-import './Form.css'
-import DragDrop from './DragDrop.js'
+import './Form.css';
+import DragDrop from './DragDrop.js';
 import { useFormik } from 'formik';
 import React, { useRef, useState } from "react";
-import * as Yup from "yup"
+import * as Yup from "yup";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 

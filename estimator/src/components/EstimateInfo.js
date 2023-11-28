@@ -29,7 +29,6 @@ const DEFAULT_ESTIMATE_DATA = { user: { "fName": "", "lName": "", "email": "", "
  */
 async function packUsers() {
     const response = await axios.get('/users');
-    console.log(response.data);
     var userArr = [];
     //Push each user to a local array
     for (const entry of response.data) {
@@ -83,6 +82,8 @@ function populateDropDown(data) {
 }
 
 const defaultImages = [];
+var draftDropDown = {};
+var userDropDown = {};
 
 /**
  * This function returns the JSX object for the estimate calculator and
@@ -94,21 +95,17 @@ function EstimateInfo() {
 
     //Declare a use state variable that holds the currently selected customer data
     const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
-
-    //Declare a boolean loading use state to keep track of when the
-    //axios get request returns what we need
     const [images, setImages] = useState(defaultImages);
     const [libDisplay, setLibDisplay] = useState(false);
-
     //Declare a use state variable that holds the default customer data
     const [dropDown, setDropDown] = useState(dropDownData);
-
     const [networkError, setNetworkError] = useState(false);
 
     //This function runs when the page is first loaded
     useEffect(() => {
         //Get all the customer data
         packUsers().then((data) => {
+            userDropDown = populateDropDown(data);
             setDropDown(dropDown => ({ ...dropDown, users: data, userLoading: false }));
         }).catch((error) => {
             setNetworkError(true);
@@ -116,6 +113,7 @@ function EstimateInfo() {
 
         //Get all the draft data
         packDrafts().then((data) => {
+            draftDropDown = populateDropDown(data);
             setDropDown(dropDown => ({ ...dropDown, drafts: data, draftsLoading: false }));
         }).catch((error) => {
             setNetworkError(true);
@@ -125,13 +123,10 @@ function EstimateInfo() {
     //This function handles the change of the selected drop down
     //item.
     const handleChange = (selectedOption) => {
-        //Set the current customer data to the selected value
-
         if (!selectedOption.value.hasOwnProperty("_id")) {
             getAutoImports().then((data) => {
                 var estimateData = { ...data };
                 estimateData.user = selectedOption.value.user;
-                console.log(JSON.stringify(estimateData));
                 setCurrentCustomerData(estimateData);
             });
         } else {
@@ -163,7 +158,7 @@ function EstimateInfo() {
                             errorCondition={networkError} />
                         : <Select
                             className="select"
-                            options={populateDropDown(dropDown.users)}
+                            options={userDropDown}
                             onChange={handleChange}
                             placeholder='Select Customer...'
                         />}
@@ -182,7 +177,7 @@ function EstimateInfo() {
                             errorCondition={networkError} />
                         : <Select
                             className="select"
-                            options={populateDropDown(dropDown.drafts)}
+                            options={draftDropDown}
                             onChange={handleChange}
                             placeholder='Select Draft...'
                         />}
