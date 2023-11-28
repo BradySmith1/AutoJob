@@ -17,10 +17,10 @@ import axios from 'axios';
 /**
  * Function to determine the background color of the tick box
  * @param {HTML element} element, the element to change
- * @param {String} autoImport, string to decide if we want to change color
+ * @param {String} bool, string to decide if we want to change color
  */
-function determineBackgroundColor(element, autoImport){
-    if(autoImport === "true"){
+function determineBackgroundColor(element, bool){
+    if(bool === "true"){
         element.style.backgroundColor="#0055FF";
     }else{
         element.style.backgroundColor="#adadad";
@@ -95,6 +95,7 @@ function Billable(props){
     useEffect(() => {
         if(display){
             determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport); 
+            determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate); 
         }
     }, [display])
 
@@ -165,9 +166,11 @@ function Billable(props){
                                     //On click, set modify the billable to auto import
                                     props.billable.data.autoImport = toggle(props.billable.data.autoImport);
                                     determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport)
-                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then(response => console.log(response));
+                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then((response) => {
+                                        console.log(response);
+                                    });
                                     if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.autoImport === "true"){
-                                        props.insertBillable(props.billable.data)
+                                        props.insertBillable(props.billable.data);
                                         props.billable.imported = true;
                                     }
                                 }}
@@ -178,9 +181,20 @@ function Billable(props){
                                 </div>
                             </div>
                             <div
-                                className="optionsButton tickBox middle"
+                                className="optionsButton tickBox"
                                 onClick={() => {
-                                    //price scan
+                                    props.billable.data.autoUpdate = toggle(props.billable.data.autoUpdate);
+                                    determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
+                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then((response) => {
+                                        console.log(response);
+                                    });
+                                    if(props.billable.data.autoUpdate === "true"){
+                                        axios.get('/scrape?company=homedepot&name=' + props.billable.data.name).then((response) => {
+                                            var billableCopy = {...props.billable.data};
+                                            billableCopy.price = response.price;
+                                            props.modifyLibrary(props.index, billableCopy);
+                                        })
+                                    }
                                 }}
                             >
                                 Price Scan
