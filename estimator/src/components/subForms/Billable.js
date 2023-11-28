@@ -17,10 +17,10 @@ import axios from 'axios';
 /**
  * Function to determine the background color of the tick box
  * @param {HTML element} element, the element to change
- * @param {String} auto_update, string to decide if we want to change color
+ * @param {String} autoImport, string to decide if we want to change color
  */
-function determineBackgroundColor(element, auto_update){
-    if(auto_update === "true"){
+function determineBackgroundColor(element, autoImport){
+    if(autoImport === "true"){
         element.style.backgroundColor="#0055FF";
     }else{
         element.style.backgroundColor="#adadad";
@@ -94,7 +94,7 @@ function Billable(props){
      */
     useEffect(() => {
         if(display){
-            determineBackgroundColor(document.getElementById(importID), props.billable.data.auto_update); 
+            determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport); 
         }
     }, [display])
 
@@ -163,10 +163,10 @@ function Billable(props){
                                 className="optionsButton tickBox"
                                 onClick={() => {
                                     //On click, set modify the billable to auto import
-                                    props.billable.data.auto_update = toggle(props.billable.data.auto_update);
-                                    determineBackgroundColor(document.getElementById(importID), props.billable.data.auto_update)
+                                    props.billable.data.autoImport = toggle(props.billable.data.autoImport);
+                                    determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport)
                                     axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then(response => console.log(response));
-                                    if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.auto_update === "true"){
+                                    if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.autoImport === "true"){
                                         props.insertBillable(props.billable.data)
                                         props.billable.imported = true;
                                     }

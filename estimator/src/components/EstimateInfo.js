@@ -21,7 +21,7 @@ import Library from "./subForms/Library.js";
 import Message from "./utilComponents/Message.js";
 import dropDownData from "./JSONs/dropDown.json";
 
-const DEFAULT_ESTIMATE_DATA = { user: { "fName": "", "lName": "", "email": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": "" } };
+const DEFAULT_ESTIMATE_DATA = { user: { "fName": "", "lName": "", "email": "", "phoneNumber": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": "" } };
 
 /**
  * Packs a user estimate with auto imports
@@ -42,7 +42,7 @@ async function getAutoImports() {
     var autoImports = {};
     for (const key of Object.keys(billableList)) {
         //Get the auto imports
-        const response = await axios.get("/library?auto_update=true&description=" + key);
+        const response = await axios.get("/library?autoImport=true&description=" + key);
         if (response.data.length > 0) {
             //Add that array of billables to the user object
             autoImports[billableList[key]] = response.data;
@@ -205,7 +205,8 @@ function EstimateInfo() {
                                 <h2 className="infoHeading">Contact</h2>
                                 <div className="info">
                                     {currentCustomerData.user.fName} {currentCustomerData.user.lName} <br />
-                                    {currentCustomerData.user.email}
+                                    {currentCustomerData.user.email} <br />
+                                    {currentCustomerData.user.phoneNumber}
                                 </div>
                             </div>
                             <div className="infoElement">

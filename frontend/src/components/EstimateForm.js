@@ -17,6 +17,8 @@ import * as Yup from "yup"
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
+const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
 /**
  * This function returns the estimate form in a JSX object
  * that is then used imported in App.js
@@ -37,6 +39,7 @@ function EstimateForm() {
             fName: "",
             lName: "",
             email: "",
+            phoneNumber: "",
             strAddr: "",
             city: "",
             state: "",
@@ -57,6 +60,10 @@ function EstimateForm() {
 
             email: Yup.string()
                 .email("Invalid email address")
+                .required("Required"),
+
+            phoneNumber: Yup.string()
+                .matches(phoneRegExp, "Invalid phone number")
                 .required("Required"),
 
             strAddr: Yup.string()
@@ -149,19 +156,38 @@ function EstimateForm() {
 
             </div>
 
-            <div className="inputAndLabel">
-                <h2>Email</h2>
-                <input
-                    className="singleLineInput inputBox"
-                    type="text"
-                    id="email"
-                    name="email"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.email}
-                />
-                {/*If there are unment form requirements and this input has been touched, display error message */}
-                {formik.touched.email && formik.errors.email ? <p className="Error">{formik.errors.email}</p> : null}
+            <div className="multiBoxWrapper">
+
+                <div className="inputAndLabel half">
+                    <h2>Email</h2>
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="email"
+                        name="email"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.email}
+                    />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
+                    {formik.touched.email && formik.errors.email ? <p className="Error">{formik.errors.email}</p> : null}
+                </div>
+
+                <div className="inputAndLabel half">
+                    <h2>Phone Number</h2>
+                    <input
+                        className="singleLineInput inputBox"
+                        type="text"
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.phoneNumber}
+                    />
+                    {/*If there are unment form requirements and this input has been touched, display error message */}
+                    {formik.touched.phoneNumber && formik.errors.phoneNumber ? <p className="Error">{formik.errors.phoneNumber}</p> : null}
+                </div>
+
             </div>
 
             <div className="inputAndLabel">
