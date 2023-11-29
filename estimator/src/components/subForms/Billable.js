@@ -188,6 +188,7 @@ function Billable(props){
                                 className="optionsButton tickBox middle"
                                 onClick={() => {
                                     props.billable.data.autoUpdate = toggle(props.billable.data.autoUpdate);
+                                    props.billable.data.company = "homedepot";
                                     determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
                                     axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then((response) => {
                                         console.log(response);
