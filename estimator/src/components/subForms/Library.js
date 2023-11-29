@@ -45,13 +45,13 @@ function trackImported(formData, billableData){
 
 /**
  * Search a billable's name to see if it matches a given string
- * @param {JSON} billabe 
+ * @param {JSON} billable 
  * @param {String} searchStr 
  * @returns 
  */
-function searchString(billabe, searchStr){
+function searchString(billable, searchStr){
     var contains = false;
-    var billableName = billabe.name.toLowerCase();
+    var billableName = billable.name.toLowerCase();
     var search = searchStr.toLowerCase();
     billableName = billableName.replace(/\s/g, '');
     search = search.replace(/\s/g, '');
@@ -122,7 +122,7 @@ function Library(props){
 
     const modifyLibrary = (index, billable) => {
         var libCopy = [...library.billables];
-        libCopy[index] = billable;
+        libCopy[index] = {imported: false, data: billable};
         setLibrary({name: library.name, billables: libCopy});
     }
 
