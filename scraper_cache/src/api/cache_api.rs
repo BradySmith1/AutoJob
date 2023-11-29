@@ -59,7 +59,6 @@ async fn scrape_and_cache(cache: Data<MongoRepo<Product>>, name: &String, compan
             if string.eq("No Products Found") || string.eq("EOF while parsing a value at line 1 column 0"){
                 return HttpResponse::NotFound().finish();
             }
-            println!("{}", string);
             return HttpResponse::InternalServerError().body(string);
         }
     };

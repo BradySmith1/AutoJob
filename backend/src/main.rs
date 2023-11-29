@@ -22,7 +22,7 @@ use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
                                    get_estimate, update_estimate};
 use crate::api::library_api::{check_library, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
-use crate::api::scraper_api::instant_web_scrape;
+use crate::api::scraper_api::manual_web_scrape;
 use crate::model::estimate_model::JobEstimate;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
@@ -145,7 +145,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
-            .service(instant_web_scrape)
+            .service(manual_web_scrape)
             .service(index)
 
     })

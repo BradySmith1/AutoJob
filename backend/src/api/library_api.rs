@@ -152,14 +152,32 @@ pub async fn check_library(db: MongoRepo<MaterialFee>){
             return;
         }
     };
+    if materials.is_empty(){
+        println!("No materials in database");
+        return;
+    }
     for material in materials{
         //ttl is still implemented. however i dont know if i need it or not. I might just deal with
         //the time to live in the web scraper api
         if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
             let mut new_material = material.clone();
-            let scraper_data = crate::api::scraper_api::get_scraper_data(material.name.clone(),
+            let scraper_data = match crate::api::scraper_api::get_scraper_data(material.name
+                                                                                   .clone(),
                                                                          material.company.clone()
-                                                                             .unwrap()).await;
+                                                                             .unwrap()).await{
+                Ok(data) => data,
+                Err(err) => {
+                    if err.eq("no products found") {
+                        println!("No products found for material: {}, {}", material.name, material
+                            .company.clone().unwrap());
+                    }else if err.eq("error getting web cache") {
+                        println!("Error getting web cache. Check if web cache is running");
+                    }else{
+                        println!("Internal Server error.");
+                    }
+                    return;
+                }
+            };
             new_material.price = scraper_data.price;
             new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
             let update_result: Result<UpdateResult, String> = db.update_document(&material.id

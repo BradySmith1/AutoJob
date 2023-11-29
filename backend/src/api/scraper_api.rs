@@ -3,7 +3,7 @@ use actix_web::{get, HttpResponse};
 use actix_web::web::Query;
 use serde_derive::{Deserialize, Serialize};
 
-/// Retrieve scraper data via a GET request. This is used for instant web scraping. Not background
+/// Retrieve scraper data via a GET request. This is used for manual web scraping. Not background
 /// web scraping.
 ///
 /// # Parameters
@@ -16,7 +16,7 @@ use serde_derive::{Deserialize, Serialize};
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/scrape")]
-pub async fn instant_web_scrape(query: Query<HashMap<String, String>>) -> HttpResponse {
+pub async fn manual_web_scrape(query: Query<HashMap<String, String>>) -> HttpResponse {
     let map = query.into_inner();
     let name = match map.get("name"){
         Some(name) => name,
@@ -26,7 +26,19 @@ pub async fn instant_web_scrape(query: Query<HashMap<String, String>>) -> HttpRe
         Some(company) => company,
         None => return HttpResponse::BadRequest().body("Invalid company"),
     };
-    let scraper_data = get_scraper_data(name.to_string(), company.to_string()).await;
+    let scraper_data = match get_scraper_data(name.to_string(), company.to_string()).await{
+        Ok(scrape) => scrape,
+        Err(err) => {
+            if err.eq("no products found") {
+                return HttpResponse::Ok().body("no products found");
+            }else if err.eq("error getting web cache") {
+                return HttpResponse::InternalServerError().body("Error getting web cache. Check \
+                if web cache server is running");
+            }else{
+                return HttpResponse::InternalServerError().finish();
+            }
+        },
+    };
     HttpResponse::Ok().json(scraper_data)
 }
 
@@ -41,7 +53,7 @@ pub async fn instant_web_scrape(query: Query<HashMap<String, String>>) -> HttpRe
 /// If the provided material is empty or there's an error during the retrieval process, it
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-pub async fn get_scraper_data(name: String, company: String) -> ScraperData {
+pub async fn get_scraper_data(name: String, company: String) -> Result<ScraperData, String> {
     let url = std::env::var("WEB_CACHE_URL").unwrap();
     //let client = reqwest::Client::new();  //this is used when not using a self-signed cert
     let client = reqwest::Client::builder()
@@ -51,8 +63,20 @@ pub async fn get_scraper_data(name: String, company: String) -> ScraperData {
     let res = client.get(&url);
     let res = res.query(&[("name", name), ("company", company)]);
     let res = res.timeout(std::time::Duration::from_secs(15));
-    let response = res.send().await.unwrap();
-    response.json::<ScraperData>().await.expect("No json was parsed")
+    let response = match res.send().await{
+        Ok(response) => response,
+        Err(_) => {
+            println!("Error getting web cache. Check if web cache is running");
+            return Err("error getting web cache".to_string());
+        },
+    };
+    if response.status().is_client_error(){
+        return Err("no products found".to_string());
+    }else if response.status().is_server_error(){
+        return Err("internal server error".to_string());
+    }else {
+        Ok(response.json::<ScraperData>().await.expect("No json was parsed"))
+    }
 }
 
 /// A struct representing the data retrieved from the web scraper.
