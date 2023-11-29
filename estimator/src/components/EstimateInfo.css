@@ -103,3 +103,24 @@ h2{
     font-size: 20px !important; 
     border-radius: 10px;
 }
+
+@media (max-width: 920px) {
+    .dropDown{
+        flex-direction: column;
+    }
+
+    .selectWrapper{
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .infoContainer{
+        flex-direction: column;
+        margin-top: 0px;
+    }
+
+    .infoElement{
+        width: 100%;
+        margin-bottom: 40px;
+    }
+}

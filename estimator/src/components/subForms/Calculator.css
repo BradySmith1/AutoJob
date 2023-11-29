@@ -86,3 +86,30 @@
     width: 90%;
     margin-left: 10%;
 }
+
+@media (max-width: 920px) {
+    .row{
+        flex-direction: column;
+    }
+
+    .col{
+        width: 100%;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .totalContainer{
+        width: 20%;
+    }
+
+    .totalCol{
+        padding-left: 10%;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .xButton{
+        margin-top: 0px;
+        margin-bottom: 10px;
+    }
+}

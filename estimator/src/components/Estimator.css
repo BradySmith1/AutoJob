@@ -17,7 +17,7 @@
 }
 
 .divider{
-    height: 60px;
+    height: auto;
     border-bottom: 3px white solid;
     width: 80%;
     margin-left: 10%;
@@ -43,4 +43,10 @@
 
 .invalid{
     color: red !important;
+}
+
+@media (max-width: 920px) {
+    .button{
+        margin-bottom: 10px;
+    }
 }

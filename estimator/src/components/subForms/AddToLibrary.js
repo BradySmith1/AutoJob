@@ -28,7 +28,8 @@ function AddToLibrary(props){
             price: 0.0,
             quantity: 1,
             description: props.name,
-            auto_update: "false"
+            autoImport: "false",
+            autoUpdate: "false"
         },
     
         //Declare a validation schema for the form

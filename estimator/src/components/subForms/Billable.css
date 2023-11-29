@@ -64,12 +64,6 @@
     width: 200px !important;
 }
 
-.closeBtn{
-    left: 325px;
-    position: absolute;
-    bottom: -40px;
-}
-
 .btn:hover{
     background-color: #00A3FF;
 }

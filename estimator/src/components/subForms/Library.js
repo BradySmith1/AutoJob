@@ -79,7 +79,7 @@ function Library(props){
 
     //Use state for the library
     const [library, setLibrary] = useState([]);
-    //Use state for the state array
+    //Use state for the search string
     const [searchStr, setSearchStr] = useState("");
     //Use state to determine whether or not to display the add
     //billabel popup form
@@ -118,6 +118,12 @@ function Library(props){
             setRemoveError(true);
         }
         );
+    }
+
+    const modifyLibrary = (index, billable) => {
+        var libCopy = [...library.billables];
+        libCopy[index] = billable;
+        setLibrary({name: library.name, billables: libCopy});
     }
 
     const insertBillable = (billable) =>{
@@ -208,6 +214,7 @@ function Library(props){
                                         billable={billable}
                                         insertBillable={insertBillable}
                                         removeFromLibrary={removeFromLibrary}
+                                        modifyLibrary={modifyLibrary}
                                         index={index}
                                         key={index}
                                     />) 
@@ -215,6 +222,7 @@ function Library(props){
                                     (<Billable 
                                         billable={billable}
                                         removeFromLibrary={removeFromLibrary}
+                                        modifyLibrary={modifyLibrary}
                                         index={index}
                                         key={index}
                                     />)

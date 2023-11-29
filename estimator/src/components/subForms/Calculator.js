@@ -26,6 +26,15 @@ import billableList from '../JSONs/billableList.json';
  */
 function Calculator(props){
 
+    const billableSchema = {
+        name: "",
+        price: 0.0,
+        quantity: 1,
+        description: props.name,
+        autoImport: "false",
+        autoUpdate: "false"
+    }
+
     //Use state used to keep track of if the material libaray should be displayed or not.
     const [display, setDisplay] = useState(false);
     //Formik name, derrived from the props.name, used to name input fields
@@ -77,7 +86,7 @@ function Calculator(props){
                                 <div className='errors'><ErrorMessage name={`${formikName}.${index}.quantity`} component='div'/></div>
                             </div>
                             {/**This displays the subtotal for the column */}
-                            <div className='col'>
+                            <div className='col totalCol'>
                                 <div className='label'> Sub Total </div>
                                 <div className='totalContainer'>
                                     <div className='total'> 
@@ -109,7 +118,7 @@ function Calculator(props){
                     <button
                         type="button"
                         className="button medium"
-                        onClick={() => push({ name: '', price: 0.0, quantity: 1.0, description: props.name, auto_update: "false"})}
+                        onClick={() => push(billableSchema)}
                     >
                         + Add New {props.name}
                     </button>

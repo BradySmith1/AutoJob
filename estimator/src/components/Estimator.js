@@ -23,7 +23,8 @@ const billableSchema = [{
     price: 0.0,
     quantity: 1.0,
     description: '',
-    auto_update: "false"
+    autoImport: "false",
+    autoUpdate: "false"
 }]
 
 /**
@@ -94,7 +95,6 @@ function generateYupSchema() {
  * @param {*} data 
  */
 function determineBillables(initialValues, data) {
-    console.log(data);
     for (const key of Object.keys(initialValues)) {
         if (data.hasOwnProperty(key)) {
             initialValues[key] = data[key];
@@ -164,6 +164,7 @@ function Estimator(props) {
      */
     const postDraftData = (values, status) => {
         const estimateData = constructData(props.data, values, status);
+        console.log(estimateData);
         setPostError(false);
 
         //If this has an id, we know it's a draft
@@ -249,16 +250,18 @@ function Estimator(props) {
                                     }}>Save as Draft</button>
                                     {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                     {saved ? <div className='center'>
-                                        <Message
-                                            timeout={3000}
-                                            message={"Saved as Draft"}
-                                            setDisplay={setSaved} />
-                                    </div> : null}
+                                                <Message
+                                                    timeout={3000}
+                                                    message={"Saved as Draft"}
+                                                    setDisplay={setSaved} />
+                                            </div> 
+                                    : null}
                                     {postError ? <div className='center'>
-                                        <Message
-                                            message={"A network error has occured, could not save estimate. Try again later."}
-                                            setDisplay={setSaved} />
-                                    </div> : null}
+                                                    <Message
+                                                        message={"A network error has occured, could not save estimate. Try again later."}
+                                                        setDisplay={setSaved} />
+                                                </div> 
+                                    : null}
                                 </>
                             ) : (null)
                         }
