@@ -70,6 +70,7 @@
 
 .fixedWrapper{
     position: fixed;
+    z-index: 99999;
 }
 
 .optionsMenu{
@@ -80,7 +81,6 @@
     border-radius: 5px;
     border-width: 2px;
     border-color:#0055FF;
-    z-index: 9999;
 }
 
 .optionsButton{

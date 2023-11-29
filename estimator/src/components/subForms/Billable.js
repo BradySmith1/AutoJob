@@ -149,7 +149,11 @@ function Billable(props){
                         var offsets = document.getElementById(props.index).getBoundingClientRect();
                         var menuOffset = offsets.right;
                         var thisBillable = document.getElementById(billableID);
-                        thisBillable.style.left = menuOffset + "px";
+                        if(window.innerWidth < 1176){
+                            thisBillable.style.left = menuOffset - 260 + "px";
+                        }else{
+                            thisBillable.style.left = menuOffset + "px";
+                        }
                         thisBillable.style.top = (offsets.top - 115) + "px";
                     }}
                 >
@@ -181,7 +185,7 @@ function Billable(props){
                                 </div>
                             </div>
                             <div
-                                className="optionsButton tickBox"
+                                className="optionsButton tickBox middle"
                                 onClick={() => {
                                     props.billable.data.autoUpdate = toggle(props.billable.data.autoUpdate);
                                     determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
