@@ -68,7 +68,7 @@ pub async fn main() -> std::io::Result<()> {
     let target = format!("{}{}", prefix, port);
 
     //checks if MongoDB instance is running
-    check_mongodb();
+    //check_mongodb();
 
     // Initializes the different Mongodb collection connections.
     let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;

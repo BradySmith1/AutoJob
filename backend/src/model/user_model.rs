@@ -15,6 +15,7 @@ use crate::model::model_trait::Model;
 /// city: City of the user
 /// state: State the user lives in
 /// zip: Zip code of the user
+/// phoneNumber: The phone number of the user.
 /// measurements: Any measurements the user wants the company to know about
 /// details: Any details the user wants the company to know about
 /// images: Any images the user wants the company to have. This is stored as references to the

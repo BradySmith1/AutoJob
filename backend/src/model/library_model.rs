@@ -12,7 +12,9 @@ use crate::model::model_trait::Model;
 /// price: The price of a material/fee in the form of a f32 type
 /// quantity: The quantity of the material/fee in the form of a f32 type
 /// description: The description of the material/fee
-/// auto_update: Either empty or true. If true the price will be auto updated in the background
+/// autoImport: Either true or false. If true the material is auto imported into a estimate in the
+/// frontend.
+/// autoUpdate: Either false or true. If true the price will be auto updated in the background
 /// ttl: the time to live of the material in the backend
 /// company: Either lowes or homedepot
 #[derive(Debug, Serialize, Deserialize)]
