@@ -37,6 +37,12 @@ async function packUsers() {
     return userArr;
 }
 
+/**
+ * Get all of the materials that are marked for auto import
+ * from the database.
+ * 
+ * @returns autoImports, promise of the auto import JSON.
+ */
 async function getAutoImports() {
     var autoImports = {};
     for (const key of Object.keys(billableList)) {
@@ -81,8 +87,11 @@ function populateDropDown(data) {
     return outputData;
 }
 
+//The default image array
 const defaultImages = [];
+//The default draft drop down data
 var draftDropDown = {};
+//THe default user drop down data
 var userDropDown = {};
 
 /**
@@ -95,10 +104,13 @@ function EstimateInfo() {
 
     //Declare a use state variable that holds the currently selected customer data
     const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
+    //Use state for the images
     const [images, setImages] = useState(defaultImages);
+    //Use state for the library display
     const [libDisplay, setLibDisplay] = useState(false);
     //Declare a use state variable that holds the default customer data
     const [dropDown, setDropDown] = useState(dropDownData);
+    //Use state for a network error
     const [networkError, setNetworkError] = useState(false);
 
     //This function runs when the page is first loaded

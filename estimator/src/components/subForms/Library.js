@@ -87,19 +87,33 @@ function Library(props){
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
 
+    //error for get request
     const [getError, setGetError] = useState(false);
+    //error for remove
     const [removeError, setRemoveError] = useState(false);
+    //error for add
     const [addError, setAddError] = useState(false);
 
-    //Function for handling search
+    /**
+     * Function for handling search
+     * @param {*} event the input field value
+     */
     const handleSearch = (event) =>{
         setSearchStr(event.target.value);
     }
 
+    /**
+     * This method adds a new billable to the library
+     * @param {*} billable the billable to add
+     */
     const addToLibrary = (billable) =>{
+        //Post the billable
         axios.post('/library', billable, {timeout: 3000}).then((response) => {
+            //Set the id
             billable._id = {"$oid" : response.data.insertedId.$oid};
+            //Copy all the local billables
             const tempBillables = [...library.billables, {data: billable, imported: false}]
+            //set the library to the copy
             setLibrary({name: library.name, billables: tempBillables});
         }).catch((error) => {
             console.log(error.message);
@@ -108,10 +122,18 @@ function Library(props){
         );
     }
 
+    /**
+     * This method removes a billable from the library
+     * @param {*} index the index to remove
+     */
     const removeFromLibrary = (index) =>{
+        //Create a copy of the library
         var libCopy = [...library.billables];
+        //Splice out the index we don't want
         libCopy.splice(index, 1);
+        //Delete it from the database
         axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
+            //On deletion, set the library to the new library.
             setLibrary({name: library.name, billables: libCopy});
         }).catch((error) => {
             console.log(error.message);
@@ -120,17 +142,30 @@ function Library(props){
         );
     }
 
+    /**
+     * Helper function to modify a billable in the library
+     * @param {*} index index of billable we want to modify
+     * @param {*} billable billable to replace the one we want modified
+     */
     const modifyLibrary = (index, billable) => {
         var libCopy = [...library.billables];
         libCopy[index] = {imported: false, data: billable};
         setLibrary({name: library.name, billables: libCopy});
     }
 
+    /**
+     * Helper functio to insert a billable to the calculator
+     * @param {*} billable the billable to insert
+     */
     const insertBillable = (billable) =>{
         props.insert(0, billable);
         billable.imported = true;
     }
 
+    /**
+     * Helper function to get the entire library
+     * @param {*} name 
+     */
     const getLibrary = (name) =>{
         setLoading(true);
 

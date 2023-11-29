@@ -99,6 +99,17 @@ function Billable(props){
         }
     }, [display])
 
+    /**
+     * Helper function for putting a billable in the database
+     * @param {*} id the id of the billable to put
+     * @param {*} billable the new billable
+     * @returns response, the axios response
+     */
+    const putToDb = async (id, billable) => {
+        const respone = await axios.put("/library/" + id, billable);
+        return respone;
+    }
+
     return(
         <div className="billableWrapper" ref={wrapperRef} id={props.index}>
             {/**Show the name of the billable item */}
@@ -170,9 +181,7 @@ function Billable(props){
                                     //On click, set modify the billable to auto import
                                     props.billable.data.autoImport = toggle(props.billable.data.autoImport);
                                     determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport)
-                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then((response) => {
-                                        console.log(response);
-                                    });
+                                    putToDb(props.billable.data._id.$oid, props.billable.data);
                                     if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.autoImport === "true"){
                                         props.insertBillable(props.billable.data);
                                         props.billable.imported = true;
@@ -190,13 +199,15 @@ function Billable(props){
                                     props.billable.data.autoUpdate = toggle(props.billable.data.autoUpdate);
                                     props.billable.data.company = "homedepot";
                                     determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
-                                    axios.put('/library/' + props.billable.data._id.$oid, props.billable.data).then((response) => {
-                                        console.log(response);
-                                    });
+                                    putToDb(props.billable.data._id.$oid, props.billable.data);
                                     if(props.billable.data.autoUpdate === "true"){
                                         axios.get('/scrape?company=homedepot&name=' + props.billable.data.name).then((response) => {
                                             var billableCopy = {...props.billable.data};
-                                            billableCopy.price = response.price;
+                                            console.log(response.data);
+                                            if(response.data.price !== undefined){
+                                                billableCopy.price = response.data.price;
+                                                putToDb(props.billable.data._id.$oid, billableCopy);
+                                            }
                                             props.modifyLibrary(props.index, billableCopy);
                                         })
                                     }

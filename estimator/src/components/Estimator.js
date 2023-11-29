@@ -149,6 +149,11 @@ function Estimator(props) {
     //Determine any pre-existing billables
     determineBillables(initialValues, props.data);
 
+    /**
+     * Helper function to reload the page on submit
+     * or save on draft
+     * @param {*} status the status of the estimate
+     */
     const handleSubmission = (status) => {
         if (status === "complete") {
             window.location.reload(false);
