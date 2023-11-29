@@ -32,6 +32,14 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },
     };
+    let response = check_auto_update(&mut json);
+    if !response.status().is_success(){
+        return response;
+    }
+    post_data(&db, json).await
+}
+
+fn check_auto_update(json: &mut MaterialFee) -> HttpResponse{
     if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
         if json.company.is_none(){
             return HttpResponse::BadRequest().body("auto_update field is true but no company was \
@@ -43,7 +51,7 @@ pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: St
         }
         json.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
     }
-    post_data(&db, json).await
+    return HttpResponse::Ok().finish();
 }
 
 /// Retrieve materialLibrary entry details by their ID via a GET request.
@@ -97,6 +105,10 @@ pub async fn update_library_entry(
     };
     let mut data: MaterialFee = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
+    let response = check_auto_update(&mut data);
+    if !response.status().is_success(){
+        return response;
+    }
     let update_result: Result<UpdateResult, String>= db.update_document(&id, data).await;
     push_update(update_result, &db, id).await
 }
