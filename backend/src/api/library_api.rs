@@ -202,4 +202,5 @@ pub async fn check_library(db: MongoRepo<MaterialFee>){
             }
         }
     }
+    println!("{}: Finished Web Scraping Task", chrono::Utc::now().to_string());
 }

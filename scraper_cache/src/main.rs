@@ -33,6 +33,13 @@ fn check_mongodb() {
     }
 }
 
+fn check_script_dependencies() {
+    Command::new("./src/scraper/check_script_dependencies.sh")
+        .status()
+        .expect("Could not run bash command");
+    println!("Dependencies are installed");
+}
+
 /// This function creates a SslAcceptorBuilder that is used to create a SslAcceptor.
 fn ssl_builder() -> SslAcceptorBuilder {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
@@ -69,6 +76,9 @@ pub async fn main() -> std::io::Result<()> {
 
     //checks if MongoDB instance is running
     //check_mongodb();
+
+    //checks if the script dependencies are installed
+    check_script_dependencies();
 
     // Initializes the different Mongodb collection connections.
     let db_cache: MongoRepo<Product> = MongoRepo::init("materialCache").await;

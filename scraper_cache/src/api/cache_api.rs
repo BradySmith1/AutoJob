@@ -2,6 +2,7 @@ use actix_web::{web::{Data}, HttpResponse, get};
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::model::form_model::ScraperForm;
 use actix_web::web::Query;
+//TODO need to fix names with a space(+) in them. Currently breaking the scraper.
 
 /// Does two things, either gets the cached data from the database or scrapes the data and caches
 /// it to the database
