@@ -8,7 +8,7 @@
  */
 import './Estimator.css';
 import { Formik, Form } from 'formik';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -145,9 +145,11 @@ function Estimator(props) {
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
     const [postError, setPostError] = useState(false);
+    const [formValues, setFormValues] = useState(initialValues);
 
-    //Determine any pre-existing billables
-    determineBillables(initialValues, props.data);
+    useEffect(() => {
+        setFormValues(determineBillables(initialValues, props.data))
+    }, []);
 
     /**
      * Helper function to reload the page on submit
@@ -221,7 +223,7 @@ function Estimator(props) {
                 </div>
             </div>
             <Formik
-                initialValues={initialValues}
+                initialValues={formValues}
                 validationSchema={validationSchema}
                 validateOnChange={false}
                 validateOnBlur={true}
