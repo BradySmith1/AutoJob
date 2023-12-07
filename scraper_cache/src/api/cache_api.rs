@@ -16,11 +16,12 @@ use actix_web::web::Query;
 /// scraped data or a Internal server error 500 with the error message.
 #[get("/cache")]
 pub async fn get_cached_materials(cache: Data<MongoRepo<Product>>, query:
-Query<ScraperForm>) ->
-                                                                                     HttpResponse {
+Query<ScraperForm>) -> HttpResponse {
     //Form comes in format of {name: {}, store: {}}
+    let name = query.name.clone().replace("+", " ").replace("_", " ");
+    let doc = doc! {"name": &name, "company": &query.company};
     let returned_materials = match cache.
-        get_documents_by_attribute(&query).await {
+        get_documents_by_attribute(doc).await {
         Ok(materials) => materials,
         Err(_) => {
             println!("No documents in the cache. Proceeding to scraping.");
@@ -28,7 +29,7 @@ Query<ScraperForm>) ->
         }
     };
     if returned_materials.len() == 0 {
-        return scrape_and_cache(cache, &query.name, &query.company).await;
+        return scrape_and_cache(cache, &name, &query.company).await;
     }
     let cloned_material = returned_materials[0].clone();
     let now = chrono::Utc::now().to_string();
@@ -36,7 +37,7 @@ Query<ScraperForm>) ->
     let ttl = cloned_material.ttl;
     if now > ttl || now.eq(&ttl) {
         cache.delete_document(cloned_material.id.unwrap()).await.unwrap();
-        return scrape_and_cache(cache, &query.name, &query.company).await;
+        return scrape_and_cache(cache, &name, &query.company).await;
     }
     return HttpResponse::Ok().json(returned_materials[0].clone());
 }
@@ -68,6 +69,7 @@ async fn scrape_and_cache(cache: Data<MongoRepo<Product>>, name: &String, compan
 }
 
 use std::process::{Command, Output, Stdio};
+use mongodb::bson::doc;
 use crate::model::scraper_model::{Product, ScraperLibrary};
 
 /// A helper function that runs the python script and gets the data from the script

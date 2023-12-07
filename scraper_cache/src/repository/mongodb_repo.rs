@@ -3,6 +3,7 @@ use std::process::exit;
 use dotenv::dotenv;
 use mongodb::{bson::{extjson::de::Error, doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
 use futures::stream::TryStreamExt;
+use mongodb::bson::Document;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 //add this
@@ -124,9 +125,8 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Returns
     /// Returns a Result containing a vector of documents that match the filter or an error.
-    pub async fn get_documents_by_attribute(&self, attributes: &ScraperForm) ->
+    pub async fn get_documents_by_attribute(&self, filter: Document) ->
                                                                                    Result<Vec<T>, Error> {
-        let filter = doc! {"name": &attributes.name, "company": &attributes.company};
         let mut cursor = self
             .col
             .find(filter, None)
