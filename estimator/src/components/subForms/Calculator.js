@@ -92,7 +92,7 @@ function Calculator(props){
                                     <div className='total'> 
                                     {/*Here we are calculating the total price for this billable*/}
                                     ${
-                                        billable.price * billable.quantity
+                                        (billable.price * billable.quantity).toFixed(2)
                                     } 
                                     </div>
                                 </div>

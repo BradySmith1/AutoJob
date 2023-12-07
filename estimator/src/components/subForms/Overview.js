@@ -25,7 +25,7 @@ function getTotal(arr){
         //Add price * quantity to total
         total = total + (arr[i].price * arr[i].quantity);
     }
-    return total;
+    return total.toFixed(2);
 }
 
 /**
@@ -49,7 +49,7 @@ function Overview(props){
                 total = total + (props.values[billableList[key]][i].price * props.values[billableList[key]][i].quantity);
             }
         }
-        setGrandTotal(total);
+        setGrandTotal(total.toFixed(2));
     }, []);
 
     return(
