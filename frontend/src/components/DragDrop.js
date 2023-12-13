@@ -1,6 +1,7 @@
 /**
  * @version 1, October 26th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component is a drag-drop image uploaded that
  * can also be clicked. If clicked, it will open your
@@ -16,10 +17,12 @@ const MAXIMAGES = 10;
 /**
  * This function takes in a FileList object and
  * filters out any impropper files before adding
- * each file to a new lis.
+ * each file to a new list.
  * 
  * @param {FileList} fileList the web api FileList object
  * @param {File[]} imageArr array of File Objects
+ * @param {function} setErrors a setter for image errors
+ * @returns valid, a boolean representing if any images are not valid
  */
 function fileListToArray(fileList, imageArr, setErrors){
     var valid = true;
@@ -41,9 +44,18 @@ function fileListToArray(fileList, imageArr, setErrors){
     return valid
 }
 
-function determineError(index, file){
+/**
+ * This function constructs an error message
+ * to display to the user if an upladed image
+ * is invalid
+ * 
+ * @param {number} size the size of the array of uploaded images 
+ * @param {file} file 
+ * @returns errorMessage, 
+ */
+function determineError(size, file){
     var errorMessage = "";
-    if(index >= MAXIMAGES){
+    if(size >= MAXIMAGES){
         errorMessage = file.name + " exceeds limit.";
     }else{
         errorMessage = file.name + " is not an image."; 
@@ -77,7 +89,9 @@ function DragDrop(props){
     //Reference we use to connect drag and drop div
     //to a hidden upload button
     const inputRef = useRef();
+    //Error flag for displaying invalid images
     const [valid, setValid] = useState(true);
+    //Array of error messages
     const [imageErrors, setImageErrors] = useState([]);
 
     /**
@@ -87,14 +101,15 @@ function DragDrop(props){
      */
     const addImages = (fileList) => {
         var imageArr = [...props.images];
-        if(!fileListToArray(fileList, imageArr, setImageErrors)){
-            setValid(false);
-        }else{
-            setValid(true);
-        }
+        setValid(fileListToArray(fileList, imageArr, setImageErrors));
         props.setImages(imageArr);
     }
 
+    /**
+     * Prevent the default functionality of the drag over
+     * event
+     * @param {event} event drag over event.
+     */
     const handleDragOver = (event) => {
         event.preventDefault();
     }

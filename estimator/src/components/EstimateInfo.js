@@ -1,6 +1,7 @@
 /**
  * @version 1, Ovtober 12th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component takes all the customer info entries, entered in the estimate form,
  * and retrieves them from the database. It then lets you select one of them from the
@@ -21,7 +22,21 @@ import Library from "./subForms/Library.js";
 import Message from "./utilComponents/Message.js";
 import dropDownData from "./JSONs/dropDown.json";
 
-const DEFAULT_ESTIMATE_DATA = { user: { "fName": "", "lName": "", "email": "", "phoneNumber": "", "strAddr": "", "city": "", "state": "", "zip": "", "measurements": "", "details": "" } };
+//Default estimate data
+const DEFAULT_ESTIMATE_DATA = { 
+    user: { 
+        "fName": "", 
+        "lName": "", 
+        "email": "", 
+        "phoneNumber": "", 
+        "strAddr": "", 
+        "city": "", 
+        "state": "", 
+        "zip": "", 
+        "measurements": "", 
+        "details": "" 
+    } 
+};
 
 /**
  * Packs a user estimate with auto imports
@@ -132,19 +147,27 @@ function EstimateInfo() {
         });
     }, [])
 
-    //This function handles the change of the selected drop down
-    //item.
+    /**
+     * This function handles the change of the selected drop down
+     * item.
+     * 
+     * @param {JSON} selectedOption the selected option
+     */
     const handleChange = (selectedOption) => {
+        //If this is not a draft
         if (!selectedOption.value.hasOwnProperty("_id")) {
+            //Tack on the auto imports
             getAutoImports().then((data) => {
                 var estimateData = { ...data };
                 estimateData.user = selectedOption.value.user;
                 setCurrentCustomerData(estimateData);
             });
         } else {
+            //Otherwise, just set this as the current customer data
             setCurrentCustomerData(selectedOption.value);
         }
 
+        //If no images, set the image array to empty
         if (selectedOption.value.user.hasOwnProperty("images")) {
             setImages(selectedOption.value.user.images);
         } else {
@@ -152,7 +175,7 @@ function EstimateInfo() {
         }
     }
 
-    //Return the json object containing all html for this page
+    //Return the JSX object containing all html for this page
     return (
         <div className='estimateInfo'>
             <div className='dropDown'>

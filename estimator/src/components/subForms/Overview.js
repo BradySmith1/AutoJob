@@ -1,6 +1,7 @@
 /**
  * @version 1, October 26th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component displays an overview of an estimate,
  * listing all billables and their prices as well as
@@ -46,7 +47,8 @@ function Overview(props){
         for(const key of Object.keys(billableList)){
             //For each billable, get it's sub total
             for(var i = 0; i < props.values[billableList[key]].length; i++){
-                total = total + (props.values[billableList[key]][i].price * props.values[billableList[key]][i].quantity);
+                total = total + (props.values[billableList[key]][i].price * 
+                                 props.values[billableList[key]][i].quantity);
             }
         }
         setGrandTotal(total.toFixed(2));

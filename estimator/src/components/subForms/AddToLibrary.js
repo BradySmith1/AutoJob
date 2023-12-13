@@ -1,6 +1,7 @@
 /**
  * @version 1, Octover 12th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component displays a pop up, self containted sub form
  * that adds materials to the material library
@@ -14,7 +15,7 @@ import * as Yup from "yup"
 /**
  * 
  * @param {JSON object} props 
- *      props.setValues function to change the values of the library
+ *      props.addToLibrary function to change the values of the library
  *      props.name name of the billable
  *      props.setDisplay controls when to stop rendering this component
  * @returns JSX object containing all the html for the pop up form
@@ -42,7 +43,11 @@ function AddToLibrary(props){
                 .required('Must be a number'),
         }),
 
-        //submit function for the form
+        /**
+         * Submit function
+         * @param {JSON} values the values to submit
+         * @param {function} resetForm the formik resetForm function
+         */
         onSubmit: (values, { resetForm }) => {
             props.addToLibrary(values);
             resetForm();

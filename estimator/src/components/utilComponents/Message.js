@@ -1,6 +1,7 @@
 /**
  * @version 1, November 29th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component is a reuseable message component that can be used
  * to make dissapearing message components, responsive loading messages,

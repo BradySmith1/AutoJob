@@ -1,6 +1,7 @@
 /**
  * @version 1, Octover 12th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component creates a formik form that is then populated
  * by multiple sub-forms representing each stage of the 3 stage
@@ -66,6 +67,7 @@ function generateInitialValues() {
  */
 function generateYupSchema() {
     var blankSchema = {};
+    //For each billable type in the json, make a schema
     for (const key of Object.keys(billableList)) {
         blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
             name: Yup.string()
@@ -80,6 +82,7 @@ function generateYupSchema() {
 
         })).min(1)
     }
+    //Set the form validation schema to this generated schema
     const formValidation = Yup.object(
         blankSchema
     );
@@ -91,8 +94,8 @@ function generateYupSchema() {
  * This method changes the initial values if estimateInfo
  * has passed down pre-existing data in the form of drafts
  * or auto imports.
- * @param {*} initialValues 
- * @param {*} data 
+ * @param {JSON} initialValues the values of the form
+ * @param {JSON} data estimate data passed down from estimate info
  */
 function determineBillables(initialValues, data) {
     for (const key of Object.keys(initialValues)) {

@@ -1,6 +1,7 @@
 /**
  * @version 1, November 8th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component displays a billable and all information in the billable.
  * It has a pop-up advnaced menu to set the auto imprt, price scan, and
@@ -16,7 +17,7 @@ import axios from 'axios';
 
 /**
  * Function to determine the background color of the tick box
- * @param {HTML element} element, the element to change
+ * @param {JSX element} element, the element to change
  * @param {String} bool, string to decide if we want to change color
  */
 function determineBackgroundColor(element, bool){
@@ -51,6 +52,7 @@ function useOutsideAlerter(ref, setDisplay) {
     useEffect(() => {
       /**
        * Alert if clicked on outside of element
+       * @param {event} event click event
        */
       function handleClickOutside(event) {
         if (ref.current && !ref.current.contains(event.target)) {

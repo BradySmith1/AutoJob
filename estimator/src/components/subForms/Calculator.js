@@ -1,6 +1,7 @@
 /**
  * @version 1, Octover 12th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component uses a field array to display a resizable form so
  * that you can enter as many materials/fees as you want.

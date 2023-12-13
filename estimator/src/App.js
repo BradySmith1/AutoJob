@@ -1,6 +1,7 @@
 /**
  * @version 1, September 28th, 2023
- * @authors Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This file is the App.js file used by react in the index.js file.
  */
@@ -18,6 +19,7 @@ import React from 'react';
  * @returns Header with the Estimate Info component
  */
 function App() {
+  
   return (
     <div className="App">
       <div className='TitleBar'>

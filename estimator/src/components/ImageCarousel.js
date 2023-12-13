@@ -1,6 +1,7 @@
 /**
  * @version 1, October 26th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component acts as an image gallery and carousel. It
  * displays the images in a grid, and when you click one it

@@ -1,6 +1,7 @@
 /**
  * @version 1, Octover 12th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component displays the material library.
  */

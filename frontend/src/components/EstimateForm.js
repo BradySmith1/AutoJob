@@ -1,6 +1,7 @@
 /**
  * @version 1, September 28th, 2023
- * @author Andrew Monroe and Brady Smith
+ * @author Andrew Monroe 
+ * @author Brady Smith
  * 
  * This component is the customer estimate form that populates
  * our mongodb database with customer information.
@@ -17,6 +18,7 @@ import * as Yup from "yup";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
+//Regular expression for a phone number
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 /**
@@ -29,7 +31,9 @@ function EstimateForm() {
 
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
+    //Array of images
     const [images, setImages] = useState([]);
+    //Network error flag
     const [networkError, setNetworkError] = useState(false);
 
     //Formik data
@@ -99,7 +103,6 @@ function EstimateForm() {
             images.forEach(file => {
                 formData.append("files", file);
             });
-            console.log(formData)
             //Post values to backend
             axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(response => {
                 console.log(response);
@@ -113,8 +116,6 @@ function EstimateForm() {
             const token = captchaRef.current.getValue();
             //Reset the captcha
             captchaRef.current.reset();
-
-            //Reset form and images
         }
     });
 
