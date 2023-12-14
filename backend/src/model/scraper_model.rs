@@ -2,8 +2,7 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
 
-/// Represents one scrapped piece of data. This will be used to represent a scrape in the
-/// scraped array.
+/// The scraped array.
 ///
 /// # Fields
 /// available_products: A list of products available in a library

@@ -2,7 +2,6 @@ use actix_web::{web::{Data}, HttpResponse, get};
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::model::form_model::ScraperForm;
 use actix_web::web::Query;
-//TODO need to fix names with a space(+) in them. Currently breaking the scraper.
 
 /// Does two things, either gets the cached data from the database or scrapes the data and caches
 /// it to the database
@@ -24,13 +23,15 @@ Query<ScraperForm>) -> HttpResponse {
         get_documents_by_attribute(doc).await {
         Ok(materials) => materials,
         Err(_) => {
-            println!("No documents in the cache. Proceeding to scraping.");
+            //eprintln prints to stderr instead of out.
+            eprintln!("No documents in the cache. Proceeding to scraping.");
             Vec::<Product>::new()
         }
     };
     if returned_materials.len() == 0 {
         return scrape_and_cache(cache, &name, &query.company).await;
     }
+    //returns first material found on website. Primitive implementation will be fixed next semester
     let cloned_material = returned_materials[0].clone();
     let now = chrono::Utc::now().to_string();
     //let now = (chrono::Utc::now() + chrono::Duration::days(7)).to_string();
@@ -87,6 +88,8 @@ pub async fn get_scraper_data(company: &String, material: &String) -> Result<Pro
         .arg("./src/scraper/scraper.py")
         .arg(company)
         .arg(material)
+        //instead of stdout. capture status of .exit() if there is a error. or otherwise capture std
+        //out.
         .stdout(Stdio::piped())
         .output()
         .expect("Could not run bash command");
