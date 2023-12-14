@@ -252,7 +252,7 @@ function Library(props){
                                         removeFromLibrary={removeFromLibrary}
                                         modifyLibrary={modifyLibrary}
                                         index={index}
-                                        key={billable._id.$oid}
+                                        key={index}
                                     />) 
                                     : 
                                     (<Billable 
@@ -260,7 +260,7 @@ function Library(props){
                                         removeFromLibrary={removeFromLibrary}
                                         modifyLibrary={modifyLibrary}
                                         index={index}
-                                        key={billable._id.$oid}
+                                        key={index}
                                     />)
                                 )
                             )
