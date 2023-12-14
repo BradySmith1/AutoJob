@@ -11,7 +11,7 @@
  * since the backend cant query by booleans yet
  */
 
-import React, { useState, useRef, useEffect, useId, Component } from "react";
+import React, { useState, useRef, useEffect, useId } from "react";
 import './Billable.css';
 import axios from 'axios';
 

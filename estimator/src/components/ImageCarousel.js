@@ -37,6 +37,7 @@ function ImageCarousel(props){
                         src={URLHEADER + source.reference} 
                         className="image" 
                         key={index}
+                        alt=""
                         onClick={() => {
                             //When an image is clicked
                             //Set the image index

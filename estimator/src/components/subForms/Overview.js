@@ -68,11 +68,14 @@ function Overview(props){
                         </div>
                         <div className="divide"></div>
                         {/**Map over the materials and display name, price, and quantity */}
-                        {props.values[billableList[key]].map((billable) => (
-                            <div className="contentWrapper">
-                                {billable.name !== '' ? <h3 className="fourth">{billable.name}</h3> : null}
-                                {billable.name !== '' ? <h3 className="fourth">${billable.price}</h3> : null}
-                                {billable.name !== '' ? <h3 className="fourth">Qty: {billable.quantity}</h3> : null}
+                        {props.values[billableList[key]].map((billable, index) => (
+                            <div className="contentWrapper" key={index}>
+                                {billable.name !== '' ? 
+                                (<>
+                                    <h3 className="fourth">{billable.name}</h3>
+                                    <h3 className="fourth">${billable.price}</h3>
+                                    <h3 className="fourth">Qty: {billable.quantity}</h3>
+                                </>) : null}
                             </div>
                         ))}
                     </div>

@@ -169,7 +169,7 @@ function DragDrop(props){
                 {/**Map over the images to create thumbnails */}
                 {props.images.map((image, index) => (
                     <div className="thumbnail" key={index}>
-                        <img className='img' src={image.preview}></img>
+                        <img className='img' src={image.preview} alt=''></img>
                         <button 
                             type="button"
                             className="removeBtn"
