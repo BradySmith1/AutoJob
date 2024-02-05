@@ -11,7 +11,7 @@ pub struct User {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub username: String,
-    pub salt: String,
+    pub hashed_password: String,
     pub date_created: String
 }
 

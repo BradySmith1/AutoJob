@@ -3,8 +3,14 @@ use crate::model::login_model::LoginRequest;
 use actix_web::web::{Data, Query};
 use mongodb::bson::doc;
 use crate::model::user_model::User;
-use password_hash::Salt;
 use crate::repository::mongodb_repo::MongoRepo;
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+    },
+    Argon2
+};
 
 #[post("/user/auth")]
 pub async fn authenticate_user(cache: Data<MongoRepo<User>>, user: String) ->
@@ -22,11 +28,11 @@ HttpResponse{
             .body("Could not add document to the jobEstimate collection. Check if MongoDB \
                 is running")
     };
-    let returned_user = returned_user.get(0);
-    let salt = match Salt::from_b64(&json.password){
-        Ok(salted) => salted.to_string(),
-        Err(_) => return HttpResponse::InternalServerError().body("Password could not be salted.")
-    };
-    //from here i need to do the authentication thingy
-    return HttpResponse::Ok().finish();
+    let returned_user = returned_user.get(0).unwrap();
+    let parsed_hash = PasswordHash::new(&returned_user.hashed_password).unwrap();
+    let result = Argon2::default().verify_password(json.password.as_bytes(), &parsed_hash);
+    match result{
+        Ok(_) => HttpResponse::Ok().body("Successfully authenticated!"),
+        Err(_) => HttpResponse::BadRequest().body("Wrong username or password")
+    }
 }

@@ -55,7 +55,7 @@ impl<T: Model<T>> MongoRepo<T> {
             }
         };
         println!("Successfully connected to the {} estimate database.", collection_name);
-        let db = client.database("webCacheDB");
+        let db = client.database("userAuthDB");
         let col: Collection<T> = db.collection(collection_name);
         MongoRepo { col }
     }

@@ -9,6 +9,8 @@ use actix_web::web::Data;
 use console::Style;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use repository::mongodb_repo::MongoRepo;
+use crate::api::authenticate_api::authenticate_user;
+use crate::api::enroll_api::enroll_user;
 use crate::model::user_model::User;
 
 /// This function checks if MongoDB is running on the local machine.
@@ -84,7 +86,8 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .app_data(db_cache_data.clone())
-            //.service()
+            .service(enroll_user)
+            .service(authenticate_user)
 
     })
         .bind_openssl(&target, ssl)?

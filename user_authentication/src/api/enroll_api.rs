@@ -2,8 +2,15 @@ use actix_web::{HttpResponse, post};
 use crate::model::login_model::LoginRequest;
 use actix_web::web::{Data};
 use crate::repository::mongodb_repo::MongoRepo;
-use password_hash::Salt;
 use crate::model::user_model::User;
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+    },
+    Argon2
+};
+
 
 #[post("/user/enroll")]
 pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpResponse{
@@ -15,14 +22,13 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         }
     };
-    let salt = match Salt::from_b64(&json.password){
-        Ok(salted) => salted.to_string(),
-        Err(_) => return HttpResponse::InternalServerError().body("Password could not be salted.")
-    };
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_hash = argon2.hash_password(json.password.as_bytes(), &salt).unwrap().to_string();
     let new_user: User = User{
         id: None,
         username: json.username,
-        salt,
+        hashed_password: password_hash,
         date_created: chrono::Utc::now().to_string()
     };
     let returned_user = db.create_document(new_user).await;
