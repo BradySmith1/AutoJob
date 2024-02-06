@@ -1,6 +1,7 @@
 mod repository;
 mod api;
 mod model;
+mod utils;
 
 use std::io::{Read};
 use std::process::{Command, Stdio};
@@ -59,6 +60,8 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
+    std::env::set_var("TOKEN", "sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8");
+    std::env::set_var("TOKENEXP", "1");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -86,6 +89,7 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .app_data(db_cache_data.clone())
+            .app_data(Data::<String>::new("secret".to_owned()))
             .service(enroll_user)
             .service(authenticate_user)
 
