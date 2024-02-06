@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, post};
+use actix_web::{HttpRequest, HttpResponse, post};
 use actix_web::cookie::Cookie;
 use crate::model::login_model::LoginRequest;
 use actix_web::web::Data;
@@ -11,9 +11,11 @@ use argon2::{
     },
     Argon2
 };
+use chrono::Utc;
 use rand::{distributions::Alphanumeric, Rng};
 use reqwest::Response;
 use serde_derive::{Deserialize, Serialize};
+use crate::model::refresh_model::RefreshToken;
 use crate::utils::jwt::encode_token;
 
 #[derive(Serialize, Deserialize)]
@@ -22,45 +24,100 @@ struct AuthResponse {
 }
 
 #[post("/user/auth")]
-pub async fn authenticate_user(cache: Data<MongoRepo<User>>, user: String, secret: Data<String>) ->
-HttpResponse{
-    //LoginRequest struct includes username and password
-    let json: LoginRequest = match serde_json::from_str(&user){
-        Ok(user_auth) => user_auth,
-        Err(_) => return HttpResponse::InternalServerError().body("Could not parse the JSON in the \
-        http Request")
-    };
-    let doc = doc!("username" : &json.username);
-    let returned_user = match cache.get_documents_by_attribute(doc).await{
-        Ok(user) => user,
-        Err(_) => return HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
+pub async fn authenticate_user(req: HttpRequest, tokens: Data<MongoRepo<RefreshToken>>,cache:
+Data<MongoRepo<User>>, user:
+String,
+                               secret: Data<String>) -> HttpResponse{
+    let cookie = req.cookie("AutoJobRefresh");
+    if cookie.is_some() {
+        let doc = doc! {"refresh_token" : cookie.unwrap().value()};
+        let result = match tokens.get_documents_by_attribute(doc).await{
+            Ok(res) => {res}
+            Err(_) => {return HttpResponse::InternalServerError().body("Could not add document to \
+            the jobEstimate collection. Check if MongoDB is running")}
+        };
+        let result = match result.get(0){
+            None => {return HttpResponse::BadRequest().body("Cookie provided is invalid, please \
+            re-authenticate")}
+            Some(res) => {res}
+        };
+        let exp = result.exp;
+        if exp > Utc::now().timestamp() as usize {
+            return HttpResponse::BadRequest().body("Refresh token has expired. Please re-\
+            authenticate")
+        }
+        //todo Account for logouts
+        let refresh_token = generate_rand_string();
+        match tokens.update_document(result.id.unwrap().to_string(), RefreshToken{
+            id: None,
+            user: result.user.clone(),
+            jwt_token: result.jwt_token.clone(),
+            exp,
+            refresh_token: refresh_token.clone(),
+        }).await{
+            Ok(_) => {}
+            Err(_) => return HttpResponse::InternalServerError()
+                .body("Could not add document to the jobEstimate collection. Check if MongoDB \
                 is running")
-    };
-    let returned_user: &User = match returned_user.get(0){
-        Some(user) => user,
-        _ => return HttpResponse::BadRequest().body("Invalid Email or Password")
-    };
-    let parsed_hash = PasswordHash::new(&returned_user.hashed_password).unwrap();
-    let result = Argon2::default().verify_password(json.password.as_bytes(), &parsed_hash);
-    if result.is_err(){
-        return HttpResponse::BadRequest().body("Invalid Email or Password");
-    }
-    let id = returned_user.id.unwrap().to_string();
-    let refresh_token = generate_rand_string();
-    let jwt_token = encode_token(id.clone(), secret).await;
-    let response = send_jwt(jwt_token.clone()).await;
-    if response.is_err() {
-        println!("JWT never reached backend. Check if backend it running");
-        return HttpResponse::InternalServerError().body("Servers are currently down please try \
+        };
+        return success_login_response(refresh_token, result.jwt_token.clone());
+    }else{
+        //LoginRequest struct includes username and password
+        let json: LoginRequest = match serde_json::from_str(&user){
+            Ok(user_auth) => user_auth,
+            Err(_) => return HttpResponse::BadRequest().body("Please re-Authenticate with username \
+        and password")
+        };
+        let doc = doc!("username" : &json.username);
+        let returned_user = match cache.get_documents_by_attribute(doc).await{
+            Ok(user) => user,
+            Err(_) => return HttpResponse::InternalServerError()
+                .body("Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running")
+        };
+        let returned_user: &User = match returned_user.get(0){
+            Some(user) => user,
+            _ => return HttpResponse::BadRequest().body("Invalid Email or Password")
+        };
+        let parsed_hash = PasswordHash::new(&returned_user.hashed_password).unwrap();
+        let result = Argon2::default().verify_password(json.password.as_bytes(), &parsed_hash);
+        if result.is_err(){
+            return HttpResponse::BadRequest().body("Invalid Email or Password");
+        }
+        let id = returned_user.id.unwrap().to_string();
+        let refresh_token = generate_rand_string();
+        let (jwt_token, exp) = encode_token(id.clone(), secret).await;
+        let response = send_jwt(jwt_token.clone()).await;
+        if response.is_err() {
+            println!("JWT never reached backend. Check if backend it running");
+            return HttpResponse::InternalServerError().body("Servers are currently down please try \
         again later")
+        }
+        match tokens.create_document(RefreshToken{
+            id: None,
+            user: returned_user.username.clone(),
+            jwt_token: jwt_token.clone(),
+            exp,
+            refresh_token: refresh_token.clone(),
+        }).await{
+            Ok(_) => {}
+            Err(_) => {
+                println!("Could not add the refresh token to the database, check if mongodb is \
+            running");
+                return HttpResponse::InternalServerError().body("Servers are currently down please \
+                try again later")
+            }
+        };
+        // implement this, if it cant send than everything breaks on the authentication side.
+        success_login_response(refresh_token, jwt_token)
     }
-    // implement this, if it cant send than everything breaks on the authentication side.
+}
+
+fn success_login_response(refresh_token: String, jwt_token: String) -> HttpResponse{
     HttpResponse::Ok().cookie(
         Cookie::build("AutoJobRefresh", refresh_token)
             .domain("localhost") //Todo need to change this come deployment time
-            .path("/refresh_token")
-            .secure(true)
+            .path("/user/auth")
             .http_only(true)
             .finish()
     ).json(AuthResponse{ jwt_token })

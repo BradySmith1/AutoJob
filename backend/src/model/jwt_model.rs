@@ -1,3 +1,4 @@
+use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
@@ -5,6 +6,8 @@ use crate::model::model_trait::Model;
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 pub struct JWT{
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    pub(crate) id: Option<ObjectId>,
     pub(crate) userid: String,
     pub(crate) issuerid: String,
     pub(crate) exp: usize,

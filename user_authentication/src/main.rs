@@ -12,8 +12,8 @@ use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use repository::mongodb_repo::MongoRepo;
 use crate::api::authenticate_api::authenticate_user;
 use crate::api::enroll_api::enroll_user;
+use crate::model::refresh_model::RefreshToken;
 use crate::model::user_model::User;
-use crate::utils::token_middleware::Protected;
 
 /// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
@@ -77,8 +77,10 @@ pub async fn main() -> std::io::Result<()> {
     //check_mongodb();
 
     // Initializes the different Mongodb collection connections.
-    let db_cache: MongoRepo<User> = MongoRepo::init("userAuthentication").await;
-    let db_cache_data = Data::new(db_cache);
+    let db_user_cache: MongoRepo<User> = MongoRepo::init("users").await;
+    let db_refresh_cache: MongoRepo<RefreshToken> = MongoRepo::init("refreshTokens").await;
+    let db_user_cache_data = Data::new(db_user_cache);
+    let db_refresh_cache_data = Data::new(db_refresh_cache);
 
     // Creates the ssl builder to use with the HTTP server
     let ssl = ssl_builder();
@@ -90,8 +92,8 @@ pub async fn main() -> std::io::Result<()> {
         let logger = Logger::default();
         App::new()
             .wrap(logger)
-            //.wrap(Protected)
-            .app_data(db_cache_data.clone())
+            .app_data(db_user_cache_data.clone())
+            .app_data(db_refresh_cache_data.clone())
             .app_data(Data::<String>::new("secret".to_owned()))
             .service(enroll_user)
             .service(authenticate_user)

@@ -73,14 +73,13 @@ impl FromRequest for AuthenticationToken {
 async fn check_auth_mongodb(token: AuthenticationToken) -> Result<String, Error> {
     let db: MongoRepo<JWT> = MongoRepo::init("tokens").await;
     let doc = doc! {"userid" : &token.userid};
-    println!("{:?}", doc);
     let result = db.get_documents_by_attribute(doc).await.unwrap();
     let stored_token = match result.get(0){
         None => {return Err(ErrorUnauthorized("No JWT Matches in DB"))}
         Some(token) => {token}
     };
     if stored_token.userid == token.userid && stored_token.issuerid == token.issuerid &&
-        stored_token.exp != (Utc::now().timestamp() as usize) {
+        stored_token.exp > (Utc::now().timestamp() as usize) {
         return Ok("Token is authorized".to_string());
     }else{
         return Err(ErrorUnauthorized("Found token in db does not align with supplied JWT"))

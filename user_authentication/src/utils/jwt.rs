@@ -1,7 +1,7 @@
 use std::future::{Ready, ready};
 use actix_web::web::Data;
 use chrono::{Duration, Utc};
-use actix_web::{web, FromRequest, HttpRequest, http::header::HeaderValue, dev::Payload, Error as ActixWebError, error::ErrorUnauthorized, HttpResponse};
+use actix_web::{web, FromRequest, HttpRequest, http::header::HeaderValue, dev::Payload, Error as ActixWebError, error::ErrorUnauthorized};
 use serde::{ Serialize, Deserialize };
 use jsonwebtoken::{
     TokenData,
@@ -25,7 +25,7 @@ struct Claims {
     exp: usize,
 }
 
-pub async fn encode_token(id: String, secret: Data<String>) -> String {
+pub async fn encode_token(id: String, secret: Data<String>) -> (String, usize) {
     let token_exp = std::env::var("TOKENEXP").unwrap().parse::<i64>().unwrap();
     let issuer_token = std::env::var("SYSTOKEN").unwrap();
     let exp: usize = (Utc::now() + Duration::days(token_exp)).timestamp() as usize;
@@ -35,12 +35,7 @@ pub async fn encode_token(id: String, secret: Data<String>) -> String {
         &claims,
         &EncodingKey::from_secret(secret.as_str().as_ref()),
     ).unwrap(); //use a match statement to fix this later
-    token
-}
-
-pub async fn protected_route(auth_token: AuthenticationToken) -> HttpResponse {
-    println!("{:#?}", auth_token);
-    HttpResponse::Ok().json(Response { message: "Authorized".to_owned() })
+    (token, exp)
 }
 
 

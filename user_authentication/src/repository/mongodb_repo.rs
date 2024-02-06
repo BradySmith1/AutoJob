@@ -156,7 +156,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
+    pub async fn update_document(&self, id: String, updated_user: T) -> Result<UpdateResult,
         Error> {
         let obj_id = ObjectId::parse_str(id).unwrap();
         let filter = doc! {"_id": obj_id};

@@ -1,6 +1,7 @@
 use actix_web::{HttpResponse, post};
 use actix_web::web::Data;
 use jsonwebtoken::{TokenData, errors::Error as JwtError, decode, DecodingKey, Validation, Algorithm};
+use mongodb::bson::doc;
 use crate::model::jwt_model::{Claims, JSONToken, JWT};
 use crate::repository::mongodb_repo::MongoRepo;
 
@@ -30,17 +31,30 @@ pub async fn store_token(db: Data<MongoRepo<JWT>>, new_token: String, secret: Da
         return HttpResponse::Unauthorized().body("Token recieved is not from a valid sender. \
         your IP has been permanently blocked");
     }
-    let stored_token: JWT = JWT{
-        userid: parsed_token.claims.userid,
-        issuerid: parsed_token.claims.issuerid,
-        exp: parsed_token.claims.exp,
+    let mut stored_token: JWT = JWT{
+        id: None,
+        userid: parsed_token.claims.userid.clone(),
+        issuerid: parsed_token.claims.issuerid.clone(),
+        exp: parsed_token.claims.exp.clone(),
         jwt_raw: new_token
     };
-    let returned_token = db.create_document(stored_token).await;
-    match returned_token {
-        Ok(user) => return HttpResponse::Ok().json(user),
-        Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the token collection. Check if MongoDB \
+    let doc = doc! {"userid" : parsed_token.claims.userid.clone()};
+    let token_found = match db.get_documents_by_attribute(doc).await{
+        Ok(tokens) => {tokens}
+        Err(_) => return HttpResponse::InternalServerError()
+            .body("Could not retrieve token from collection. Check if MongoDB \
                 is running")
+    };
+    let token_found = token_found.get(0);
+    if token_found.is_some(){
+        stored_token.id = token_found.unwrap().id.clone();
+        let user = db.update_document(&token_found.unwrap().id.expect("Failed to get id").to_string
+        (),
+                                      stored_token
+            .clone()).await.expect("MONGODB not running");
+        return HttpResponse::Ok().json(user);
+    }else{
+        let user = db.create_document(stored_token).await.expect("MONGODB not running");
+        return HttpResponse::Ok().json(user);
     }
 }
