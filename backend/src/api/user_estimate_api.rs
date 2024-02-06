@@ -14,6 +14,7 @@ use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::image_model::Image;
+use crate::utils::token_extractor::AuthenticationToken;
 
 /// Creates a new userEstimate via a POST request to the api web server
 ///
@@ -212,7 +213,7 @@ pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Documen
 /// it returns an HTTP 200 OK response with the JSON representation of the userEstimate's details. If there's an error
 /// during the retrieval process, it returns an HTTP 500 Internal Server Error response with an error message.
 #[get("/users")]
-pub async fn get_all_users(db: Data<MongoRepo<UserEstimate>>) -> HttpResponse {
+pub async fn get_all_users(db: Data<MongoRepo<UserEstimate>>, _auth_token: AuthenticationToken) -> HttpResponse {
     get_all_data(db).await
 }
 

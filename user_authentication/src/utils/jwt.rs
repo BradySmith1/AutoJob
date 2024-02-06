@@ -20,14 +20,16 @@ struct Response{
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
-    id: String,
+    userid: String,
+    issuerid: String,
     exp: usize,
 }
 
 pub async fn encode_token(id: String, secret: Data<String>) -> String {
     let token_exp = std::env::var("TOKENEXP").unwrap().parse::<i64>().unwrap();
+    let issuer_token = std::env::var("SYSTOKEN").unwrap();
     let exp: usize = (Utc::now() + Duration::days(token_exp)).timestamp() as usize;
-    let claims: Claims = Claims { id, exp };
+    let claims: Claims = Claims { userid: id, issuerid: issuer_token, exp };
     let token: String = encode(
         &Header::default(),
         &claims,
@@ -46,7 +48,9 @@ pub async fn protected_route(auth_token: AuthenticationToken) -> HttpResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthenticationToken {
-    id: String,
+    userid: String,
+    issuerid: String,
+    exp: usize,
 }
 
 impl FromRequest for AuthenticationToken {
@@ -77,7 +81,8 @@ impl FromRequest for AuthenticationToken {
         );
 
         match token_result {
-            Ok(token) => ready(Ok(AuthenticationToken { id: token.claims.id })),
+            Ok(token) => ready(Ok(AuthenticationToken { userid: token.claims.userid, issuerid:
+            token.claims.issuerid, exp: token.claims.exp })),
             Err(_e) => ready(Err(ErrorUnauthorized("Invalid authentication token sent!"))),
         }
     }

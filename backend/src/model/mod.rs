@@ -5,3 +5,4 @@ pub mod scraper_model;
 pub mod library_model;
 pub mod image_model;
 pub mod form_data_model;
+pub mod jwt_model;

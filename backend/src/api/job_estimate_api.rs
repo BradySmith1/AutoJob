@@ -5,6 +5,7 @@ use std::string::String;
 use actix_web::web::Query;
 use mongodb::bson::Document;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::utils::token_extractor::AuthenticationToken;
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -18,7 +19,9 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/estimate")]
-pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String) -> HttpResponse {
+pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String, _auth_token:
+AuthenticationToken)
+    -> HttpResponse {
     let json: JobEstimate = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -43,7 +46,7 @@ pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String)
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimate")]
 pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, query:
-Query<Document>) -> HttpResponse {
+Query<Document>, _auth_token: AuthenticationToken) -> HttpResponse {
     return match get_data(&db, query.into_inner()).await {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -67,7 +70,7 @@ pub async fn update_estimate(
     db: Data<MongoRepo<JobEstimate>>,
     path: Path<String>,
     new_user: String,
-) -> HttpResponse {
+    _auth_token: AuthenticationToken) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -90,8 +93,8 @@ pub async fn update_estimate(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/estimate")]
-pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Document>) ->
-                                                                                    HttpResponse {
+pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Document>,
+                             _auth_token: AuthenticationToken) -> HttpResponse {
     delete_data(db, query.into_inner()).await
 }
 
@@ -106,6 +109,7 @@ pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Docu
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimates")]
-pub async fn get_all_estimates(db: Data<MongoRepo<JobEstimate>>) -> HttpResponse {
+pub async fn get_all_estimates(db: Data<MongoRepo<JobEstimate>>, _auth_token: AuthenticationToken)
+    -> HttpResponse {
     get_all_data(db).await
 }

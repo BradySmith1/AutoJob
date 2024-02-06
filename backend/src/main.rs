@@ -7,6 +7,7 @@ mod api;
 mod repository;
 // uses the module model.
 mod model;
+mod utils;
 
 use std::io::{Read};
 use clokwerk::{AsyncScheduler, TimeUnits};
@@ -21,9 +22,11 @@ use repository::mongodb_repo::MongoRepo;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
                                    get_estimate, update_estimate};
+use crate::api::jwt_api::store_token;
 use crate::api::library_api::{check_library, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
 use crate::api::scraper_api::manual_web_scrape;
 use crate::model::estimate_model::JobEstimate;
+use crate::model::jwt_model::JWT;
 use crate::model::library_model::{MaterialFee};
 use crate::model::user_model::UserEstimate;
 
@@ -78,6 +81,7 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
     std::env::set_var("IMAGE_PATH", "../images/");
     std::env::set_var("WEB_CACHE_URL", "https://localhost:5000/cache");
+    std::env::set_var("AUTHSERVERTOKEN","sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8");
     env_logger::init();
 
     // Format the hypertext link to the localhost.
@@ -94,12 +98,14 @@ pub async fn main() -> std::io::Result<()> {
     let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
     let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
     let db_material_library: MongoRepo<MaterialFee> = MongoRepo::init("materialFee\
-    Library").
-        await;
+    Library").await;
+    let db_token: MongoRepo<JWT> = MongoRepo::init("tokens").await;
+
     // Creates the App data for the different Mongodb collections to be used with the HTTP server.
     let db_user_data = Data::new(db_user);
     let db_estimate_data = Data::new(db_estimate);
     let db_library_data = Data::new(db_material_library);
+    let db_token_data = Data::new(db_token);
 
     // Creates the SSL builder for the Actix web server.
     let ssl = ssl_builder();
@@ -126,9 +132,12 @@ pub async fn main() -> std::io::Result<()> {
         let logger = Logger::default();
         App::new()
             .wrap(logger)
+            //.wrap(Protected)
             .app_data(db_user_data.clone())
             .app_data(db_estimate_data.clone())
             .app_data(db_library_data.clone())
+            .app_data(db_token_data.clone())
+            .app_data(Data::<String>::new("secret".to_owned()))
             .service(create_user)
             .service(get_user)
             .service(get_image)
@@ -146,6 +155,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(delete_library_entry)
             .service(get_all_library_entries)
             .service(manual_web_scrape)
+            .service(store_token)
             .service(index)
 
     })

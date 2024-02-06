@@ -12,7 +12,14 @@ use argon2::{
     Argon2
 };
 use rand::{distributions::Alphanumeric, Rng};
+use reqwest::Response;
+use serde_derive::{Deserialize, Serialize};
 use crate::utils::jwt::encode_token;
+
+#[derive(Serialize, Deserialize)]
+struct AuthResponse {
+    jwt_token: String
+}
 
 #[post("/user/auth")]
 pub async fn authenticate_user(cache: Data<MongoRepo<User>>, user: String, secret: Data<String>) ->
@@ -41,7 +48,14 @@ HttpResponse{
     }
     let id = returned_user.id.unwrap().to_string();
     let refresh_token = generate_rand_string();
-    let jwt_token = encode_token(id, secret).await;
+    let jwt_token = encode_token(id.clone(), secret).await;
+    let response = send_jwt(jwt_token.clone()).await;
+    if response.is_err() {
+        println!("JWT never reached backend. Check if backend it running");
+        return HttpResponse::InternalServerError().body("Servers are currently down please try \
+        again later")
+    }
+    // implement this, if it cant send than everything breaks on the authentication side.
     HttpResponse::Ok().cookie(
         Cookie::build("AutoJobRefresh", refresh_token)
             .domain("localhost") //Todo need to change this come deployment time
@@ -49,7 +63,26 @@ HttpResponse{
             .secure(true)
             .http_only(true)
             .finish()
-    ).body(jwt_token)
+    ).json(AuthResponse{ jwt_token })
+}
+
+async fn send_jwt(jwt: String) -> Result<Response, String> {
+    let url = std::env::var("TOKEN_URL").unwrap();
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let res = client.post(&url);
+    let res = res.json(&AuthResponse { jwt_token: jwt });
+    let res = res.timeout(std::time::Duration::from_secs(3));
+    let response = match res.send().await{
+        Ok(response) => response,
+        Err(_) => {
+            println!("Error getting web cache. Check if web cache is running");
+            return Err("error getting web cache".to_string());
+        },
+    };
+    Ok(response)
 }
 
 fn generate_rand_string() -> String {

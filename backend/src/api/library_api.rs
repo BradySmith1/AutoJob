@@ -7,6 +7,7 @@ use mongodb::bson::Document;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::MaterialFee;
+use crate::utils::token_extractor::AuthenticationToken;
 
 /// Creates a new library entry via a POST request to the api web server
 ///
@@ -22,8 +23,8 @@ use crate::model::library_model::MaterialFee;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/library")]
-pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String) ->
-                                                                                    HttpResponse {
+pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String,
+                                  _auth_token: AuthenticationToken) -> HttpResponse {
     let mut json: MaterialFee = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -70,8 +71,8 @@ fn check_auto_update(json: &mut MaterialFee) -> HttpResponse{
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
 #[get("/library")]
-pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
-                                                                                    HttpResponse {
+pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>,
+                               _auth_token: AuthenticationToken) -> HttpResponse {
    return match get_data(&db, query.into_inner()).await{
         Ok(data) => HttpResponse::Ok().json(data),
         Err(err) => HttpResponse::InternalServerError()
@@ -98,7 +99,7 @@ pub async fn update_library_entry(
     db: Data<MongoRepo<MaterialFee>>,
     path: Path<String>,
     new_user: String,
-) -> HttpResponse {
+    _auth_token: AuthenticationToken) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -127,8 +128,8 @@ pub async fn update_library_entry(
 /// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
 /// an error message.
 #[delete("/library")]
-pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>) ->
-                                                                                    HttpResponse {
+pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>,
+                                  _auth_token: AuthenticationToken) -> HttpResponse {
     delete_data(db, query.into_inner()).await
 }
 
@@ -145,7 +146,8 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 /// retrieval process, it returns an HTTP 400 Bad Request response with an error message or an
 /// HTTP 500 Internal Server Error response with an error message.
 #[get("/libraries")]
-pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>) -> HttpResponse {
+pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>,
+                                     _auth_token: AuthenticationToken) -> HttpResponse {
     get_all_data(db).await
 }
 

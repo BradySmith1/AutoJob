@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use actix_web::{get, HttpResponse};
 use actix_web::web::Query;
 use serde_derive::{Deserialize, Serialize};
+use crate::utils::token_extractor::AuthenticationToken;
 
 /// Retrieve scraper data via a GET request. This is used for manual web scraping. Not background
 /// web scraping.
@@ -16,7 +17,8 @@ use serde_derive::{Deserialize, Serialize};
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/scrape")]
-pub async fn manual_web_scrape(query: Query<HashMap<String, String>>) -> HttpResponse {
+pub async fn manual_web_scrape(query: Query<HashMap<String, String>>,
+                               _auth_token: AuthenticationToken) -> HttpResponse {
     let map = query.into_inner();
     let name = match map.get("name"){
         Some(name) => name,

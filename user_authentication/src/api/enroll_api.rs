@@ -35,7 +35,7 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
     match returned_user {
         Ok(user) => return HttpResponse::Ok().json(user),
         Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
+            .body("Could not add document to the user collection. Check if MongoDB \
                 is running")
     }
 }
