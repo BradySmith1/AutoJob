@@ -1,7 +1,7 @@
 use std::env;
 use std::process::exit;
 use dotenv::dotenv;
-use mongodb::{bson::{doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson};
+use mongodb::{bson::{doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson, Database};
 use futures::stream::TryStreamExt;
 use mongodb::bson::Document;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason;
@@ -13,8 +13,10 @@ use crate::model::model_trait::Model;
 
 /// A struct representing a MongoDB repository for user estimates.
 pub struct MongoRepo<T> {
+    db: Database,
     col: Collection<T>,
 }
+
 
 /// Implementation of the MongoRepo struct.
 impl<T: Model<T>> MongoRepo<T> {
@@ -27,7 +29,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     /// This function may panic if there are errors during environment variable loading,
     /// connection URL parsing, or if it cannot establish a connection to the MongoDB server.
-    pub async fn init(collection_name: &str) -> Self {
+    pub async fn init(collection_name: &str, db_name: &str) -> Self {
         dotenv().ok();
         let database_address = match env::var("MONGOURL") {
             Ok(v) => v.to_string(),
@@ -52,10 +54,9 @@ impl<T: Model<T>> MongoRepo<T> {
                 exit(1);
             }
         };
-        println!("Successfully connected to the {} estimate database.", collection_name);
-        let db = client.database("ajseDB");
+        let db: Database = client.database(&*(db_name.to_owned() + "DB"));
         let col: Collection<T> = db.collection(collection_name);
-        MongoRepo { col }
+        MongoRepo { db, col }
     }
 
     /// This function creates a new user estimate in the userEstimate collection.
@@ -179,5 +180,13 @@ impl<T: Model<T>> MongoRepo<T> {
             users.push(user)
         }
         Ok(users)
+    }
+
+    pub fn set_collection(&mut self, collection: Collection<T>){
+        self.col = collection;
+    }
+
+    pub fn set_database(&mut self, db: Database){
+        self.db = db;
     }
 }

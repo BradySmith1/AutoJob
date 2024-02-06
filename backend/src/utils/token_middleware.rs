@@ -148,7 +148,8 @@ async fn check_authorization(req: &HttpRequest) -> Result<String, Error> {
 }
 
 async fn check_auth_mongodb(token: AuthenticationToken) -> Result<String, Error> {
-    let db: MongoRepo<JWT> = MongoRepo::init("tokens").await;
+    let db: MongoRepo<JWT> = MongoRepo::init("tokens", "admin").await; //TODO not correct
+    // implementation
     let obj_id = mongodb::bson::oid::ObjectId::parse_str(&token.userid).unwrap();
     let doc = doc! {"_id" : obj_id};
     let result = db.get_documents_by_attribute(doc).await.unwrap();

@@ -1,11 +1,13 @@
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
-use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
+use actix_web::{post, web::{Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
 use mongodb::bson::Document;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::utils::token_extractor::AuthenticationToken;
+
+const COLLECTION: &str = "jobEstimates";
 
 /// Creates a new jobEstimate via a POST request to the api web server
 ///
@@ -19,9 +21,9 @@ use crate::utils::token_extractor::AuthenticationToken;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/estimate")]
-pub async fn create_estimate(db: Data<MongoRepo<JobEstimate>>, new_user: String, _auth_token:
-AuthenticationToken)
+pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String,)
     -> HttpResponse {
+    let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let json: JobEstimate = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -45,8 +47,9 @@ AuthenticationToken)
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimate")]
-pub async fn get_estimate(db: Data<MongoRepo<JobEstimate>>, query:
-Query<Document>, _auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn get_estimate(auth_token: AuthenticationToken, query:
+Query<Document>, ) -> HttpResponse {
+    let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     return match get_data(&db, query.into_inner()).await {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -67,10 +70,10 @@ Query<Document>, _auth_token: AuthenticationToken) -> HttpResponse {
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/estimate/{id}")]
 pub async fn update_estimate(
-    db: Data<MongoRepo<JobEstimate>>,
+    auth_token: AuthenticationToken,
     path: Path<String>,
-    new_user: String,
-    _auth_token: AuthenticationToken) -> HttpResponse {
+    new_user: String, ) -> HttpResponse {
+    let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -93,9 +96,9 @@ pub async fn update_estimate(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/estimate")]
-pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Document>,
-                             _auth_token: AuthenticationToken) -> HttpResponse {
-    delete_data(db, query.into_inner()).await
+pub async fn delete_estimate(auth_token: AuthenticationToken, query: Query<Document>) -> HttpResponse {
+    let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    delete_data(&db, query.into_inner()).await
 }
 
 /// Retrieve all jobEstimate details via a GET request.
@@ -109,7 +112,8 @@ pub async fn delete_estimate(db: Data<MongoRepo<JobEstimate>>, query: Query<Docu
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/estimates")]
-pub async fn get_all_estimates(db: Data<MongoRepo<JobEstimate>>, _auth_token: AuthenticationToken)
+pub async fn get_all_estimates(auth_token: AuthenticationToken, _auth_token: AuthenticationToken)
     -> HttpResponse {
-    get_all_data(db).await
+    let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    get_all_data(&db).await
 }

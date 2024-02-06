@@ -6,8 +6,9 @@ use crate::model::jwt_model::{Claims, JSONToken, JWT};
 use crate::repository::mongodb_repo::MongoRepo;
 
 #[post("/token")]
-pub async fn store_token(db: Data<MongoRepo<JWT>>, new_token: String, secret: Data<String>) ->
+pub async fn store_token(new_token: String, secret: Data<String>) ->
                                                                                        HttpResponse{
+    let db: MongoRepo<JWT> = MongoRepo::init("tokens", "admin").await;
     let new_token: JSONToken = match serde_json::from_str(&new_token){
         Ok(parsed_json) => parsed_json,
         Err(_) => {

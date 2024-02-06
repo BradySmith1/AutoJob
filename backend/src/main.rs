@@ -23,12 +23,8 @@ use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
                                    get_estimate, update_estimate};
 use crate::api::jwt_api::store_token;
-use crate::api::library_api::{check_library, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
+use crate::api::library_api::{check_libraries, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
 use crate::api::scraper_api::manual_web_scrape;
-use crate::model::estimate_model::JobEstimate;
-use crate::model::jwt_model::JWT;
-use crate::model::library_model::{MaterialFee};
-use crate::model::user_model::UserEstimate;
 
 /// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
@@ -94,35 +90,23 @@ pub async fn main() -> std::io::Result<()> {
     //checks if MongoDB instance is running
     check_mongodb();
 
-    // Initializes the different Mongodb collection connections.
-    let db_user: MongoRepo<UserEstimate> = MongoRepo::init("userEstimates").await;
-    let db_estimate: MongoRepo<JobEstimate> = MongoRepo::init("jobEstimates").await;
-    let db_material_library: MongoRepo<MaterialFee> = MongoRepo::init("materialFee\
-    Library").await;
-    let db_token: MongoRepo<JWT> = MongoRepo::init("tokens").await;
-
-    // Creates the App data for the different Mongodb collections to be used with the HTTP server.
-    let db_user_data = Data::new(db_user);
-    let db_estimate_data = Data::new(db_estimate);
-    let db_library_data = Data::new(db_material_library);
-    let db_token_data = Data::new(db_token);
-
     // Creates the SSL builder for the Actix web server.
     let ssl = ssl_builder();
 
     // Creates the scheduler for the Actix web server that runs the web scraper at a certain
     // interval.
-    let time_interval: u32 = 5;
-    let mut scheduler = AsyncScheduler::new();
-    scheduler
-        .every(time_interval.minutes())
-        .run(|| async { check_library(MongoRepo::init("materialFeeLibrary").await).await; });
-    tokio::spawn(async move {
-        loop {
-            scheduler.run_pending().await;
-            tokio::time::sleep(Duration::from_millis(100)).await;
-        }
-    });
+    //DECIDED NOT TO USE FOR RIGHT NOW BECAUSE IT WILL BE HORRIBLY INEFFICIENT
+    // let time_interval: u32 = 5;
+    // let mut scheduler = AsyncScheduler::new();
+    // scheduler
+    //     .every(time_interval.minutes())
+    //     .run(|| async { check_libraries().await; });
+    // tokio::spawn(async move {
+    //     loop {
+    //         scheduler.run_pending().await;
+    //         tokio::time::sleep(Duration::from_millis(100)).await;
+    //     }
+    // });
 
 
     println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
@@ -133,10 +117,6 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             //.wrap(Protected)
-            .app_data(db_user_data.clone())
-            .app_data(db_estimate_data.clone())
-            .app_data(db_library_data.clone())
-            .app_data(db_token_data.clone())
             .app_data(Data::<String>::new("secret".to_owned()))
             .service(create_user)
             .service(get_user)

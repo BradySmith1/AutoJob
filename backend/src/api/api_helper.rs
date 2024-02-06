@@ -1,5 +1,4 @@
 use actix_web::HttpResponse;
-use actix_web::web::{Data};
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
 use crate::model::model_trait::Model;
@@ -15,7 +14,7 @@ use crate::repository::mongodb_repo::MongoRepo;
 /// An HttpResponse representing the result of the operation. If the document is created,
 /// it returns an HTTP 200 OK response with the JSON representation of the created document.
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response
-pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_json: T) -> HttpResponse {
+pub async fn post_data<T: Model<T>>(db: &MongoRepo<T>, new_json: T) -> HttpResponse {
     let user_detail = db.create_document(new_json).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
@@ -33,7 +32,7 @@ pub async fn post_data<T: Model<T>>(db: &Data<MongoRepo<T>>, new_json: T) -> Htt
 ///
 /// # Returns
 /// A Result object containing the retrieved data. or an error if the data could not be retrieved.
-pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document) ->
+pub async fn get_data<T: Model<T>>(db: &MongoRepo<T>, mut query: Document) ->
                                                                                  Result<Vec<T>,
                                                                                      String> {
     let user_detail:Result<Vec<T>, String>;
@@ -60,7 +59,7 @@ pub async fn get_data<T: Model<T>>(db: &Data<MongoRepo<T>>, mut query: Document)
 /// # Returns
 /// returns an HTTP 200 OK response with the JSON representation of the deleted document.
 /// If the document is not deleted, it returns an HTTP 500 Internal Server Error response
-pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document) -> HttpResponse {
+pub async fn delete_data<T: Model<T>>(db: &MongoRepo<T>,mut query: Document) -> HttpResponse {
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
@@ -92,7 +91,7 @@ pub async fn delete_data<T: Model<T>>(db: Data<MongoRepo<T>>,mut query: Document
 /// An HttpResponse representing the result of the operation. If the document is created,
 /// it returns an HTTP 200 OK response with the JSON representation of the created document.
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response.
-pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
+pub async fn get_all_data<T: Model<T>>(db: &MongoRepo<T>) -> HttpResponse {
     let users = db.get_all_documents().await;
     match users {
         Ok(users) => HttpResponse::Ok().json(users),
@@ -113,7 +112,7 @@ pub async fn get_all_data<T: Model<T>>(db: Data<MongoRepo<T>>) -> HttpResponse {
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response.
 /// If the id is not a valid ID, it returns a HTTP Not Found Error Response.
 pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, String>, db:
-&Data<MongoRepo<T>>, id: String) -> HttpResponse{
+&MongoRepo<T>, id: String) -> HttpResponse{
     match result {
         Ok(update) => {
             if update.matched_count == 1 {

@@ -1,6 +1,6 @@
 use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
             model::form_data_model::UserEstimateUploadForm};
-use actix_web::{post, web::{Data, Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
+use actix_web::{post, web::{Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
 use actix_multipart::{
     form::{
         MultipartForm,
@@ -16,6 +16,8 @@ use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, pus
 use crate::model::image_model::Image;
 use crate::utils::token_extractor::AuthenticationToken;
 
+const COLLECTION: &str = "userEstimates";
+
 /// Creates a new userEstimate via a POST request to the api web server
 ///
 /// # Parameters
@@ -30,8 +32,10 @@ use crate::utils::token_extractor::AuthenticationToken;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(db: Data<MongoRepo<UserEstimate>>, MultipartForm(form): MultipartForm<UserEstimateUploadForm>) ->
+pub async fn create_user(auth_token: AuthenticationToken, MultipartForm(form):
+MultipartForm<UserEstimateUploadForm>) ->
                                                                                                             HttpResponse {
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let user: &String = &form.user.to_string();
     if user.is_empty() {
         return HttpResponse::BadRequest().body("invalid format for userEstimate");
@@ -111,7 +115,8 @@ async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>
 /// is empty or there's an error during the retrieval process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[get("/user")]
-pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) -> HttpResponse {
+pub async fn get_user(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     return match get_data(&db, query.into_inner()).await {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
@@ -127,7 +132,7 @@ pub async fn get_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>)
 /// Returns a HttpRequest with either a OK 200 response with the images or a 500 Bad Request
 /// response if the image cannot be found.
 #[get("/userimage")]
-pub async fn get_image(req: HttpRequest) -> HttpResponse {
+pub async fn get_image(req: HttpRequest, _auth_token: AuthenticationToken) -> HttpResponse {
     let name_query =  &req.query_string().to_string();
     let name = std::env::var("IMAGE_PATH").unwrap() +
         name_query.split("=").collect::<Vec<&str>>()[1];
@@ -156,10 +161,11 @@ pub async fn get_image(req: HttpRequest) -> HttpResponse {
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/user/{id}")]
 pub async fn update_user(
-    db: Data<MongoRepo<UserEstimate>>,
     path: Path<String>,
     new_user: Json<UserEstimate>,
+    auth_token: AuthenticationToken
 ) -> HttpResponse {
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -196,9 +202,10 @@ pub async fn update_user(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/user")]
-pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Document>) ->
+pub async fn delete_user(query: Query<Document>, auth_token: AuthenticationToken) ->
                                                                                     HttpResponse {
-    delete_data(db, query.into_inner()).await
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    delete_data(&db, query.into_inner()).await
 }
 
 /// Retrieve all userEstimate details via a GET request.
@@ -213,8 +220,9 @@ pub async fn delete_user(db: Data<MongoRepo<UserEstimate>>, query: Query<Documen
 /// it returns an HTTP 200 OK response with the JSON representation of the userEstimate's details. If there's an error
 /// during the retrieval process, it returns an HTTP 500 Internal Server Error response with an error message.
 #[get("/users")]
-pub async fn get_all_users(db: Data<MongoRepo<UserEstimate>>, _auth_token: AuthenticationToken) -> HttpResponse {
-    get_all_data(db).await
+pub async fn get_all_users(auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    get_all_data(&db).await
 }
 
 /// connects you to the index page when connecting to the api web server.

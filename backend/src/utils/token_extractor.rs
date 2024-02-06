@@ -25,7 +25,7 @@ struct Claims {
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 pub struct AuthenticationToken {
-    userid: String,
+    pub userid: String,
     issuerid: String,
     exp: usize,
 }
@@ -59,7 +59,7 @@ impl FromRequest for AuthenticationToken {
             }
 
             let token = token_result.unwrap();
-            let auth_token = AuthenticationToken { userid: token.claims.userid,
+            let auth_token = AuthenticationToken { userid: token.claims.userid.clone(),
                 issuerid: token.claims.issuerid, exp: token.claims.exp };
             let result = check_auth_mongodb(auth_token.clone()).await;
             return match result {
@@ -71,7 +71,7 @@ impl FromRequest for AuthenticationToken {
 }
 
 async fn check_auth_mongodb(token: AuthenticationToken) -> Result<String, Error> {
-    let db: MongoRepo<JWT> = MongoRepo::init("tokens").await;
+    let db: MongoRepo<JWT> = MongoRepo::init("tokens", "admin").await;
     let doc = doc! {"userid" : &token.userid};
     let result = db.get_documents_by_attribute(doc).await.unwrap();
     let stored_token = match result.get(0){

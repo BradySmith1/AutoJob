@@ -1,13 +1,16 @@
 use crate::{repository::mongodb_repo::MongoRepo};
-use actix_web::{post, web::{Data, Path}, HttpResponse, get, put, delete};
+use actix_web::{post, web::{Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
-use mongodb::bson::Document;
+use mongodb::bson::{doc, Document};
+use mongodb::Client;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::library_model::MaterialFee;
 use crate::utils::token_extractor::AuthenticationToken;
+
+const COLLECTION: &str = "materialFeeLibrary";
 
 /// Creates a new library entry via a POST request to the api web server
 ///
@@ -23,8 +26,9 @@ use crate::utils::token_extractor::AuthenticationToken;
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/library")]
-pub async fn create_library_entry(db: Data<MongoRepo<MaterialFee>>, new_user: String,
-                                  _auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn create_library_entry(new_user: String,
+                                  auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let mut json: MaterialFee = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -71,8 +75,9 @@ fn check_auto_update(json: &mut MaterialFee) -> HttpResponse{
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
 #[get("/library")]
-pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>,
-                               _auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn get_library_entry(query: Query<Document>,
+                               auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
    return match get_data(&db, query.into_inner()).await{
         Ok(data) => HttpResponse::Ok().json(data),
         Err(err) => HttpResponse::InternalServerError()
@@ -96,10 +101,10 @@ pub async fn get_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Do
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/library/{id}")]
 pub async fn update_library_entry(
-    db: Data<MongoRepo<MaterialFee>>,
     path: Path<String>,
     new_user: String,
-    _auth_token: AuthenticationToken) -> HttpResponse {
+    auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
@@ -128,9 +133,10 @@ pub async fn update_library_entry(
 /// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
 /// an error message.
 #[delete("/library")]
-pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query<Document>,
-                                  _auth_token: AuthenticationToken) -> HttpResponse {
-    delete_data(db, query.into_inner()).await
+pub async fn delete_library_entry(query: Query<Document>,
+                                  auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    delete_data(&db, query.into_inner()).await
 }
 
 /// Retrieve all materialLibrary entry details via a GET request.
@@ -146,9 +152,9 @@ pub async fn delete_library_entry(db: Data<MongoRepo<MaterialFee>>, query: Query
 /// retrieval process, it returns an HTTP 400 Bad Request response with an error message or an
 /// HTTP 500 Internal Server Error response with an error message.
 #[get("/libraries")]
-pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>,
-                                     _auth_token: AuthenticationToken) -> HttpResponse {
-    get_all_data(db).await
+pub async fn get_all_library_entries(auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    get_all_data(&db).await
 }
 
 /// This is the function that runs on a timer in the main function that checks the current
@@ -157,52 +163,57 @@ pub async fn get_all_library_entries(db: Data<MongoRepo<MaterialFee>>,
 /// # Parameters
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
-pub async fn check_library(db: MongoRepo<MaterialFee>){
-    println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
-    let materials = match db.get_all_documents().await{
-        Ok(materials) => materials,
-        Err(_) => {
-            println!("Could not retrieve materials from database");
+pub async fn check_libraries(){
+    let client = Client::with_uri_str(std::env::var("MONGOURL").unwrap()).await.unwrap();
+    let db_list = client.list_database_names(doc! {}, None).await.unwrap();
+    for dbs in db_list{
+        let db:MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, dbs.as_str()).await;
+        println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
+        let materials = match db.get_all_documents().await{
+            Ok(materials) => materials,
+            Err(_) => {
+                println!("Could not retrieve materials from database");
+                return;
+            }
+        };
+        if materials.is_empty(){
+            println!("No materials in database");
             return;
         }
-    };
-    if materials.is_empty(){
-        println!("No materials in database");
-        return;
-    }
-    for material in materials{
-        //ttl is still implemented. however i dont know if i need it or not. I might just deal with
-        //the time to live in the web scraper api
-        if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
-            let mut new_material = material.clone();
-            let scraper_data = match crate::api::scraper_api::get_scraper_data(material.name
-                                                                                   .clone(),
-                                                                         material.company.clone()
-                                                                             .unwrap()).await{
-                Ok(data) => data,
-                Err(err) => {
-                    if err.eq("no products found") {
-                        println!("No products found for material: {}, {}", material.name, material
-                            .company.clone().unwrap());
-                    }else if err.eq("error getting web cache") {
-                        println!("Error getting web cache. Check if web cache is running");
-                    }else{
-                        println!("Internal Server error.");
+        for material in materials{
+            //ttl is still implemented. however i dont know if i need it or not. I might just deal with
+            //the time to live in the web scraper api
+            if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
+                let mut new_material = material.clone();
+                let scraper_data = match crate::api::scraper_api::get_scraper_data(material.name
+                                                                                       .clone(),
+                                                                                   material.company.clone()
+                                                                                       .unwrap()).await{
+                    Ok(data) => data,
+                    Err(err) => {
+                        if err.eq("no products found") {
+                            println!("No products found for material: {}, {}", material.name, material
+                                .company.clone().unwrap());
+                        }else if err.eq("error getting web cache") {
+                            println!("Error getting web cache. Check if web cache is running");
+                        }else{
+                            println!("Internal Server error.");
+                        }
+                        return;
                     }
-                    return;
+                };
+                new_material.price = scraper_data.price;
+                new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
+                let update_result: Result<UpdateResult, String> = db.update_document(&material.id
+                    .unwrap().to_string(), new_material).await;
+                match update_result {
+                    Ok(_) => println!("Updated material: {}, {}", material.name, material.company
+                        .clone().unwrap()),
+                    Err(_) => println!("Could not update material: {}, {}", material.name, material.company
+                        .clone().unwrap()),
                 }
-            };
-            new_material.price = scraper_data.price;
-            new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
-            let update_result: Result<UpdateResult, String> = db.update_document(&material.id
-                .unwrap().to_string(), new_material).await;
-            match update_result {
-                Ok(_) => println!("Updated material: {}, {}", material.name, material.company
-                    .clone().unwrap()),
-                Err(_) => println!("Could not update material: {}, {}", material.name, material.company
-                    .clone().unwrap()),
             }
         }
+        println!("{}: Finished Web Scraping Task", chrono::Utc::now().to_string());
     }
-    println!("{}: Finished Web Scraping Task", chrono::Utc::now().to_string());
 }
