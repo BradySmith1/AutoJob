@@ -6,6 +6,8 @@ import * as Yup from "yup";
 
 function LogIn(props){
 
+    const [authError, setAuthError] = useState("");
+
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -14,6 +16,7 @@ function LogIn(props){
 
         validationSchema: Yup.object({
             username: Yup.string()
+                .email("Must be an email address.")
                 .required("Required"),
             
             password: Yup.string()
@@ -21,13 +24,14 @@ function LogIn(props){
         }),
 
         onSubmit: (values, { resetForm }) => {
+            setAuthError("");
             resetForm();
             props.authenticate(true);
         }
     })
 
     return(
-        <div className="AuthWrapper">
+        <div className="wrapper">
             <div className='TitleBar'>
                 <h1>Log In</h1>
             </div>
@@ -42,6 +46,7 @@ function LogIn(props){
                         onBlur={formik.handleBlur}
                         value={formik.values.username}
                     />
+                    {formik.touched.username && formik.errors.username ? <p className="Error">{formik.errors.username}</p> : null}
                 </div>
                 <div className="headerAndInput">
                     <h2>Password</h2>
@@ -53,12 +58,14 @@ function LogIn(props){
                         onBlur={formik.handleBlur}
                         value={formik.values.password}
                     />
+                    {formik.touched.password && formik.errors.password ? <p className="Error">{formik.errors.password}</p> : null}
                 </div>
                 <input
                     className="btn logInBtn"
                     type="submit"
                     id="LogInSubmitButton"
                 />
+                <p className="Error">{authError}</p>
             </form>
             <h3>Don't have an account?</h3>
             <button 

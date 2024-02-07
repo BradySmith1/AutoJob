@@ -5,6 +5,12 @@
     margin-bottom: 10px;
 }
 
+.Error{
+    color: red;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 .authInput{
     width: 100%;
     background-color: #191D23;
