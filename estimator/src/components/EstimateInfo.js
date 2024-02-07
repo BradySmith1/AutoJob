@@ -178,6 +178,9 @@ function EstimateInfo() {
     //Return the JSX object containing all html for this page
     return (
         <div className='estimateInfo'>
+            <div className='TitleBar'>
+                <h1>Estimate Calculator</h1>
+            </div>
             <div className='dropDown'>
                 <div className="selectWrapper">
                     <h2 id="selectTitle">{dropDown.users.length} Customers Waiting for an Estimate</h2>
