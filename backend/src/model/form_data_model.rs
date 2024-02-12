@@ -14,6 +14,7 @@ use actix_multipart::form::text::Text;
 #[derive(Debug, MultipartForm)]
 pub struct UserEstimateUploadForm {
     pub user: Text<String>,
+    pub company_id: Text<String>,
     #[multipart(rename = "files")]
     pub files: Vec<TempFile>,
 }

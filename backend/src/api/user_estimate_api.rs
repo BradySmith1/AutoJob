@@ -32,10 +32,10 @@ const COLLECTION: &str = "userEstimates";
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(auth_token: AuthenticationToken, MultipartForm(form):
+pub async fn create_user(MultipartForm(form):
 MultipartForm<UserEstimateUploadForm>) ->
                                                                                                             HttpResponse {
-    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, form.company_id.as_str()).await;
     let user: &String = &form.user.to_string();
     if user.is_empty() {
         return HttpResponse::BadRequest().body("invalid format for userEstimate");
