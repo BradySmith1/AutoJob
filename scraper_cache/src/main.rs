@@ -98,7 +98,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(get_cached_materials)
 
     })
-        .bind_openssl(&target, ssl)?
+        .bind(&target)?
         .run()
         .await
 }

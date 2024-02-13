@@ -139,7 +139,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(index)
 
     })
-        .bind_openssl(&target, ssl)?
+        .bind(&target)?
         .run()
         .await
 }
