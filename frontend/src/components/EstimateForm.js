@@ -29,6 +29,9 @@ const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2
  */
 function EstimateForm() {
 
+    var pathArray = window.location.pathname.split('/');
+    company_id = pathArray[1];
+
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
     //Array of images
@@ -104,7 +107,7 @@ function EstimateForm() {
                 formData.append("files", file);
             });
             //Post values to backend
-            axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(response => {
+            axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data', 'company_id': company_id } }).then(response => {
                 console.log(response);
                 window.location.reload(false);
                 resetForm();
