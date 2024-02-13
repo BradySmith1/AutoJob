@@ -30,7 +30,7 @@ const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2
 function EstimateForm() {
 
     var pathArray = window.location.pathname.split('/');
-    company_id = pathArray[1];
+    var company_id = pathArray[1];
 
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
