@@ -10,10 +10,6 @@ function Authenticator(props){
 
     const authInstance = axios.create({
         baseURL: "http://localhost:5000",
-        headers: {
-            credentials: false,
-            "Access-Control-Allow-Origin": "*"
-        }
     });
 
     return(
