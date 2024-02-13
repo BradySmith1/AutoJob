@@ -101,13 +101,14 @@ function EstimateForm() {
         onSubmit: (values, { resetForm }) => {
             //Create form data object
             var formData = new FormData();
-            formData.append("user", JSON.stringify(values))
+            formData.append("user", JSON.stringify(values));
+            formData.append("company_id", company_id);
             //Add images to form data
             images.forEach(file => {
                 formData.append("files", file);
             });
             //Post values to backend
-            axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data', 'company_id': company_id } }).then(response => {
+            axios.post('/user', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then(response => {
                 console.log(response);
                 window.location.reload(false);
                 resetForm();
