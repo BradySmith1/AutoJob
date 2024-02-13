@@ -109,7 +109,7 @@ function Library(props){
      */
     const addToLibrary = (billable) =>{
         //Post the billable
-        axios.post('/library', billable, {timeout: 3000}).then((response) => {
+        axios.post('/api/library', billable, {timeout: 3000}).then((response) => {
             //Set the id
             billable._id = {"$oid" : response.data.insertedId.$oid};
             //Copy all the local billables
@@ -133,7 +133,7 @@ function Library(props){
         //Splice out the index we don't want
         libCopy.splice(index, 1);
         //Delete it from the database
-        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
+        axios.delete(`/api/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
             //On deletion, set the library to the new library.
             setLibrary({name: library.name, billables: libCopy});
         }).catch((error) => {
@@ -170,7 +170,7 @@ function Library(props){
     const getLibrary = (name) =>{
         setLoading(true);
 
-        axios.get('/library?description=' + name).then((response) => {
+        axios.get('/api/library?description=' + name).then((response) => {
             //initialize the state array
             var vallueArr = [];
             for(const billable of response.data){

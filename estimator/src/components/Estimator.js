@@ -180,7 +180,7 @@ function Estimator(props) {
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -189,11 +189,11 @@ function Estimator(props) {
             });
         } else {
             //If it doesnt have an id, this is not a draft so post it
-            axios.post('/estimate', estimateData, { timeout: 3000 }).then((response) => {
+            axios.post('/api/estimate', estimateData, { timeout: 3000 }).then((response) => {
                 props.data._id = { $oid: response.data.insertedId.$oid };
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                axios.delete(`/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
+                axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
                     handleSubmission(status);
                 }).catch((error) => {
                     console.log(error.message);

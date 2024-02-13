@@ -43,7 +43,7 @@ const DEFAULT_ESTIMATE_DATA = {
  * @returns Promise for the packed user estimate
  */
 async function packUsers() {
-    const response = await axios.get('/users');
+    const response = await axios.get('/api/users');
     var userArr = [];
     //Push each user to a local array
     for (const entry of response.data) {
@@ -62,7 +62,7 @@ async function getAutoImports() {
     var autoImports = {};
     for (const key of Object.keys(billableList)) {
         //Get the auto imports
-        const response = await axios.get("/library?autoImport=true&description=" + key);
+        const response = await axios.get("/api/library?autoImport=true&description=" + key);
         if (response.data.length > 0) {
             //Add that array of billables to the user object
             autoImports[billableList[key]] = response.data;
@@ -77,7 +77,7 @@ async function getAutoImports() {
  */
 async function packDrafts() {
     //Get the drafts
-    const response = await axios.get('/estimate?status=draft');
+    const response = await axios.get('/api/estimate?status=draft');
     return response.data;
 }
 

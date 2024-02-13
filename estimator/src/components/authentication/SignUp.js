@@ -35,7 +35,7 @@ function SignUp(props){
                 return;
             }
 
-            const result = await props.instance.post('/user/enroll', {username: values.username, password: values.password});
+            const result = await axios.post('/auth/user/enroll', {username: values.username, password: values.password});
             console.log(result);
 
             if(result.status !== 200){

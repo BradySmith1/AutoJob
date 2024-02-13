@@ -9,7 +9,7 @@ function Authenticator(props){
     const [loggedIn, setLoggedIn] = useState(true);
 
     const authInstance = axios.create({
-        baseURL: "http://localhost:5000",
+        baseURL: "http://127.0.0.1:5000",
     });
 
     return(
