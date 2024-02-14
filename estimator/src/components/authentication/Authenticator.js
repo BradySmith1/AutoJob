@@ -3,14 +3,11 @@ import axios from 'axios';
 import React, { useState } from "react";
 import LogIn from "./LogIn";
 import SignUp from "./SignUp";
+import { AuthContext } from "../../App";
 
 function Authenticator(props){
 
     const [loggedIn, setLoggedIn] = useState(true);
-
-    const authInstance = axios.create({
-        baseURL: "http://127.0.0.1:5000",
-    });
 
     return(
         <div className="AuthWrapper">

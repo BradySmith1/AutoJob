@@ -1,12 +1,16 @@
 import "./LogIn.css";
 import axios from 'axios';
-import React, { useState } from "react";
+import { AuthContext } from "./AuthContextProvider";
+import React, { useContext, useState } from "react";
 import { useFormik } from 'formik';
 import * as Yup from "yup";
 
 function LogIn(props){
 
     const [authError, setAuthError] = useState("");
+
+    const {jwt, setJwt} = useContext(AuthContext);
+    console.log(jwt);
 
     const formik = useFormik({
         initialValues: {
@@ -25,8 +29,22 @@ function LogIn(props){
 
         onSubmit: (values, { resetForm }) => {
             setAuthError("");
-            resetForm();
-            props.authenticate(true);
+
+            axios.post('/auth/user/auth', {username: values.username, password: values.password})
+                .then((result) => {
+                    setJwt(result.data.jwt_token);
+                    resetForm();
+                    props.authenticate(true);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        setAuthError(error.response.data);
+                    } else if (error.request){
+                        setAuthError(error.request.data);
+                    }else{
+                        setAuthError("Something went wrong, try again later.");
+                    }
+                });
         }
     })
 
