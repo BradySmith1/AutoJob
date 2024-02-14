@@ -75,7 +75,7 @@ pub async fn delete_data<T: Model<T>>(db: &MongoRepo<T>,mut query: Document) -> 
             if res.deleted_count == 1 {
                 return HttpResponse::Ok().json("User successfully deleted!");
             } else {
-                return HttpResponse::NotFound().json("User with specified ID not found!");
+                return HttpResponse::NotFound().json("User with specified attributes not found!");
             }
         }
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
