@@ -17,10 +17,10 @@ import React, { useEffect, useState } from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
-import billableList from "./JSONs/billableList.json";
+import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
-import Message from "./utilComponents/Message.js";
-import dropDownData from "./JSONs/dropDown.json";
+import Message from "../utilComponents/Message.js";
+import dropDownData from "../JSONs/dropDown.json";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 

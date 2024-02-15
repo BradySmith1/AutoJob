@@ -10,7 +10,7 @@
 
 import React, {useState, useEffect} from "react";
 import './Overview.css';
-import billableList from '../JSONs/billableList.json';
+import billableList from '../../JSONs/billableList.json';
 
 /**
  * This function gets the totals of billables to

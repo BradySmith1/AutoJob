@@ -28,6 +28,7 @@ function LogIn(props){
         }),
 
         onSubmit: (values, { resetForm }) => {
+            props.authenticate(true)
             setAuthError("");
 
             axios.post('/auth/user/auth', {username: values.username, password: values.password})

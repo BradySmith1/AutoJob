@@ -7,12 +7,11 @@
  */
 
 import './App.css';
-import './components/EstimateInfo.js'
 import'./components/authentication/AuthContextProvider.js'
-import EstimateInfo from './components/EstimateInfo.js';
 import ErrorBoundry from './components/utilComponents/ErrorBoundry.js';
 import Authenticator from './components/authentication/Authenticator.js';
-import React, { useState, createContext } from 'react';
+import AppSwitcher from './components/AppSwitcher.js';
+import React, { useState } from 'react';
 import AuthContextProvider from './components/authentication/AuthContextProvider.js';
 
 /**
@@ -30,7 +29,7 @@ function App() {
       <div className="App">
           <ErrorBoundry fallback="A network error has occured. Please try again later.">
             {authenticated ? 
-              (<EstimateInfo />) 
+              (<AppSwitcher />) 
             : 
               (<Authenticator authenticate={setAuthenticated}/>)
             }

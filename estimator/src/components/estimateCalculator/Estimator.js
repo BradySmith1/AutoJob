@@ -14,8 +14,8 @@ import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
-import billableList from './JSONs/billableList.json';
-import Message from './utilComponents/Message.js';
+import billableList from '../JSONs/billableList.json';
+import Message from '../utilComponents/Message.js';
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects

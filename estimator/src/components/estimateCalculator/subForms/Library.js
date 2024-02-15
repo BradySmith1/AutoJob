@@ -11,8 +11,8 @@ import './Library.css';
 import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
-import billableList from "../JSONs/billableList.json";
-import Message from "../utilComponents/Message.js";
+import billableList from "../../JSONs/billableList.json";
+import Message from "../../utilComponents/Message.js";
 
 /**
  * This function compares everything in the estimate form to the

@@ -15,12 +15,10 @@ function Authenticator(props){
                 (<LogIn 
                     authenticate={props.authenticate}
                     setLoggedIn={setLoggedIn}
-                    instance={authInstance}
                 />) 
             : 
                 (<SignUp 
                     setLoggedIn={setLoggedIn}
-                    instance={authInstance}
                 />)
             }
         </div>
