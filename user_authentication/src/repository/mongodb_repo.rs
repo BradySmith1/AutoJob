@@ -156,10 +156,9 @@ impl<T: Model<T>> MongoRepo<T> {
     /// # Panics
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn update_document(&self, id: String, updated_user: T) -> Result<UpdateResult,
+    pub async fn update_document(&self, user: String, updated_user: T) -> Result<UpdateResult,
         Error> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
-        let filter = doc! {"_id": obj_id};
+        let filter = doc! {"user": user};
         let doc = json!({"$set": updated_user});
         let doc = bson::to_document(&doc).unwrap();
         let updated_doc = self
@@ -186,9 +185,9 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
-    pub async fn delete_document(&self, id: ObjectId) -> Result<DeleteResult,
+    pub async fn delete_document(&self, username: String) -> Result<DeleteResult,
         Error> {
-        let filter = doc! {"_id": id};
+        let filter = doc! {"user": username};
         let user_detail = self
             .col
             .delete_one(filter, None)

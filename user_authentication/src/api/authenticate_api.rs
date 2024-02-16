@@ -1,5 +1,5 @@
 use actix_web::{HttpRequest, HttpResponse, post};
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use crate::model::login_model::LoginRequest;
 use actix_web::web::Data;
 use mongodb::bson::doc;
@@ -48,7 +48,7 @@ String,
         }
         //todo Account for logouts
         let refresh_token = generate_rand_string();
-        match tokens.update_document(result.id.unwrap().to_string(), RefreshToken{
+        match tokens.update_document(result.user.clone(), RefreshToken{
             id: None,
             user: result.user.clone(),
             jwt_token: result.jwt_token.clone(),
@@ -93,6 +93,8 @@ String,
             return HttpResponse::InternalServerError().body("Servers are currently down please try \
         again later")
         }
+        tokens.delete_document(returned_user.username.clone()).await.expect("failure to delete \
+        documents");
         match tokens.create_document(RefreshToken{
             id: None,
             user: returned_user.username.clone(),
@@ -108,7 +110,6 @@ String,
                 try again later")
             }
         };
-        // implement this, if it cant send than everything breaks on the authentication side.
         success_login_response(refresh_token, jwt_token)
     }
 }
@@ -116,11 +117,13 @@ String,
 fn success_login_response(refresh_token: String, jwt_token: String) -> HttpResponse{
     HttpResponse::Ok().cookie(
         Cookie::build("AutoJobRefresh", refresh_token)
-            .domain("auth.smith-household.com")
-            .path("/user/auth")
-            .http_only(true)
+            .domain("localhost") //TODO frontend domain needs to change when frontend is deployed
+            .path("/")
+            //.http_only(true)
+            .secure(true)
+            .same_site(SameSite::None)
             .finish()
-    ).json(AuthResponse{ jwt_token })
+    ).insert_header(("Access-Control-Allow-Origin", "*")).insert_header(("Access-Control-Allow-Credidentials", "true")).json(AuthResponse{ jwt_token })
 }
 
 async fn send_jwt(jwt: String) -> Result<Response, String> {
