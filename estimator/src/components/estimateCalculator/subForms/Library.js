@@ -6,13 +6,14 @@
  * This component displays the material library.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import './Library.css';
 import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
 import billableList from "../../JSONs/billableList.json";
 import Message from "../../utilComponents/Message.js";
+import { AuthContext } from "../../authentication/AuthContextProvider.js";
 
 /**
  * This function compares everything in the estimate form to the
@@ -77,6 +78,12 @@ function searchString(billable, searchStr){
  * @returns JSX object containing all the html for the library
  */
 function Library(props){
+
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     //Use state for the library
     const [library, setLibrary] = useState([]);

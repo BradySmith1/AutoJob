@@ -10,7 +10,6 @@ function LogIn(props){
     const [authError, setAuthError] = useState("");
 
     const {jwt, setJwt} = useContext(AuthContext);
-    console.log(jwt);
 
     const formik = useFormik({
         initialValues: {
@@ -28,12 +27,12 @@ function LogIn(props){
         }),
 
         onSubmit: (values, { resetForm }) => {
-            props.authenticate(true)
             setAuthError("");
 
             axios.post('/auth/user/auth', {username: values.username, password: values.password})
                 .then((result) => {
                     setJwt(result.data.jwt_token);
+                    console.log(result);
                     resetForm();
                     props.authenticate(true);
                 })
@@ -50,7 +49,7 @@ function LogIn(props){
     })
 
     return(
-        <div className="wrapper">
+        <div className="LoginWrapper">
             <div className='TitleBar'>
                 <h1>Log In</h1>
             </div>

@@ -13,7 +13,7 @@
 
 import "./EstimateInfo.css";
 import axios from 'axios';
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
@@ -21,6 +21,7 @@ import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
 import Message from "../utilComponents/Message.js";
 import dropDownData from "../JSONs/dropDown.json";
+import { AuthContext } from "../authentication/AuthContextProvider.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -116,6 +117,12 @@ var userDropDown = {};
  * @returns JSX object for estimate calculator
  */
 function EstimateInfo() {
+
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     //Declare a use state variable that holds the currently selected customer data
     const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);

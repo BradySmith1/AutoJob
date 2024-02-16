@@ -9,13 +9,14 @@
  */
 import './Estimator.css';
 import { Formik, Form } from 'formik';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
 import billableList from '../JSONs/billableList.json';
 import Message from '../utilComponents/Message.js';
+import { AuthContext } from '../authentication/AuthContextProvider.js';
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects
@@ -143,6 +144,12 @@ var initialValues = generateInitialValues();
  * @returns JSX object containing all html for the Form
  */
 function Estimator(props) {
+
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);

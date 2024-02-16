@@ -11,7 +11,8 @@
  * since the backend cant query by booleans yet
  */
 
-import React, { useState, useRef, useEffect, useId } from "react";
+import React, { useState, useRef, useEffect, useId, useContext } from "react";
+import { AuthContext } from "../../authentication/AuthContextProvider";
 import './Billable.css';
 import axios from 'axios';
 
@@ -76,6 +77,12 @@ function useOutsideAlerter(ref, setDisplay) {
    * @returns JSX object for a billable
    */
 function Billable(props){
+
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     //ID for this billable
     const billableID = useId();

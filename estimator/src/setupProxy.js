@@ -9,6 +9,6 @@ const rewriteAPI = function(path, req) {
 }
 
 module.exports = function(app) {
-  app.use('/auth/*', createProxyMiddleware({ target: 'http://localhost:5000/', pathRewrite: rewriteAuth }));
-  app.use('/api/*', createProxyMiddleware({ target: 'http://localhost:3001/', pathRewrite: rewriteAPI }));
+  app.use('/auth/*', createProxyMiddleware({ target: 'https://auth.smith-household.com', changeOrigin: true, pathRewrite: rewriteAuth }));
+  app.use('/api/*', createProxyMiddleware({ target: 'https://resource.smith-household.com', changeOrigin: true, pathRewrite: rewriteAPI }));
 }

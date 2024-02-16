@@ -49,7 +49,7 @@ function SignUp(props){
     })
 
     return(
-        <div className="wrapper">
+        <div className="LoginWrapper">
             <div className='TitleBar'>
                 <h1>Sign Up</h1>
             </div>
