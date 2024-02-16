@@ -116,7 +116,7 @@ String,
 fn success_login_response(refresh_token: String, jwt_token: String) -> HttpResponse{
     HttpResponse::Ok().cookie(
         Cookie::build("AutoJobRefresh", refresh_token)
-            .domain("localhost") //Todo need to change this come deployment time
+            .domain("auth.smith-household.com")
             .path("/user/auth")
             .http_only(true)
             .finish()
