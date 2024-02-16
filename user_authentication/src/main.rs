@@ -69,7 +69,7 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
-    std::env::set_var("TOKEN_URL", "https://localhost:3001/token");
+    std::env::set_var("TOKEN_URL", "https://localhost:3000/token");
     std::env::set_var("SYSTOKEN", "sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8");
     std::env::set_var("TOKENEXP", "1");
     env_logger::init();

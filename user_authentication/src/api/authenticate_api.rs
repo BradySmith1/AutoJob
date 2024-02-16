@@ -42,7 +42,8 @@ String,
             Some(res) => {res}
         };
         let exp = result.exp;
-        if exp > Utc::now().timestamp() as usize {
+        println!("cookie exp: {}... time: {}", &exp, (Utc::now().timestamp() as usize));
+        if exp <= Utc::now().timestamp() as usize {
             return HttpResponse::BadRequest().body("Refresh token has expired. Please re-\
             authenticate")
         }
