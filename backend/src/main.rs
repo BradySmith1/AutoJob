@@ -92,7 +92,7 @@ pub async fn main() -> std::io::Result<()> {
     let blue = Style::new()
         .blue();
     let prefix = "127.0.0.1:";
-    let port = 3001;
+    let port = 3000;
     let target = format!("{}{}", prefix, port);
 
     //checks if MongoDB instance is running
