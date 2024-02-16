@@ -48,7 +48,7 @@ String,
         }
         //todo Account for logouts
         let refresh_token = generate_rand_string();
-        match tokens.update_document(result.id.unwrap().to_string(), RefreshToken{
+        match tokens.update_document(result.user.clone(), RefreshToken{
             id: None,
             user: result.user.clone(),
             jwt_token: result.jwt_token.clone(),
@@ -93,6 +93,8 @@ String,
             return HttpResponse::InternalServerError().body("Servers are currently down please try \
         again later")
         }
+        tokens.delete_document(returned_user.username.clone()).await.expect("failure to delete \
+        documents");
         match tokens.create_document(RefreshToken{
             id: None,
             user: returned_user.username.clone(),
@@ -108,7 +110,6 @@ String,
                 try again later")
             }
         };
-        // implement this, if it cant send than everything breaks on the authentication side.
         success_login_response(refresh_token, jwt_token)
     }
 }

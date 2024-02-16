@@ -91,7 +91,7 @@ pub async fn main() -> std::io::Result<()> {
     // Format the hypertext link to the localhost.
     let blue = Style::new()
         .blue();
-    let prefix = "127.0.0.1:";
+    let prefix = "0.0.0.0:";
     let port = 3000;
     let target = format!("{}{}", prefix, port);
 
