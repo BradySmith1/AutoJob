@@ -1,5 +1,5 @@
 use actix_web::{HttpRequest, HttpResponse, post};
-use actix_web::cookie::Cookie;
+use actix_web::cookie::{Cookie, SameSite};
 use crate::model::login_model::LoginRequest;
 use actix_web::web::Data;
 use mongodb::bson::doc;
@@ -42,7 +42,6 @@ String,
             Some(res) => {res}
         };
         let exp = result.exp;
-        println!("cookie exp: {}... time: {}", &exp, (Utc::now().timestamp() as usize));
         if exp <= Utc::now().timestamp() as usize {
             return HttpResponse::BadRequest().body("Refresh token has expired. Please re-\
             authenticate")
@@ -115,13 +114,19 @@ String,
 }
 
 fn success_login_response(refresh_token: String, jwt_token: String) -> HttpResponse{
-    HttpResponse::Ok().cookie(
-        Cookie::build("AutoJobRefresh", refresh_token)
-            .domain("auth.smith-household.com")
-            .path("/user/auth")
-            .http_only(true)
-            .finish()
-    ).json(AuthResponse{ jwt_token })
+    HttpResponse::Ok()
+        .cookie(
+            Cookie::build("AutoJobRefresh", refresh_token)
+                .domain("localhost") //TODO frontend domain needs to change when frontend is deployed
+                .path("/")
+                //.http_only(true)
+                .secure(true)
+                .same_site(SameSite::None)
+                .finish())
+        .insert_header(("Access-Control-Allow-Origin", "*"))
+        .insert_header(("Access-Control-Allow-Credidentials", "true"))
+        .insert_header(("Access-Control-Allow-Headers", "set-cookie"))
+        .json(AuthResponse{ jwt_token })
 }
 
 async fn send_jwt(jwt: String) -> Result<Response, String> {
