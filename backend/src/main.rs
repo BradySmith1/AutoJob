@@ -16,6 +16,7 @@ use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
+use std::path::Path;
 use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user,
                              get_all_users, get_image};
 use repository::mongodb_repo::MongoRepo;
@@ -52,11 +53,18 @@ fn check_mongodb() {
 /// # Returns
 /// Returns an SslAcceptorBuilder for the Actix web server.
 fn ssl_builder() -> SslAcceptorBuilder {
+    let private_key_path = Path::new("./src/ssl/private_key.key");
+    let ssl_cert_path = Path::new("./src/ssl/ssl_certificate.cer");
+    let ssl_cert_int_path = Path::new("./src/ssl/ssl_certificate_INTERMEDIATE.cer");
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
-        .set_private_key_file("./src/ssl/key.pem", SslFiletype::PEM)
+        .set_private_key_file(private_key_path, SslFiletype::PEM)
         .expect("failed to open/read key.pem");
-    builder.set_certificate_chain_file("./src/ssl/cert.pem")
+    builder
+        .set_certificate_file(ssl_cert_path, SslFiletype::PEM)
+        .expect("failed to open/read cert.pem");
+    builder
+        .set_ca_file(ssl_cert_int_path)
         .expect("failed to open/read cert.pem");
     builder
 }
