@@ -1,3 +1,10 @@
+/**
+ * @version 1, February 18th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This file is the log in page for the application.
+ */
 import "./LogIn.css";
 import axios from 'axios';
 import { AuthContext } from "./AuthContextProvider";
@@ -7,10 +14,13 @@ import * as Yup from "yup";
 
 function LogIn(props){
 
+    //Errors to display
     const [authError, setAuthError] = useState("");
 
+    //Jwt
     const {jwt, setJwt} = useContext(AuthContext);
 
+    //Set up formik
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -27,13 +37,18 @@ function LogIn(props){
         }),
 
         onSubmit: (values, { resetForm }) => {
+            //Refresh any errors
             setAuthError("");
 
+            //Try to log in
             axios.post('/auth/user/auth', {username: values.username, password: values.password})
                 .then((result) => {
+                    //If succesful, set the jwt
                     setJwt(result.data.jwt_token);
                     console.log(result);
+                    //reset the form
                     resetForm();
+                    //Set authenticated to true to display the application
                     props.authenticate(true);
                 })
                 .catch((error) => {
@@ -88,6 +103,7 @@ function LogIn(props){
             <h3>Don't have an account?</h3>
             <button 
                 onClick={() => {
+                    //On click, swap to sign up page
                     props.setLoggedIn(false);
                 }}
                 className="btn"

@@ -22,6 +22,7 @@ import AuthContextProvider from './components/authentication/AuthContextProvider
  */
 function App() {
 
+  //Keep track of if the user is authenticated
   const [authenticated, setAuthenticated] = useState(false);
   
   return (
