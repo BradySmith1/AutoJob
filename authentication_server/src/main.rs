@@ -3,9 +3,7 @@ mod api;
 mod model;
 mod utils;
 
-use std::io::{Read};
 use std::path::Path;
-use std::process::{Command, Stdio};
 use actix_web::{App, HttpServer, middleware::Logger};
 use actix_web::web::Data;
 use console::Style;
@@ -15,27 +13,6 @@ use crate::api::authenticate_api::authenticate_user;
 use crate::api::enroll_api::enroll_user;
 use crate::model::refresh_model::RefreshToken;
 use crate::model::user_model::User;
-
-/// This function checks if MongoDB is running on the local machine.
-fn check_mongodb() {
-    let output = Command::new("./src/repository/check_mongodb_running.sh")
-        .stdout(Stdio::piped())
-        .output()
-        .expect("Could not run bash command");
-    let data = String::from_utf8(output.stdout.clone()).unwrap();
-    if data.eq("MongoDB is not running\n") {
-        println!("MongoDB is not running. Attempting to start on local machine");
-        let mut start = Command::new("sudo")
-            .arg("./src/repository/start_mongodb.sh")
-            .stdout(Stdio::piped())
-            .stdin(Stdio::piped())
-            .spawn()
-            .unwrap();
-        let mut output = String::new();
-        start.stdout.as_mut().unwrap().read_to_string(&mut output).expect("Failed to read stdout");
-        println!("{}", output);
-    }
-}
 
 /// This function creates a SslAcceptorBuilder that is used to create a SslAcceptor.
 fn ssl_builder() -> SslAcceptorBuilder {

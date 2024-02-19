@@ -3,6 +3,7 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
 
+/// Represents a user. This will be used to represent a user in the users array.
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]

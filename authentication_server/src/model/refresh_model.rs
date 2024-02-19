@@ -3,6 +3,8 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
 
+/// Represents a refresh token. This will be used to represent a refresh token in the refresh_tokens
+/// array.
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]

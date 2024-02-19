@@ -46,7 +46,6 @@ String,
             return HttpResponse::BadRequest().body("Refresh token has expired. Please re-\
             authenticate")
         }
-        //todo Account for logouts
         let refresh_token = generate_rand_string();
         match tokens.update_document(result.user.clone(), RefreshToken{
             id: None,

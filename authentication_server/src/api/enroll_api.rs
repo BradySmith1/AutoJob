@@ -12,6 +12,18 @@ use argon2::{
 };
 
 
+/// This function enrolls a user via a POST request to the api web server
+/// This function requires a http request holding the username and password of a new user.
+///
+/// # Parameters
+/// db : A Data object containing a MongoDB repository (MongoRepo) for user data storage.
+/// new_user : A string representing the username and password of the new user.
+///
+/// # Returns
+/// An HttpResponse representing the result of the operation. If the user is enrolled successfully,
+/// it returns an HTTP 200 OK response with the JSON representation of the enrolled user. If there's
+/// an error during the enrollment process, it returns an HTTP 500 Internal Server Error response with
+/// an error message.
 #[post("/user/enroll")]
 pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpResponse{
     let json: LoginRequest = match serde_json::from_str(&new_user){

@@ -147,7 +147,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// Delete a user estimate from the userEstimate collection based on the objectID.
     ///
     /// # Arguments
-    /// id : A reference to a String representing the ID of the job estimate to delete.
+    /// user : A reference to a String representing the username of the job estimate to delete.
     ///
     /// # Returns
     /// Returns a Result containing the deleted JobEstimate if successful, or an
@@ -174,7 +174,7 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Arguments
     ///
-    /// id : A reference to a String representing the ID of the job estimate to delete.
+    /// username : A reference to a String representing the username of the job estimate to delete.
     ///
     /// # Returns
     ///
