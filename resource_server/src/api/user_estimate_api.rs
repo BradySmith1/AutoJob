@@ -33,13 +33,17 @@ const COLLECTION: &str = "userEstimates";
 /// an error message.
 #[post("/user")]
 pub async fn create_user(MultipartForm(form):
-MultipartForm<UserEstimateUploadForm>) ->
-                                                                                                            HttpResponse {
+MultipartForm<UserEstimateUploadForm>) -> HttpResponse {
+    //initializes the MongoDB repository
     let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, form.company_id.as_str()).await;
+
+    //checks if there is a user entry in the JSON object
     let user: &String = &form.user.to_string();
     if user.is_empty() {
         return HttpResponse::BadRequest().body("invalid format for userEstimate");
     }
+
+    //parses the JSON object from the HTTP request
     let json: UserEstimate = match serde_json::from_str(&user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -48,10 +52,13 @@ MultipartForm<UserEstimateUploadForm>) ->
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },
     };
+
+    //creates a new userEstimate in the userEstimate collection
     let json = post_data(&db, json).await.into_body().try_into_bytes().unwrap();
     let mut id = std::str::from_utf8(&json).unwrap();
     id = id.rsplit("\"").collect::<Vec<&str>>()[1];
 
+    //saves the images to the computer
     let references = match save_files(form, id).await{
         Ok(refers) => {refers},
         Err(_) => {

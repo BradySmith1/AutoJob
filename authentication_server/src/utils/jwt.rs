@@ -22,7 +22,7 @@ struct Claims {
 ///
 /// # Returns
 /// A tuple containing the token and expiration time.
-pub async fn encode_token(id: String, secret: &Data<String>) -> (String, usize) {
+pub async fn encode_token(id: String, secret: Data<String>) -> (String, usize) {
     let token_exp = std::env::var("TOKENEXP").unwrap().parse::<i64>().unwrap();
     let issuer_token = std::env::var("SYSTOKEN").unwrap();
     let exp: usize = (Utc::now() + Duration::days(token_exp)).timestamp() as usize;
