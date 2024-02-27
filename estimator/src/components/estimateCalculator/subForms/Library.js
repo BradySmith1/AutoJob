@@ -6,13 +6,14 @@
  * This component displays the material library.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import './Library.css';
 import AddToLibrary from "./AddToLibrary";
 import axios from 'axios';
 import Billable from "./Billable";
-import billableList from "../JSONs/billableList.json";
-import Message from "../utilComponents/Message.js";
+import billableList from "../../JSONs/billableList.json";
+import Message from "../../utilComponents/Message.js";
+import { AuthContext } from "../../authentication/AuthContextProvider.js";
 
 /**
  * This function compares everything in the estimate form to the
@@ -78,6 +79,12 @@ function searchString(billable, searchStr){
  */
 function Library(props){
 
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
+
     //Use state for the library
     const [library, setLibrary] = useState([]);
     //Use state for the search string
@@ -109,7 +116,7 @@ function Library(props){
      */
     const addToLibrary = (billable) =>{
         //Post the billable
-        axios.post('/library', billable, {timeout: 3000}).then((response) => {
+        axios.post('/api/library', billable, {timeout: 3000}).then((response) => {
             //Set the id
             billable._id = {"$oid" : response.data.insertedId.$oid};
             //Copy all the local billables
@@ -133,7 +140,7 @@ function Library(props){
         //Splice out the index we don't want
         libCopy.splice(index, 1);
         //Delete it from the database
-        axios.delete(`/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
+        axios.delete(`/api/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
             //On deletion, set the library to the new library.
             setLibrary({name: library.name, billables: libCopy});
         }).catch((error) => {
@@ -170,7 +177,7 @@ function Library(props){
     const getLibrary = (name) =>{
         setLoading(true);
 
-        axios.get('/library?description=' + name).then((response) => {
+        axios.get('/api/library?description=' + name).then((response) => {
             //initialize the state array
             var vallueArr = [];
             for(const billable of response.data){

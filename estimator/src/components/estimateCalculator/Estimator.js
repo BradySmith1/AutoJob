@@ -9,13 +9,14 @@
  */
 import './Estimator.css';
 import { Formik, Form } from 'formik';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
-import billableList from './JSONs/billableList.json';
-import Message from './utilComponents/Message.js';
+import billableList from '../JSONs/billableList.json';
+import Message from '../utilComponents/Message.js';
+import { AuthContext } from '../authentication/AuthContextProvider.js';
 
 //Declare initial values for the form, an array of material objects
 //and an array of fee objects
@@ -144,6 +145,12 @@ var initialValues = generateInitialValues();
  */
 function Estimator(props) {
 
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
+
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
@@ -180,7 +187,7 @@ function Estimator(props) {
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -189,11 +196,11 @@ function Estimator(props) {
             });
         } else {
             //If it doesnt have an id, this is not a draft so post it
-            axios.post('/estimate', estimateData, { timeout: 3000 }).then((response) => {
+            axios.post('/api/estimate', estimateData, { timeout: 3000 }).then((response) => {
                 props.data._id = { $oid: response.data.insertedId.$oid };
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                axios.delete(`/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
+                axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
                     handleSubmission(status);
                 }).catch((error) => {
                     console.log(error.message);
