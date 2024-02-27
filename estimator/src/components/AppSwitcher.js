@@ -58,7 +58,7 @@ function AppSwitcher(){
                 </div>
             </div>
             <div className="PageWrapper">
-                //display the currently selected page
+                {/* //display the currently selected page */}
                 {renderedPage}
             </div>
         </div>

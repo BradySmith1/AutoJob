@@ -13,8 +13,11 @@ import LogIn from "./LogIn";
 import SignUp from "./SignUp";
 import { AuthContext } from "./AuthContextProvider";
 import { getCookie } from "../utilComponents/Functions";
+import SplashPage from "./SplashPage";
 
 function Authenticator(props){
+
+    const [showLogIn, setShowLogin] = useState(false);
 
     //Is the user logging in or signing up
     const [loggedIn, setLoggedIn] = useState(true);
@@ -46,15 +49,19 @@ function Authenticator(props){
 
     return(
         <div className="AuthWrapper">
-            {loggedIn ? 
-                (<LogIn 
-                    authenticate={props.authenticate}
-                    setLoggedIn={setLoggedIn}
-                />) 
-            : 
-                (<SignUp 
-                    setLoggedIn={setLoggedIn}
-                />)
+            {showLogIn ?
+                (loggedIn ? 
+                        (<LogIn 
+                            authenticate={props.authenticate}
+                            setLoggedIn={setLoggedIn}
+                        />) 
+                    : 
+                        (<SignUp 
+                            setLoggedIn={setLoggedIn}
+                        />)
+                )
+                :
+                (<SplashPage toggleLogIn={setShowLogin} setLoggingIn={setLoggedIn}/>)
             }
         </div>
     );

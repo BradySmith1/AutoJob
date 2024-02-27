@@ -9,10 +9,10 @@
 import './App.css';
 import'./components/authentication/AuthContextProvider.js'
 import ErrorBoundry from './components/utilComponents/ErrorBoundry.js';
-import Authenticator from './components/authentication/Authenticator.js';
-import AppSwitcher from './components/AppSwitcher.js';
+import AppSwitcher from './components/AppSwitcher.js'
 import React, { useState } from 'react';
 import AuthContextProvider from './components/authentication/AuthContextProvider.js';
+import Authenticator from './components/authentication/Authenticator.js';
 
 /**
  * Modified this App function from the default to have a header and the estimate
