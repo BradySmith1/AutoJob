@@ -24,6 +24,7 @@ const calcFields = (estimate) => {
 
 function EstimatePreset(props) {
 
+    console.log(props.estimate);
     const fieldString = useMemo(() => calcFields(props.estimate), [props.estimate]);
     const [display, setDisplay] = useState(false);
 
@@ -42,7 +43,7 @@ function EstimatePreset(props) {
             {display ? (
                 <Window setDisplay={setDisplay}>
                     <div>
-                        <Preset preset={props.estimate} />
+                        <Preset preset={props.estimate} setSchema={props.setSchema} index={props.index}/>
                     </div>
                 </Window>)     
             : 

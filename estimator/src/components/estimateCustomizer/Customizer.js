@@ -12,14 +12,22 @@ import "./Customizer.css";
 
 function Customizer(){
     const [schema, setSchema] = useState(schemaJSON);
+
+    const changeSchema = (values, index) => {
+        var newSchema = [...schema];
+        newSchema[index] = values;
+        setSchema(newSchema);
+        //setSchema([...schema, ...[values]]);
+    }
+
     return(
         <div className="Customizer">
             <div className='TitleBar'>
                 <h1>Estimate Presets</h1>
             </div>
             <div className="PresetsWrapper">
-                {schema.map((estimate) => {
-                    return(<EstimatePreset estimate={estimate} />);
+                {schema.map((estimate, index) => {
+                    return(<EstimatePreset id={index + estimate.estimateType} estimate={estimate} setSchema={changeSchema} index={index}/>);
                 })}
             </div>
         </div>

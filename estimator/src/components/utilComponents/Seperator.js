@@ -1,30 +1,30 @@
-import React, { useMemo } from "react";
+import React, { useEffect } from "react";
 
-var barStyle = {
-    borderBottom: "solid",
-    borderColor: "#0055FF",
-    borderWidth: "2px",
-    width: "100%",
-    marginTop: "5px",
-    marginBottom: "5px"
-}
-
-const setStyles = (props) => {
+const setStyles = (props, barStyle) => {
     var newStyles = {...barStyle};
     for(const [key] of Object.entries(barStyle)){
         if(props[key] !== undefined){
             newStyles[key] = props[key];
         }
     }
-    barStyle = newStyles;
+    return newStyles;
 }
 
 function Seperator(props){
 
-    useMemo(() => setStyles(props), [props])
+    var barStyle = {
+        borderBottom: "solid",
+        borderColor: "#0055FF",
+        borderWidth: "2px",
+        width: "100%",
+        marginTop: "5px",
+        marginBottom: "5px"
+    }
+
+    var style = setStyles(props, barStyle);
 
     return(
-        <div className="Bar" style={barStyle}>
+        <div style={style}>
 
         </div>
     );

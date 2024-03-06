@@ -45,14 +45,19 @@ const defaultStage = {
     ]
 }
 
+const submit = (values, props) => {
+    props.setSchema(values, props.index);
+}
+
 
 function Preset(props){
-    console.log(props.preset.form)
     return(
         <div className="PresetWrapper">
             <Formik
                 initialValues={{...props.preset}}
-                onSubmit={values => console.log(values)}
+                onSubmit={(values) => {
+                    submit(values, props);
+                }}
                 validationSchema={validationSchema}
             >
                 {({values}) => (
