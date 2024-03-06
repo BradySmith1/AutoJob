@@ -1,0 +1,20 @@
+.YesNoWrapper{
+    border-style: solid;
+    border-color: black;
+    border-width: 3px;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+}
+
+.No{
+    background-color: crimson;
+    height: 100%;
+    width: 100%;
+}
+
+.Yes{
+    background-color: forestgreen;
+    height: 100%;
+    width: 100%;
+}

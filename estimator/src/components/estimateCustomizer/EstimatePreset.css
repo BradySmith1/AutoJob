@@ -1,0 +1,28 @@
+.Preset{
+    background-color: #191D23;
+    width: 300px;
+    height: 200px;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    position: relative;
+}
+
+.PresetTitle{
+    font-size: 32px;
+}
+
+.EditImg{
+    border-radius: 5px;
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    transition: 200ms;
+}
+
+.EditImg:hover{
+    background-color: rgba(255, 255, 255, .1);
+    cursor: pointer;
+}

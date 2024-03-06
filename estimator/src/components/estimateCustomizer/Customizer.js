@@ -5,12 +5,23 @@
  * 
  * This file will be the estimate customizer.
  */
-import React from "react"
+import React, { useState } from "react";
+import schemaJSON from "../JSONs/schema.json";
+import EstimatePreset from "./EstimatePresets";
+import "./Customizer.css";
 
 function Customizer(){
+    const [schema, setSchema] = useState(schemaJSON);
     return(
-        <div>
-            
+        <div className="Customizer">
+            <div className='TitleBar'>
+                <h1>Estimate Presets</h1>
+            </div>
+            <div className="PresetsWrapper">
+                {schema.map((estimate) => {
+                    return(<EstimatePreset estimate={estimate} />);
+                })}
+            </div>
         </div>
     );
 }  
