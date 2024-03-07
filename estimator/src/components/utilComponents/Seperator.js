@@ -16,6 +16,7 @@ function Seperator(props){
         borderBottom: "solid",
         borderColor: "#0055FF",
         borderWidth: "2px",
+        borderRadius: "0px",
         width: "100%",
         marginTop: "5px",
         marginBottom: "5px"

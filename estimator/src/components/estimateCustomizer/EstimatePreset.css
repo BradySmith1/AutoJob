@@ -17,9 +17,6 @@
     border-radius: 5px;
     height: 50px;
     width: 50px;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
     transition: 200ms;
 }
 
@@ -27,3 +24,61 @@
     background-color: rgba(255, 255, 255, .1);
     cursor: pointer;
 }
+
+.ImgEdit{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.ImgX{
+    position: absolute;
+    height: 35px !important;
+    width: 35px !important;
+    padding: 7.5px;
+    bottom: 10px;
+    left: 10px;
+}
+
+.ImgLeft{
+    height: 35px !important;
+    width: 35px !important;
+    padding: 7.5px;
+    transform: rotate(-90deg);
+    position: absolute;
+    bottom: 10px;
+    right: calc(50%)
+}
+
+.ImgRight{
+    height: 35px !important;
+    width: 35px !important;
+    padding: 7.5px;
+    transform: rotate(-90deg);
+    position: absolute;
+    bottom: 10px;
+    left: calc(50%)
+}
+
+.WindowContainer{
+    background-color: #2B303A;
+    width: 700px;
+    height: 80vh;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: scroll;
+    margin-bottom: 20px;
+}
+
+.WindowContainer::-webkit-scrollbar{
+    width: 10px;
+}
+
+.WindowContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.WindowContainer::-webkit-scrollbar-thumb {
+    background: #191D23;
+    border-radius: 10px;
+  }

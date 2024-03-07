@@ -3,6 +3,9 @@ import Seperator from "../utilComponents/Seperator";
 import { Formik, Field, Form, yupToFormErrors, FieldArray } from 'formik';
 import * as Yup from "yup";
 import Fields from "./Fields";
+import "./Preset.css";
+import Editable from "../utilComponents/Editable";
+import lightEdit from "../../assets/LightEdit.png";
 
 const validationSchema = Yup.object().shape({
     estimateType: Yup.string()
@@ -61,22 +64,26 @@ function Preset(props){
                 validationSchema={validationSchema}
             >
                 {({values}) => (
-                    <Form>
-                    <Field className="estimateTypeTitle" id="estimateType" name="estimateType" />
+                <Form>
+                    <Editable path={lightEdit}>
+                        <Field className="EstimateTypeTitle NoInputStyle" id="estimateType" name="estimateType" />
+                    </Editable>
                     <Seperator borderColor="white" />
                     <FieldArray name="form">
-                        {({remove, push, insert}) => (
-                            <div>
+                        {({remove, push, move}) => (
+                            <div className="InnerFieldArray">
                                 {values.form.length > 0 && values.form.map((value, index) => (
-                                    <Fields path={`form[${index}].fields`} formValues={values} index={index} />
+                                    <Fields path={`form[${index}].fields`} formValues={values} index={index} remove={remove} move={move}/>
                                 ))}
-                                <button
-                                    type="button"
-                                    className="button medium"
-                                    onClick={() => push(defaultStage)}
-                                    >
-                                    + Add New Stage
-                                </button>
+                                <div className="AddButtonWrapper">
+                                    <button
+                                        type="button"
+                                        className="button medium"
+                                        onClick={() => push(defaultStage)}
+                                        >
+                                        + Add New Stage
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </FieldArray>
