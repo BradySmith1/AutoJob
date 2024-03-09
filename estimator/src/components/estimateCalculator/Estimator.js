@@ -8,8 +8,8 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form } from 'formik';
-import React, { useEffect, useState, useContext } from "react";
+import { Formik, Form, yupToFormErrors } from 'formik';
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -46,19 +46,72 @@ function determineErrors(errors) {
     return bool;
 }
 
+function typeSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = "";
+            break;
+        case "Number":
+            defaultValue = 0;
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFields(stage){
+    var blankFields = {}
+    var containsQuantity = false;
+    stage.fields.forEach((field) => {
+        blankFields[field.name] = typeSwitch(field.unit);
+        if(field.name === "Quantity"){
+            containsQuantity = true;
+        }
+    })
+    if(!containsQuantity){
+        blankFields.Quantity = 1;
+    }
+    return [blankFields];
+}
+
 /**
  * Automatically generates initial values based off the
  * billableList schema
  * @returns initialValues, the initial values of the form
  */
-function generateInitialValues() {
-    var initialValues = {};
-    //Generate inital values from the billableList schema
-    for (const key of Object.keys(billableList)) {
-        initialValues[billableList[key]] = [...billableSchema];
-    }
-    console.log(initialValues)
+function generateInitialValues(schema) {
+    var initialValues = {form: []};
+
+    schema.form.forEach((stage) => {
+        var newStage = {};
+        newStage[stage.canonicalName] = generateFields(stage);
+        initialValues.form.push(newStage);
+    });
     return initialValues;
+}
+
+function schemaSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = Yup.string()
+            .required('Required')
+            .max(20, "Must be less than 20 characters");
+            break;
+        case "Number":
+            defaultValue = Yup.number()
+            .required('Required');
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFieldSchema(stage){
+    var blankSchema = {};
+    stage.fields.forEach((stage) => {
+        blankSchema[stage.name] = schemaSwitch(stage.unit);
+    });
+    return blankSchema;
 }
 
 /**
@@ -66,29 +119,40 @@ function generateInitialValues() {
  * billableList schema
  * @returns formValidation
  */
-function generateYupSchema() {
-    var blankSchema = {};
-    //For each billable type in the json, make a schema
-    for (const key of Object.keys(billableList)) {
-        blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
-            name: Yup.string()
-                .required('Required')
-                .max(20, "Must be less than 20 characters"),
+function generateYupSchema(schema) {
 
-            price: Yup.number('Must be a number')
-                .required('Required'),
+    var blankSchema = { };
+    schema.form.forEach((stage) => {
+        blankSchema[stage.canonicalName] = Yup.array(Yup.object().shape(
+            generateFieldSchema(stage)
+        ));
+    });
+    var arraySchema = Yup.object().shape({
+        form: Yup.array(Yup.object().shape(blankSchema))
+    });
+    return arraySchema;
+    // var blankSchema = {};
+    // //For each billable type in the json, make a schema
+    // for (const key of Object.keys(billableList)) {
+    //     blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
+    //         name: Yup.string()
+    //             .required('Required')
+    //             .max(20, "Must be less than 20 characters"),
 
-            quantity: Yup.number('Must be a number')
-                .required('Required')
+    //         price: Yup.number('Must be a number')
+    //             .required('Required'),
 
-        })).min(1)
-    }
-    //Set the form validation schema to this generated schema
-    const formValidation = Yup.object(
-        blankSchema
-    );
-    console.log(formValidation);
-    return formValidation;
+    //         quantity: Yup.number('Must be a number')
+    //             .required('Required')
+
+    //     })).min(1)
+    // }
+    // //Set the form validation schema to this generated schema
+    // const formValidation = Yup.object(
+    //     blankSchema
+    // );
+    // console.log(formValidation);
+    // return formValidation;
 }
 
 /**
@@ -99,6 +163,10 @@ function generateYupSchema() {
  * @param {JSON} data estimate data passed down from estimate info
  */
 function determineBillables(initialValues, data) {
+    initialValues.form.forEach(() => {
+
+    });
+
     for (const key of Object.keys(initialValues)) {
         if (data.hasOwnProperty(key)) {
             initialValues[key] = data[key];
@@ -130,11 +198,6 @@ function constructData(user, billables, status) {
     return estimateData;
 }
 
-//Generate the yup schema
-const validationSchema = generateYupSchema();
-//Generate the initial values
-var initialValues = generateInitialValues();
-
 /**
  * This function displays the three stage form. It uses a nave index to
  * keep track of where the user is and displays the correct form stage
@@ -151,15 +214,21 @@ function Estimator(props) {
         "Authorization": jwt
     }
 
+    //Generate the yup schema
+    const validationSchema = useMemo(() => generateYupSchema(props.schema), [props.schema]);
+    console.log(validationSchema)
+    //Generate the initial values
+    var initialValues = useMemo(() => generateInitialValues(props.schema), []);
+
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
     const [postError, setPostError] = useState(false);
     const [formValues, setFormValues] = useState(initialValues);
 
-    useEffect(() => {
-        setFormValues(determineBillables(initialValues, props.data))
-    }, []);
+    // useEffect(() => {
+    //     setFormValues(determineBillables(initialValues, props.data))
+    // }, []);
 
     /**
      * Helper function to reload the page on submit
@@ -174,6 +243,10 @@ function Estimator(props) {
         }
     }
 
+    const handleSubmit = (values) => {
+        console.log(values)
+    }
+
     /**
      * Post the form data to the backend
      * @param {*} values values to post
@@ -183,6 +256,10 @@ function Estimator(props) {
         const estimateData = constructData(props.data, values, status);
         console.log(estimateData);
         setPostError(false);
+
+        if(status !== "complete") {
+            estimateData.schema = props.schema;
+        }
 
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
@@ -216,13 +293,13 @@ function Estimator(props) {
     return (
         <div className='materialsForm'>
             <div className='divider'>
-                <h2>Three Stage Estimate Calculator</h2>
+                <h2>Estimate Calculator</h2>
                 <div className='formNav'>
                     {/**Map over billable list schema to determine form navigation buttons */}
-                    {Object.keys(billableList).map((key, index) => (
+                    {props.schema.form.map((stage, index) => (
                         <button className='button' key={index}
                             onClick={() => { setNavIndex(index) }}>
-                            {key}s
+                            {stage.canonicalName}
                         </button>
                     ))
                     }
@@ -237,34 +314,36 @@ function Estimator(props) {
                 validationSchema={validationSchema}
                 validateOnChange={false}
                 validateOnBlur={true}
-                onSubmit={(values) => postDraftData(values, "complete")}
+                onSubmit={(values) => /**postDraftData(values, "complete")*/handleSubmit(values)}
             >
                 {/*Here we are creating an arrow function that returns the form and passing it
             our form values*/}
                 {({ values, errors, touched }) => (
                     <Form>
                         {/**Map over billable list schema to generate stages of the estimate form */}
-                        {Object.keys(billableList).map((key, index) => (
+                        {props.schema.form.map((stage, index) => (
                             (navIndex === index ?
                                 (<Calculator
-                                    values={values[billableList[key]]}
-                                    name={key}
+                                    values={values.form[index][stage.canonicalName]}
+                                    path={`form[${index}][${stage.canonicalName}]`}
+                                    index={index}
                                     errors={errors}
                                     touched={touched}
+                                    schema={props.schema.form[index]}
                                 />) : (null))
                         ))
                         }
                         {/**If nav index is at the end of the billable list length */}
-                        {navIndex === Object.keys(billableList).length ?
+                        {navIndex === props.schema.form.length ?
                             (
                                 //Display the overview page as well as submit buttons and
                                 //any error messages
                                 <>
                                     <Overview values={values} />
-                                    <button type="submit" className='button large'>Submit Estimate</button>
+                                    {/* <button type="submit" className='button large'>Submit Estimate</button>
                                     <button type="button" className='button large' onClick={() => {
                                         postDraftData(values, "draft");
-                                    }}>Save as Draft</button>
+                                    }}>Save as Draft</button> */}
                                     {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                     {saved ? <div className='center'>
                                                 <Message
@@ -282,6 +361,11 @@ function Estimator(props) {
                                 </>
                             ) : (null)
                         }
+                        {/**TODO Delete this and uncomment inside nav index turnery block */}
+                        <button type="submit" className='button large'>Submit Estimate</button>
+                                    <button type="button" className='button large' onClick={() => {
+                                        postDraftData(values, "draft");
+                        }}>Save as Draft</button>
                     </Form>
                 )}
             </Formik>

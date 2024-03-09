@@ -15,13 +15,13 @@ import "./EstimateInfo.css";
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from "react";
 import Select from 'react-select';
-import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
 import Message from "../utilComponents/Message.js";
 import dropDownData from "../JSONs/dropDown.json";
 import { AuthContext } from "../authentication/AuthContextProvider.js";
+import EstimateTypeSelector from "./EstimateTypeSelector.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -91,7 +91,19 @@ async function packDrafts() {
  */
 function populateDropDown(data) {
     //Create an empty array
-    var outputData = []
+    var outputData = [{value: {user: {
+        _id: {$oid: '6572590648dea175423f277d'},
+        fName: 'asdsad',
+        lName: 'asdasd',
+        email: 'asdasdasd@asdad',
+        strAddr: 'asdads',
+        city: 'asdadsa',
+        state: 'asdad',
+        zip: '28906',
+        phoneNumber: '8282312132',
+        measurements: '',
+        details: ''
+      }}, label: 'test'}]
     //loop through the customer data
     data.forEach(entry => {
         //Push a json for the drop down, made from customer data
@@ -273,10 +285,19 @@ function EstimateInfo() {
                         </div>
                     </div>
                     <ImageCarousel images={images} />
-                    <Estimator
-                        data={currentCustomerData}
-                        key={currentCustomerData.user._id.$oid}
-                    />
+                    {/**Schema bundles with drafts FOR NOW */}
+                    {currentCustomerData.schema === undefined ? (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                        />
+                    ) : (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                            schema={currentCustomerData.schema}
+                        />
+                    )
+
+                    }
                 </>
                 :
                 null

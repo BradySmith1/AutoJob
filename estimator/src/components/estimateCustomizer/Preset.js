@@ -33,12 +33,14 @@ const defaultStage = {
         {
             name: "Name",
             unit: "Text",
-            showInOverview: true
+            showInOverview: true,
+            required: true
         },
         {
             name: "Price",
-            unit: "Currency",
-            showInOverview: true
+            unit: "Number",
+            showInOverview: true,
+            required: true
         },
         {
             name: "Quantity",

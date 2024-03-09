@@ -13,8 +13,6 @@ const units = [
     // Others
     { value: "Number", label: "Number" }, // Just a number
     { value: "Text", label: "Text" }, // Just text
-    { value: "Currency", label: "Currency"}
-
 ];
 
 const fieldSchema = {
