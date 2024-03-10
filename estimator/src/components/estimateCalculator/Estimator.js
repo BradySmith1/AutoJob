@@ -53,23 +53,28 @@ function typeSwitch(unit){
             defaultValue = "";
             break;
         case "Number":
-            defaultValue = 0;
+            defaultValue = 0.0;
             break;
     }
     return defaultValue;
 }
 
 function generateFields(stage){
-    var blankFields = {}
+    var blankFields = {
+        inputs: {},
+        description: stage.canonicalName,
+        autoImport: "false",
+        autoUpdate: "false"
+    }
     var containsQuantity = false;
     stage.fields.forEach((field) => {
-        blankFields[field.name] = typeSwitch(field.unit);
+        blankFields.inputs[field.name] = typeSwitch(field.unit);
         if(field.name === "Quantity"){
             containsQuantity = true;
         }
     })
     if(!containsQuantity){
-        blankFields.Quantity = 1;
+        blankFields.inputs.Quantity = 1;
     }
     return [blankFields];
 }
@@ -111,7 +116,15 @@ function generateFieldSchema(stage){
     stage.fields.forEach((stage) => {
         blankSchema[stage.name] = schemaSwitch(stage.unit);
     });
-    return blankSchema;
+    return {
+        inputs: Yup.object().shape(blankSchema),
+        description: Yup.string()
+            .required('Required'),
+        autoImport: Yup.string()
+            .required('Required'),
+        autoUpdate: Yup.string()
+            .required('Required')
+    };
 }
 
 /**
@@ -131,28 +144,6 @@ function generateYupSchema(schema) {
         form: Yup.array(Yup.object().shape(blankSchema))
     });
     return arraySchema;
-    // var blankSchema = {};
-    // //For each billable type in the json, make a schema
-    // for (const key of Object.keys(billableList)) {
-    //     blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
-    //         name: Yup.string()
-    //             .required('Required')
-    //             .max(20, "Must be less than 20 characters"),
-
-    //         price: Yup.number('Must be a number')
-    //             .required('Required'),
-
-    //         quantity: Yup.number('Must be a number')
-    //             .required('Required')
-
-    //     })).min(1)
-    // }
-    // //Set the form validation schema to this generated schema
-    // const formValidation = Yup.object(
-    //     blankSchema
-    // );
-    // console.log(formValidation);
-    // return formValidation;
 }
 
 /**
@@ -163,17 +154,19 @@ function generateYupSchema(schema) {
  * @param {JSON} data estimate data passed down from estimate info
  */
 function determineBillables(initialValues, data) {
-    initialValues.form.forEach(() => {
-
+    initialValues.form.forEach((value, index) => {
+        if(data.form[index] !== undefined){
+            initialValues.form[index] = data.form[index];
+        }
     });
 
-    for (const key of Object.keys(initialValues)) {
-        if (data.hasOwnProperty(key)) {
-            initialValues[key] = data[key];
-        } else {
-            initialValues[key] = billableSchema;
-        }
-    }
+    // for (const key of Object.keys(initialValues)) {
+    //     if (data.hasOwnProperty(key)) {
+    //         initialValues[key] = data[key];
+    //     } else {
+    //         initialValues[key] = billableSchema;
+    //     }
+    // }
 }
 
 /**
@@ -216,7 +209,6 @@ function Estimator(props) {
 
     //Generate the yup schema
     const validationSchema = useMemo(() => generateYupSchema(props.schema), [props.schema]);
-    console.log(validationSchema)
     //Generate the initial values
     var initialValues = useMemo(() => generateInitialValues(props.schema), []);
 
@@ -226,9 +218,9 @@ function Estimator(props) {
     const [postError, setPostError] = useState(false);
     const [formValues, setFormValues] = useState(initialValues);
 
-    // useEffect(() => {
-    //     setFormValues(determineBillables(initialValues, props.data))
-    // }, []);
+    useEffect(() => {
+        setFormValues(determineBillables(initialValues, props.data, props.schema))
+    }, []);
 
     /**
      * Helper function to reload the page on submit
@@ -244,7 +236,7 @@ function Estimator(props) {
     }
 
     const handleSubmit = (values) => {
-        console.log(values)
+        console.log({user: props.data.user, form: values.form, schema: props.schema, status: "complete"})
     }
 
     /**
@@ -297,14 +289,14 @@ function Estimator(props) {
                 <div className='formNav'>
                     {/**Map over billable list schema to determine form navigation buttons */}
                     {props.schema.form.map((stage, index) => (
-                        <button className='button' key={index}
+                        <button className='button' key={stage.canonicalName + index}
                             onClick={() => { setNavIndex(index) }}>
                             {stage.canonicalName}
                         </button>
                     ))
                     }
                     <button className='button'
-                        onClick={() => { setNavIndex(Object.keys(billableList).length) }}>
+                        onClick={() => { setNavIndex(props.schema.form.length) }}>
                         Overview
                     </button>
                 </div>
@@ -317,7 +309,7 @@ function Estimator(props) {
                 onSubmit={(values) => /**postDraftData(values, "complete")*/handleSubmit(values)}
             >
                 {/*Here we are creating an arrow function that returns the form and passing it
-            our form values*/}
+                our form values*/}
                 {({ values, errors, touched }) => (
                     <Form>
                         {/**Map over billable list schema to generate stages of the estimate form */}
@@ -330,6 +322,7 @@ function Estimator(props) {
                                     errors={errors}
                                     touched={touched}
                                     schema={props.schema.form[index]}
+                                    generateFields={generateFields}
                                 />) : (null))
                         ))
                         }
@@ -339,11 +332,11 @@ function Estimator(props) {
                                 //Display the overview page as well as submit buttons and
                                 //any error messages
                                 <>
-                                    <Overview values={values} />
-                                    {/* <button type="submit" className='button large'>Submit Estimate</button>
+                                    <Overview values={values} schema={props.schema} />
+                                    <button type="submit" className='button large'>Submit Estimate</button>
                                     <button type="button" className='button large' onClick={() => {
                                         postDraftData(values, "draft");
-                                    }}>Save as Draft</button> */}
+                                    }}>Save as Draft</button>
                                     {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                     {saved ? <div className='center'>
                                                 <Message
@@ -361,11 +354,6 @@ function Estimator(props) {
                                 </>
                             ) : (null)
                         }
-                        {/**TODO Delete this and uncomment inside nav index turnery block */}
-                        <button type="submit" className='button large'>Submit Estimate</button>
-                                    <button type="button" className='button large' onClick={() => {
-                                        postDraftData(values, "draft");
-                        }}>Save as Draft</button>
                     </Form>
                 )}
             </Formik>

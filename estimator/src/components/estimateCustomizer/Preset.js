@@ -1,11 +1,20 @@
 import React from "react";
 import Seperator from "../utilComponents/Seperator";
-import { Formik, Field, Form, yupToFormErrors, FieldArray } from 'formik';
+import { Formik, Field, Form, FieldArray } from 'formik';
 import * as Yup from "yup";
 import Fields from "./Fields";
 import "./Preset.css";
 import Editable from "../utilComponents/Editable";
 import lightEdit from "../../assets/LightEdit.png";
+import schemaJson from "../JSONs/schema.json"
+
+//Taken from pbelaustegui on github.com
+//https://github.com/jquense/yup/issues/345
+Yup.addMethod(Yup.array, 'unique', function (message, mapper= a=>a) {
+    return this.test('unique', message, function (list) {
+        return list.length  === new Set(list.map(mapper)).size;
+    });
+});
 
 const validationSchema = Yup.object().shape({
     estimateType: Yup.string()
@@ -23,32 +32,12 @@ const validationSchema = Yup.object().shape({
                 .required('Required'),
             showInOverview: Yup.boolean()
                 .required('Required')
-        }))
-    }))
+        })).unique("Duplicate names", a=>a.name)
+    })).unique("Duplicate names", a=>a.canonicalName)
 });
 
-const defaultStage = {
-    canonicalName: "Default Name",
-    fields: [
-        {
-            name: "Name",
-            unit: "Text",
-            showInOverview: true,
-            required: true
-        },
-        {
-            name: "Price",
-            unit: "Number",
-            showInOverview: true,
-            required: true
-        },
-        {
-            name: "Quantity",
-            unit: "Number",
-            showInOverview: true
-        }
-    ]
-}
+const defaultStage = {...schemaJson[0].form[0]};
+defaultStage.canonicalName = "Default";
 
 const submit = (values, props) => {
     props.setSchema(values, props.index);

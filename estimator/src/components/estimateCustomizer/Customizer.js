@@ -19,7 +19,11 @@ function Customizer(){
     const schemaUtils = {
         change: (values, index) => {
             var newSchema = [...schema];
-            newSchema[index] = values;
+            var newValues = {...values};
+            for(var i = 0; i < newValues.form.length; i++){
+                
+            }
+            newSchema[index] = values;  
             setSchema(newSchema);
         },
         swap: (fromIndex, toIndex) => {

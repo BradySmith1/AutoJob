@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Field, ErrorMessage} from 'formik';
 
 function CalcColumn(props){
-
+    console.log(props.schema)
     return(
         <div className='col'>
             <div className='label' >{props.schema.name}</div>
