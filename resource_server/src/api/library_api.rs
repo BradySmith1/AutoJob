@@ -115,7 +115,8 @@ pub async fn update_library_entry(
     if !response.status().is_success(){
         return response;
     }
-    let update_result: Result<UpdateResult, String>= db.update_document(&id, data).await;
+    let doc = doc! {"_id": id.to_string()};
+    let update_result: Result<UpdateResult, String>= db.update_document(doc , data).await;
     push_update(update_result, &db, id).await
 }
 
@@ -204,8 +205,9 @@ pub async fn check_libraries(){
                 };
                 new_material.price = scraper_data.price;
                 new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
-                let update_result: Result<UpdateResult, String> = db.update_document(&material.id
-                    .unwrap().to_string(), new_material).await;
+                let doc = doc! {"_id": material.id.unwrap().to_string()};
+                let update_result: Result<UpdateResult, String> = db.update_document(doc,
+                                                                             new_material).await;
                 match update_result {
                     Ok(_) => println!("Updated material: {}, {}", material.name, material.company
                         .clone().unwrap()),

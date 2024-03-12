@@ -68,7 +68,7 @@ pub async fn main() -> std::io::Result<()> {
     let db_refresh_cache_data = Data::new(db_refresh_cache);
 
     // Creates the ssl builder to use with the HTTP server
-    //let ssl = ssl_builder();
+    let ssl = ssl_builder();
 
     println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
 
@@ -84,7 +84,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(authenticate_user)
 
     })
-        .bind(&target)?
+        .bind_openssl(&target, ssl)?
         .run()
         .await
 }

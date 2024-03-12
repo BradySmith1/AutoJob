@@ -3,25 +3,9 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::model::model_trait::Model;
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
-#[allow(non_snake_case)]
-pub struct Schema {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-    pub id: Option<ObjectId>,
-    #[serde(default = "default_schema", skip_serializing_if = "Vec::is_empty")]
-    pub schemas : Vec<Scheme>,
-}
 
-impl Model<Schema> for Schema {
-    fn to_string(&self) -> String {
-        to_string(self).unwrap()
-    }
-}
-
-fn default_schema() -> Vec<Scheme> {
-    let mut schemas = Vec::<Scheme>::new();
-    let default_scheme = Scheme {
+fn default_schema() -> Schema {
+    Schema {
         estimateType: "Default".to_string(),
         form: vec![
             SchemeLayout {
@@ -72,17 +56,28 @@ fn default_schema() -> Vec<Scheme> {
                 ]
             },
         ]
-    };
-    schemas.push(default_scheme);
-    schemas
+    }
+
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
-pub struct Scheme {
+pub struct Schema {
     estimateType: String,
     form: Vec<SchemeLayout>
+}
+
+impl Default for Schema {
+    fn default() -> Self {
+        default_schema()
+    }
+}
+
+impl Model<Schema> for Schema {
+    fn to_string(&self) -> String {
+        to_string(self).unwrap()
+    }
 }
 
 

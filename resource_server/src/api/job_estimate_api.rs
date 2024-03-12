@@ -3,7 +3,7 @@ use actix_web::{post, web::{Path}, HttpResponse, get, put, delete};
 use mongodb::bson::oid::ObjectId;
 use std::string::String;
 use actix_web::web::Query;
-use mongodb::bson::Document;
+use mongodb::bson::{doc, Document};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::utils::token_extractor::AuthenticationToken;
 
@@ -81,7 +81,8 @@ pub async fn update_estimate(
     };
     let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
-    let update_result = db.update_document(&id, data).await;
+    let doc = doc! {"_id": id.to_string()};
+    let update_result = db.update_document(doc, data).await;
     push_update(update_result, &db, id).await
 }
 

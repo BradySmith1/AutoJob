@@ -122,10 +122,8 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Returns
     /// Returns a Result containing the updated document or an error.
-    pub async fn update_document(&self, id: &String, updated_user: T) -> Result<UpdateResult,
+    pub async fn update_document(&self, filter: Document, updated_user: T) -> Result<UpdateResult,
         String> {
-        let obj_id = ObjectId::parse_str(id).unwrap();
-        let filter = doc! {"_id": obj_id};
         let doc = json!({"$set": updated_user});
         let doc = bson::to_document(&doc).unwrap();
         let updated_doc = match self.col

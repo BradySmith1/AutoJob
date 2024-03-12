@@ -9,7 +9,7 @@ use actix_multipart::{
 use actix_files::NamedFile;
 use actix_web::body::MessageBody;
 use actix_web::web::Query;
-use mongodb::bson::Document;
+use mongodb::bson::{doc, Document};
 use mongodb::bson::oid::ObjectId;
 use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
@@ -78,7 +78,8 @@ MultipartForm<UserEstimateUploadForm>) -> HttpResponse {
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
-    let response = db.update_document(&id.to_string(), json_user).await;
+    let doc = doc! {"_id": id.to_string()};
+    let response = db.update_document(doc, json_user).await;
     push_update(response, &db, id.to_string()).await
     //might want to just return a id
 }
@@ -191,7 +192,8 @@ pub async fn update_user(
         details: new_user.details.to_owned(),
         images: new_user.images.to_owned(),
     };
-    let update_result = db.update_document(&id, data).await;
+    let doc = doc! {"_id": id.to_string()};
+    let update_result = db.update_document(doc, data).await;
     push_update(update_result, &db, id).await
 }
 

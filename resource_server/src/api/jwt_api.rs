@@ -4,7 +4,6 @@ use jsonwebtoken::{TokenData, errors::Error as JwtError, decode, DecodingKey, Va
 use mongodb::bson::doc;
 use crate::model::jwt_model::{Claims, JSONToken, JWT};
 use crate::model::schema_model::Schema;
-use crate::model::schema_model::Scheme;
 use crate::repository::mongodb_repo::MongoRepo;
 
 
@@ -75,8 +74,8 @@ pub async fn store_token(new_token: String, secret: Data<String>) ->
     let token_found = token_found.get(0);
     if token_found.is_some(){
         stored_token.id = token_found.unwrap().id.clone();
-        let user = db.update_document(&token_found.unwrap().id
-            .expect("Failed to get id").to_string(), stored_token.clone()).await
+        let doc = doc! {"_id": token_found.unwrap().id.clone()};
+        let user = db.update_document(doc, stored_token.clone()).await
             .expect("MONGODB not running");
         return HttpResponse::Ok().json(user);
     }else{
@@ -84,9 +83,7 @@ pub async fn store_token(new_token: String, secret: Data<String>) ->
         let schema_db: MongoRepo<Schema> = MongoRepo::init("schemas", &parsed_token.claims
             .userid).await;
         if schema_db.get_all_documents().await.unwrap().is_empty(){
-            let json = r#"{ "id": "None"}"#;
-            let default_schema: Schema = serde_json::from_str(json)
-                .expect("Failed to parse JSON");
+            let default_schema: Schema = Schema::default();
             schema_db.create_document(default_schema).await.expect("MONGODB not running");
         }
         //creates a new token if it doesn't exist in the database
