@@ -1,5 +1,6 @@
 use actix_web::{HttpRequest, HttpResponse, post};
 use actix_web::cookie::{Cookie, SameSite};
+use actix_web::dev::ResourcePath;
 use crate::model::login_model::LoginRequest;
 use actix_web::web::Data;
 use mongodb::bson::doc;
@@ -25,6 +26,11 @@ struct AuthResponse {
     jwt_token: String,
     username: String,
     user_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct SendToken{
+    jwt_token: String
 }
 
 
@@ -92,7 +98,7 @@ async fn check_cookie(cookie: &Cookie<'_>, tokens: &Data<MongoRepo<RefreshToken>
     // database with the new token
     let refresh_token = generate_rand_string();
     match tokens.update_document(result.user.clone(), RefreshToken{
-        id: None,
+        id: result.id.clone(),
         user: result.user.clone(),
         jwt_token: result.jwt_token.clone(),
         exp,
@@ -105,7 +111,8 @@ async fn check_cookie(cookie: &Cookie<'_>, tokens: &Data<MongoRepo<RefreshToken>
     };
 
     //Generate the response to the frontend
-    return success_login_response(refresh_token, result.jwt_token.clone());
+    return success_login_response(refresh_token, result.jwt_token.clone(), result.user.clone(),
+                                  result.id.unwrap().to_string());
 }
 
 /// This function checks the username and password to see if it is valid. If it is, it generates a new token
@@ -167,8 +174,8 @@ async fn check_username_password(user: String, cache: &Data<MongoRepo<User>>,
     }
     tokens.delete_document(returned_user.username.clone()).await.expect("failure to delete \
         documents");
-    let new_id = match tokens.create_document(RefreshToken{
-        id: None,
+    match tokens.create_document(RefreshToken{
+        id: Some(id.clone().parse().unwrap()),
         user: returned_user.username.clone(),
         jwt_token: jwt_token.clone(),
         exp,
@@ -184,8 +191,7 @@ async fn check_username_password(user: String, cache: &Data<MongoRepo<User>>,
     };
 
     //Generate the response to the frontend
-    success_login_response(refresh_token, jwt_token, returned_user.username.clone(), new_id
-        .inserted_id.to_string())
+    success_login_response(refresh_token, jwt_token, returned_user.username.clone(), id.clone())
 }
 
 /// This function generates a successful login response to the frontend.
@@ -221,7 +227,7 @@ async fn send_jwt(jwt: String) -> Result<Response, String> {
         .build()
         .unwrap();
     let res = client.post(&url);
-    let res = res.json(&jwt);
+    let res = res.json(&SendToken { jwt_token: jwt });
     let res = res.timeout(std::time::Duration::from_secs(3));
     let response = match res.send().await{
         Ok(response) => response,
@@ -230,7 +236,13 @@ async fn send_jwt(jwt: String) -> Result<Response, String> {
             return Err("error getting web cache".to_string());
         },
     };
-    Ok(response)
+    return if response.status().is_success() {
+        Ok(response)
+    } else {
+        println!("Token could not successfully be sent to the backend, check if the backend is \
+        running");
+        Err("error authenticating".to_string())
+    }
 }
 
 /// This function generates a random string of 32 characters.

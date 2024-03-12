@@ -29,5 +29,5 @@ impl Model<JWT> for JWT {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JSONToken {
-    pub(crate) jwt_token: String
+    pub(crate) jwt_token: String,
 }

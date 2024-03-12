@@ -3,6 +3,8 @@ use actix_web::web::Data;
 use jsonwebtoken::{TokenData, errors::Error as JwtError, decode, DecodingKey, Validation, Algorithm};
 use mongodb::bson::doc;
 use crate::model::jwt_model::{Claims, JSONToken, JWT};
+use crate::model::schema_model::Schema;
+use crate::model::schema_model::Scheme;
 use crate::repository::mongodb_repo::MongoRepo;
 
 
@@ -38,7 +40,8 @@ pub async fn store_token(new_token: String, secret: Data<String>) ->
     let parsed_token: Result<TokenData<Claims>, JwtError> = decode::<Claims>(
         &new_token,
         &DecodingKey::from_secret(secret.as_str().as_ref()),
-        &Validation::new(Algorithm::RS256), //TODO research HS256 vs RS256
+        &Validation::new(Algorithm::HS256), //TODO research HS256 vs RS256, switching to RS256
+        // broke the program
     );
     let parsed_token = match parsed_token {
         Ok(token) => token,
@@ -77,6 +80,15 @@ pub async fn store_token(new_token: String, secret: Data<String>) ->
             .expect("MONGODB not running");
         return HttpResponse::Ok().json(user);
     }else{
+        //creates a new DB of the new user in the database if it doesn't exist
+        let schema_db: MongoRepo<Schema> = MongoRepo::init("schemas", &parsed_token.claims
+            .userid).await;
+        if schema_db.get_all_documents().await.unwrap().is_empty(){
+            let json = r#"{ "id": "None"}"#;
+            let default_schema: Schema = serde_json::from_str(json)
+                .expect("Failed to parse JSON");
+            schema_db.create_document(default_schema).await.expect("MONGODB not running");
+        }
         //creates a new token if it doesn't exist in the database
         let user = db.create_document(stored_token).await.expect("MONGODB not running");
         return HttpResponse::Ok().json(user);
