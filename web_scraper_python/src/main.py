@@ -13,6 +13,9 @@ def get_cached_materials():
     name = request.args.get('name')
     name = name.replace("+", " ").replace("_", " ")
     company = request.args.get('company')
+    zip_code = request.args.get('zip')
+    if name is None or company is None:
+        abort(400)
     # gets first material returned. Will have to redo this part of the code later
     cache_returned = list(db_collection.find({"name": {'$regex': name}, "company": company}))
     if cache_returned.__len__() > 0:
@@ -23,20 +26,25 @@ def get_cached_materials():
         else:
             return cache_returned
     # Needs to be changed later on, cant just take the first option
-    scraped_material = scrape_and_cache(name, company)[0]
+    if zip_code is not None:
+        scraped_material = scrape_and_cache(name, company, zip_code)
+    else:
+        scraped_material = scrape_and_cache(name, company)[0]
     if scraped_material is None:
         abort(401)
     else:
         material_to_cache = {"name": scraped_material.get("name"), "price": scraped_material.get("price"),
                              "company": company, "ttl": (datetime.utcnow() + timedelta(days=7)).timestamp()}
         db_collection.insert_one(material_to_cache)
-        return material_to_cache
+        print(material_to_cache)
+        # need to serialize the material_to_cache object, wont do it right now
+        return {"name": scraped_material.get("name"), "price": scraped_material.get("price")}
 
 
-def scrape_and_cache(name, company):
+def scrape_and_cache(name, company, zip_code=None):
     url_arg = build_url(company, name)
     scraper_instance.set_material(name)
-    page = scraper_instance.get_page(url_arg)
+    scraper_instance.get_page(url_arg, zip_code)
     if company == "homedepot":
         products_list = scraper_instance.get_products_homedepot()
     else:

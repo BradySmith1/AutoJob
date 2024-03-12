@@ -1,6 +1,8 @@
 import time
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 class WebScraper:
@@ -34,10 +36,15 @@ class WebScraper:
         #self.options.add_argument("--headless=new")
         self.driver = webdriver.Chrome(options=self.options)
 
-    def get_page(self, url):
+    def get_page(self, url, zip_code):
+        wait = WebDriverWait(self.driver, 10)
+        wait.until(self.driver.current_url != url)
         self.driver.get(url)
-        # TODO make this so that it waits until the page is completly loaded
-        time.sleep(5)
+        if zip_code is not None:
+            self.driver.find_element(By.ID, 'store-search-handler').click()
+            self.driver.find_element(By.TAG_NAME, 'text').send_keys(zip_code)
+            self.driver.find_element(By.ID, 'ButtonBase-sc-1ngvxvr-0 jIEdNT backyard button size--large variant--primary color--interactive shape--rounded rightArrowBtn').click()
+            self.driver.find_element(By.ID, 'ButtonBase-sc-1ngvxvr-0 jIEdNT backyard button size--small variant--primary color--interactive shape--rounded setStore met-sl-set-as-my-store').click()
         page_source = self.driver.page_source
         page_parsed = BeautifulSoup(page_source, 'html.parser')
         self.page = page_parsed
