@@ -1,3 +1,10 @@
+/**
+ * @version 1, February 18th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This file is the sign up page for the application.
+ */
 import "./LogIn.css";
 import axios from 'axios';
 import React, { useEffect, useState } from "react";
@@ -6,8 +13,10 @@ import * as Yup from "yup";
 
 function SignUp(props){
 
+    //Error message
     const [authError, setAuthError] = useState("");
 
+    //Set up formik
     const formik = useFormik({
         initialValues: {
             username: "",
@@ -28,28 +37,34 @@ function SignUp(props){
         }),
 
         onSubmit: async (values, { resetForm }) => {
+            //refresh auth errors
             setAuthError("");
 
+            //Make sure passwords match
             if(values.password !== values.confirmPassword){
                 setAuthError("Passwords don't match.");
                 return;
             }
 
-            const result = await props.instance.post('/user/enroll', {username: values.username, password: values.password});
+            //Send request
+            const result = await axios.post('/auth/user/enroll', {username: values.username, password: values.password});
             console.log(result);
 
+            //if it wasn't succesfull, display auth error
             if(result.status !== 200){
                 setAuthError("Could not create account.");
                 return;
             }
 
+            //Reset the form
             resetForm();
+            //Show the log in page
             props.setLoggedIn(true);
         }
     })
 
     return(
-        <div className="wrapper">
+        <div className="LoginWrapper">
             <div className='TitleBar'>
                 <h1>Sign Up</h1>
             </div>
@@ -99,6 +114,7 @@ function SignUp(props){
             </form>
             <h3>Already Have an Account?</h3>
             <button onClick={() => {
+                    //Show the log in page
                     props.setLoggedIn(true);
                 }}
                 className="btn"

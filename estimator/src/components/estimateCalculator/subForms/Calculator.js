@@ -11,7 +11,7 @@ import './Calculator.css';
 import { FieldArray, Field, ErrorMessage} from 'formik';
 import React, { useState } from "react";
 import Library from './Library';
-import billableList from '../JSONs/billableList.json';
+import billableList from '../../JSONs/billableList.json';
 
 /**
  * This method returns the calculator component. It is a

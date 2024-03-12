@@ -29,6 +29,9 @@ const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2
  */
 function EstimateForm() {
 
+    var pathArray = window.location.pathname.split('/');
+    var company_id = pathArray[1];
+
     //This is used to store the captcha authentication token
     const captchaRef = useRef(null);
     //Array of images
@@ -98,7 +101,8 @@ function EstimateForm() {
         onSubmit: (values, { resetForm }) => {
             //Create form data object
             var formData = new FormData();
-            formData.append("user", JSON.stringify(values))
+            formData.append("user", JSON.stringify(values));
+            formData.append("company_id", company_id);
             //Add images to form data
             images.forEach(file => {
                 formData.append("files", file);

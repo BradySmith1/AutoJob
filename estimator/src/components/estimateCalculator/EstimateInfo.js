@@ -13,14 +13,15 @@
 
 import "./EstimateInfo.css";
 import axios from 'axios';
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Select from 'react-select';
 import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
-import billableList from "./JSONs/billableList.json";
+import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
-import Message from "./utilComponents/Message.js";
-import dropDownData from "./JSONs/dropDown.json";
+import Message from "../utilComponents/Message.js";
+import dropDownData from "../JSONs/dropDown.json";
+import { AuthContext } from "../authentication/AuthContextProvider.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -43,7 +44,7 @@ const DEFAULT_ESTIMATE_DATA = {
  * @returns Promise for the packed user estimate
  */
 async function packUsers() {
-    const response = await axios.get('/users');
+    const response = await axios.get('/api/users');
     var userArr = [];
     //Push each user to a local array
     for (const entry of response.data) {
@@ -62,7 +63,7 @@ async function getAutoImports() {
     var autoImports = {};
     for (const key of Object.keys(billableList)) {
         //Get the auto imports
-        const response = await axios.get("/library?autoImport=true&description=" + key);
+        const response = await axios.get("/api/library?autoImport=true&description=" + key);
         if (response.data.length > 0) {
             //Add that array of billables to the user object
             autoImports[billableList[key]] = response.data;
@@ -77,7 +78,7 @@ async function getAutoImports() {
  */
 async function packDrafts() {
     //Get the drafts
-    const response = await axios.get('/estimate?status=draft');
+    const response = await axios.get('/api/estimate?status=draft');
     return response.data;
 }
 
@@ -116,6 +117,12 @@ var userDropDown = {};
  * @returns JSX object for estimate calculator
  */
 function EstimateInfo() {
+
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     //Declare a use state variable that holds the currently selected customer data
     const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);

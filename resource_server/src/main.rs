@@ -99,7 +99,7 @@ pub async fn main() -> std::io::Result<()> {
     check_mongodb();
 
     // Creates the SSL builder for the Actix web server.
-    let ssl = ssl_builder();
+    //let ssl = ssl_builder();
 
     // Creates the scheduler for the Actix web server that runs the web scraper at a certain
     // interval.
@@ -147,7 +147,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(index)
 
     })
-        .bind_openssl(&target, ssl)?
+        .bind(&target)?
         .run()
         .await
 }

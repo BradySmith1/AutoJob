@@ -11,7 +11,8 @@
  * since the backend cant query by booleans yet
  */
 
-import React, { useState, useRef, useEffect, useId } from "react";
+import React, { useState, useRef, useEffect, useId, useContext } from "react";
+import { AuthContext } from "../../authentication/AuthContextProvider";
 import './Billable.css';
 import axios from 'axios';
 
@@ -77,6 +78,12 @@ function useOutsideAlerter(ref, setDisplay) {
    */
 function Billable(props){
 
+    const {jwt, setJwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
+
     //ID for this billable
     const billableID = useId();
     //ID for the auto import tick box
@@ -108,7 +115,7 @@ function Billable(props){
      * @returns response, the axios response
      */
     const putToDb = async (id, billable) => {
-        const respone = await axios.put("/library/" + id, billable);
+        const respone = await axios.put("/api/library/" + id, billable);
         return respone;
     }
 
@@ -203,7 +210,7 @@ function Billable(props){
                                     determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
                                     putToDb(props.billable.data._id.$oid, props.billable.data);
                                     if(props.billable.data.autoUpdate === "true"){
-                                        axios.get('/scrape?company=homedepot&name=' + props.billable.data.name).then((response) => {
+                                        axios.get('/api/scrape?company=homedepot&name=' + props.billable.data.name).then((response) => {
                                             var billableCopy = {...props.billable.data};
                                             console.log(response.data);
                                             if(response.data.price !== undefined){

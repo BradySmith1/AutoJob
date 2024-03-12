@@ -1,0 +1,90 @@
+.FieldsWrapper{
+    background-color: #191D23;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.CanonicalNameTitle{
+    max-width: 300px;
+    font-size: 24px;
+}
+
+.Name{
+    width: 140px;
+    font-size: 16px;
+}
+
+.FakeField{
+    width: 140px;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.AddButtonWrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.FieldsContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.BinaryContainer{
+    display: flex;
+}
+
+.Unit{
+    height: 30px;
+    width: 80px;
+}
+
+.RemoveStage{
+    height: 20px;
+    width: 20px;
+    padding: 3px;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.RemoveStage:hover{
+    background-color: rgba(255, 255, 255, .1);
+    cursor: pointer;
+}
+
+.Up{
+    height: 15px;
+    width: 22px;
+    padding: 3px;
+    position: absolute;
+    top: 7px;
+    right: 10px;
+}
+
+.Down{
+    height: 15px;
+    width: 22px;
+    padding: 3px;
+    border-radius: 5px;
+    position: absolute;
+    top: 27px;
+    right: 10px;
+}
+
+.Arrow{
+    border-radius: 5px;
+}
+
+.Arrow:hover{
+    background-color: rgba(255, 255, 255, .1);
+    cursor: pointer;
+}

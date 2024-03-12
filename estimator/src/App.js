@@ -7,11 +7,12 @@
  */
 
 import './App.css';
-import './components/EstimateInfo.js'
-import EstimateInfo from './components/EstimateInfo.js';
+import'./components/authentication/AuthContextProvider.js'
 import ErrorBoundry from './components/utilComponents/ErrorBoundry.js';
-import Authenticator from './components/authentication/Authenticator.js';
+import AppSwitcher from './components/AppSwitcher.js'
 import React, { useState } from 'react';
+import AuthContextProvider from './components/authentication/AuthContextProvider.js';
+import Authenticator from './components/authentication/Authenticator.js';
 
 /**
  * Modified this App function from the default to have a header and the estimate
@@ -21,18 +22,21 @@ import React, { useState } from 'react';
  */
 function App() {
 
+  //Keep track of if the user is authenticated
   const [authenticated, setAuthenticated] = useState(false);
   
   return (
-    <div className="App">
-      <ErrorBoundry fallback="A network error has occured. Please try again later.">
-        {authenticated ? 
-          (<EstimateInfo />) 
-        : 
-          (<Authenticator authenticate={setAuthenticated}/>)
-        }
-      </ErrorBoundry>
-    </div>
+    <AuthContextProvider>
+      <div className="App">
+          <ErrorBoundry fallback="A network error has occured. Please try again later.">
+            {authenticated ? 
+              (<AppSwitcher />) 
+            : 
+              (<Authenticator authenticate={setAuthenticated}/>)
+            }
+          </ErrorBoundry>
+      </div>
+    </AuthContextProvider>
   );
 }
 

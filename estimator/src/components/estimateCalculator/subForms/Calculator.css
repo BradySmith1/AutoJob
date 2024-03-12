@@ -4,8 +4,6 @@
 
 .row{
     display: flex;
-    padding-left: 10%;
-    padding-right: 10%;
 }
 
 .col{
