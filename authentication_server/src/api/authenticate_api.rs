@@ -22,7 +22,9 @@ use crate::utils::jwt::encode_token;
 /// Represents a login response. Holds the JWT token in the form of a string.
 #[derive(Serialize, Deserialize)]
 struct AuthResponse {
-    jwt_token: String
+    jwt_token: String,
+    username: String,
+    user_id: String,
 }
 
 
@@ -165,14 +167,14 @@ async fn check_username_password(user: String, cache: &Data<MongoRepo<User>>,
     }
     tokens.delete_document(returned_user.username.clone()).await.expect("failure to delete \
         documents");
-    match tokens.create_document(RefreshToken{
+    let new_id = match tokens.create_document(RefreshToken{
         id: None,
         user: returned_user.username.clone(),
         jwt_token: jwt_token.clone(),
         exp,
         refresh_token: refresh_token.clone(),
     }).await{
-        Ok(_) => {}
+        Ok(id) => {id}
         Err(_) => {
             println!("Could not add the refresh token to the database, check if mongodb is \
             running");
@@ -182,7 +184,8 @@ async fn check_username_password(user: String, cache: &Data<MongoRepo<User>>,
     };
 
     //Generate the response to the frontend
-    success_login_response(refresh_token, jwt_token)
+    success_login_response(refresh_token, jwt_token, returned_user.username.clone(), new_id
+        .inserted_id.to_string())
 }
 
 /// This function generates a successful login response to the frontend.
@@ -193,7 +196,9 @@ async fn check_username_password(user: String, cache: &Data<MongoRepo<User>>,
 ///
 /// # Returns
 /// An HttpResponse representing the result of the operation.
-fn success_login_response(refresh_token: String, jwt_token: String) -> HttpResponse{
+fn success_login_response(refresh_token: String, jwt_token: String, username: String, user_id:
+String) ->
+                                                                                     HttpResponse{
     HttpResponse::Ok()
         .cookie(
             Cookie::build("AutoJobRefresh", refresh_token)
@@ -206,7 +211,7 @@ fn success_login_response(refresh_token: String, jwt_token: String) -> HttpRespo
         .insert_header(("Access-Control-Allow-Origin", "*"))
         .insert_header(("Access-Control-Allow-Credentials", "true"))
         .insert_header(("Access-Control-Allow-Headers", "set-cookie"))
-        .json(AuthResponse{ jwt_token })
+        .json(AuthResponse{ jwt_token, username, user_id})
 }
 
 async fn send_jwt(jwt: String) -> Result<Response, String> {
@@ -216,7 +221,7 @@ async fn send_jwt(jwt: String) -> Result<Response, String> {
         .build()
         .unwrap();
     let res = client.post(&url);
-    let res = res.json(&AuthResponse { jwt_token: jwt });
+    let res = res.json(&jwt);
     let res = res.timeout(std::time::Duration::from_secs(3));
     let response = match res.send().await{
         Ok(response) => response,

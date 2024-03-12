@@ -4,3 +4,4 @@ pub mod scraper_api;
 pub mod library_api;
 mod api_helper;
 pub mod jwt_api;
+mod schema_api;

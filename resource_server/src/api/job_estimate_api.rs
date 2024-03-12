@@ -56,6 +56,7 @@ Query<Document>, ) -> HttpResponse {
     }
 }
 
+
 /// Update jobEstimate details by their ID via a PUT request.
 ///
 /// # Parameters
