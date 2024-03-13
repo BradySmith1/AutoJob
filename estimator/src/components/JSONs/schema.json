@@ -1,0 +1,51 @@
+[
+	{
+		"estimateType": "Default",
+		"form": [
+			{
+				"canonicalName": "Materials",
+				"fields": [
+					{
+						"name": "Name",
+						"unit": "Text",
+						"showInOverview": true,
+						"required": true
+					},
+					{
+						"name": "Price",
+						"unit": "Number",
+						"showInOverview": true,
+						"required": true
+					},
+					{
+						"name": "Quantity",
+						"unit": "Number",
+						"showInOverview": true
+					}
+				]
+			},
+			{
+				"canonicalName": "Fees",
+				"fields": [
+					{
+						"name": "Name",
+						"unit": "Text",
+						"showInOverview": true,
+						"required": true
+					},
+					{
+						"name": "Price",
+						"unit": "Number",
+						"showInOverview": true,
+						"required": true
+					},
+					{
+						"name": "Quantity",
+						"unit": "Number",
+						"showInOverview": true
+					}
+				]
+			}
+		]
+	}
+]

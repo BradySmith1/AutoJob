@@ -77,7 +77,7 @@ function Overview(props){
                         {/**Map over the materials and display name, price, and quantity */}
                         {props.values.form[index][stage.canonicalName].map((billable, fieldIndex) => (
                             <div className="contentWrapper" key={fieldIndex}>
-                                {billable.inputs.name !== '' ? 
+                                {billable.inputs.Name !== "" ? 
                                 (<>
                                     {props.schema.form[index].fields.map((field, index) => (
                                         (field.showInOverview ? (
