@@ -20,12 +20,10 @@ use crate::model::model_trait::Model;
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Clone)]
 #[allow(non_snake_case)]
-pub struct MaterialFee {
+pub struct Billable {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub name: String,
-    pub price: f32,
-    pub quantity: f32,
+    pub inputs: Inputs,
     pub description: String,
     pub autoImport: String,
     pub autoUpdate: String,
@@ -36,7 +34,22 @@ pub struct MaterialFee {
     // line.
 }
 
-impl Model<MaterialFee> for MaterialFee {
+#[derive(Debug, Serialize, Deserialize)]
+struct Inputs {
+    name: String,
+    price: f32,
+    quantity: f32
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone)]
+#[allow(non_snake_case)]
+pub struct MaterialFee {
+    #[serde(alias = "Fees")]
+    pub Materials: Vec<Billable>
+}
+
+impl Model<Billable> for Billable {
 
     fn to_string(&self) -> String {
         to_string(self).unwrap()

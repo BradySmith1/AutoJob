@@ -7,7 +7,7 @@ use mongodb::bson::{doc, Document};
 use mongodb::Client;
 use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
-use crate::model::library_model::MaterialFee;
+use crate::model::billable_model::Billable;
 use crate::utils::token_extractor::AuthenticationToken;
 
 const COLLECTION: &str = "materialFeeLibrary";
@@ -28,8 +28,8 @@ const COLLECTION: &str = "materialFeeLibrary";
 #[post("/library")]
 pub async fn create_library_entry(new_user: String,
                                   auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let mut json: MaterialFee = match serde_json::from_str(&new_user){
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let mut json: Billable = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
             println!("Incorrect JSON object format from HTTPRequest.");
@@ -44,7 +44,7 @@ pub async fn create_library_entry(new_user: String,
     post_data(&db, json).await
 }
 
-fn check_auto_update(json: &mut MaterialFee) -> HttpResponse{
+fn check_auto_update(json: &mut Billable) -> HttpResponse{
     if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
         if json.company.is_none(){
             return HttpResponse::BadRequest().body("auto_update field is true but no company was \
@@ -77,7 +77,7 @@ fn check_auto_update(json: &mut MaterialFee) -> HttpResponse{
 #[get("/library")]
 pub async fn get_library_entry(query: Query<Document>,
                                auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
    return match get_data(&db, query.into_inner()).await{
         Ok(data) => HttpResponse::Ok().json(data),
         Err(err) => HttpResponse::InternalServerError()
@@ -104,12 +104,12 @@ pub async fn update_library_entry(
     path: Path<String>,
     new_user: String,
     auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let mut data: MaterialFee = serde_json::from_str(&new_user).expect("Issue parsing object");
+    let mut data: Billable = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
     let response = check_auto_update(&mut data);
     if !response.status().is_success(){
@@ -136,7 +136,7 @@ pub async fn update_library_entry(
 #[delete("/library")]
 pub async fn delete_library_entry(query: Query<Document>,
                                   auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     delete_data(&db, query.into_inner()).await
 }
 
@@ -154,7 +154,7 @@ pub async fn delete_library_entry(query: Query<Document>,
 /// HTTP 500 Internal Server Error response with an error message.
 #[get("/libraries")]
 pub async fn get_all_library_entries(auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     get_all_data(&db).await
 }
 
@@ -168,7 +168,7 @@ pub async fn check_libraries(){
     let client = Client::with_uri_str(std::env::var("MONGOURL").unwrap()).await.unwrap();
     let db_list = client.list_database_names(doc! {}, None).await.unwrap();
     for dbs in db_list{
-        let db:MongoRepo<MaterialFee> = MongoRepo::init(COLLECTION, dbs.as_str()).await;
+        let db:MongoRepo<Billable> = MongoRepo::init(COLLECTION, dbs.as_str()).await;
         println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
         let materials = match db.get_all_documents().await{
             Ok(materials) => materials,
