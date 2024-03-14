@@ -15,13 +15,13 @@ import "./EstimateInfo.css";
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from "react";
 import Select from 'react-select';
-import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
 import Message from "../utilComponents/Message.js";
 import dropDownData from "../JSONs/dropDown.json";
 import { AuthContext } from "../authentication/AuthContextProvider.js";
+import EstimateTypeSelector from "./EstimateTypeSelector.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -91,7 +91,163 @@ async function packDrafts() {
  */
 function populateDropDown(data) {
     //Create an empty array
-    var outputData = []
+    var outputData = [{value: {user: {
+        _id: {$oid: '6572590648dea175423f277d'},
+        fName: 'asdsad',
+        lName: 'asdasd',
+        email: 'asdasdasd@asdad',
+        strAddr: 'asdads',
+        city: 'asdadsa',
+        state: 'asdad',
+        zip: '28906',
+        phoneNumber: '8282312132',
+        measurements: '',
+        details: ''
+      }}, label: 'test'},
+      {value: {user: {
+        _id: {$oid: 'ea175423f277d6572590648d'},
+        fName: 'asdsad',
+        lName: 'asdasd',
+        email: 'asdasdasd@asdad',
+        strAddr: 'asdads',
+        city: 'asdadsa',
+        state: 'asdad',
+        zip: '28906',
+        phoneNumber: '8282312132',
+        measurements: '',
+        details: ''
+      }}, label: 'test2'},
+      {value: {user: {
+        _id: {$oid: 'ea1754236572590648df277d'},
+        fName: 'asdsad',
+        lName: 'asdasd',
+        email: 'asdasdasd@asdad',
+        strAddr: 'asdads',
+        city: 'asdadsa',
+        state: 'asdad',
+        zip: '28906',
+        phoneNumber: '8282312132',
+        measurements: '',
+        details: ''
+      }}, label: 'test3'}]
+    //loop through the customer data
+    data.forEach(entry => {
+        //Push a json for the drop down, made from customer data
+        outputData.push(
+            { value: entry, label: entry.user.fName + " " + entry.user.lName }
+        );
+    });
+    //return the array of Jsons for the drop down.
+    return outputData;
+}
+
+/**
+ * This function takes in an array of json of customer data and creates an
+ * array of json objects used to populate the drop down selector.
+ * 
+ * @param {[Json Object]} data 
+ * @returns {[Json Object]} outputData
+ */
+function populateDrafts(data) {
+    //Create an empty array
+    var outputData = [{value: {
+        "_id": {"$oid": 'ea1754236572590648df277d'},
+        "user": {
+            "_id": {
+                "$oid": "6572590648dea175423f277d"
+            },
+            "fName": "asdsad",
+            "lName": "asdasd",
+            "email": "asdasdasd@asdad",
+            "strAddr": "asdads",
+            "city": "asdadsa",
+            "state": "asdad",
+            "zip": "28906",
+            "phoneNumber": "8282312132",
+            "measurements": "",
+            "details": ""
+        },
+        "form": [
+            {
+                "Materials": [
+                    {
+                        "inputs": {
+                            "Name": "hi",
+                            "Price": 2,
+                            "Quantity": 2
+                        },
+                        "description": "Materials",
+                        "autoImport": "false",
+                        "autoUpdate": "false"
+                    }
+                ]
+            },
+            {
+                "Fees": [
+                    {
+                        "inputs": {
+                            "Name": "hello",
+                            "Price": 2,
+                            "Quantity": 2
+                        },
+                        "description": "Fees",
+                        "autoImport": "false",
+                        "autoUpdate": "false"
+                    }
+                ]
+            }
+        ],
+        "schema": {
+            "estimateType": "Estimate",
+            "form": [
+                {
+                    "canonicalName": "Materials",
+                    "fields": [
+                        {
+                            "name": "Name",
+                            "unit": "Text",
+                            "showInOverview": true,
+                            "required": true
+                        },
+                        {
+                            "name": "Price",
+                            "unit": "Number",
+                            "showInOverview": true,
+                            "required": true
+                        },
+                        {
+                            "name": "Quantity",
+                            "unit": "Number",
+                            "showInOverview": true
+                        }
+                    ]
+                },
+                {
+                    "canonicalName": "Fees",
+                    "fields": [
+                        {
+                            "name": "Name",
+                            "unit": "Text",
+                            "showInOverview": true,
+                            "required": true
+                        },
+                        {
+                            "name": "Price",
+                            "unit": "Number",
+                            "showInOverview": true,
+                            "required": true
+                        },
+                        {
+                            "name": "Quantity",
+                            "unit": "Number",
+                            "showInOverview": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "status": "complete"
+    }, label: "Draft Test"}]
     //loop through the customer data
     data.forEach(entry => {
         //Push a json for the drop down, made from customer data
@@ -118,14 +274,14 @@ var userDropDown = {};
  */
 function EstimateInfo() {
 
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt} = useContext(AuthContext);
 
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
 
     //Declare a use state variable that holds the currently selected customer data
-    const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
+    const [currentCustomerData, setCurrentCustomerData] = useState({...DEFAULT_ESTIMATE_DATA});
     //Use state for the images
     const [images, setImages] = useState(defaultImages);
     //Use state for the library display
@@ -147,7 +303,8 @@ function EstimateInfo() {
 
         //Get all the draft data
         packDrafts().then((data) => {
-            draftDropDown = populateDropDown(data);
+            //Change this back to populate drop downs
+            draftDropDown = populateDrafts(data);
             setDropDown(dropDown => ({ ...dropDown, drafts: data, draftsLoading: false }));
         }).catch((error) => {
             setNetworkError(true);
@@ -161,18 +318,7 @@ function EstimateInfo() {
      * @param {JSON} selectedOption the selected option
      */
     const handleChange = (selectedOption) => {
-        //If this is not a draft
-        if (!selectedOption.value.hasOwnProperty("_id")) {
-            //Tack on the auto imports
-            getAutoImports().then((data) => {
-                var estimateData = { ...data };
-                estimateData.user = selectedOption.value.user;
-                setCurrentCustomerData(estimateData);
-            });
-        } else {
-            //Otherwise, just set this as the current customer data
-            setCurrentCustomerData(selectedOption.value);
-        }
+        setCurrentCustomerData({...selectedOption.value});
 
         //If no images, set the image array to empty
         if (selectedOption.value.user.hasOwnProperty("images")) {
@@ -273,10 +419,21 @@ function EstimateInfo() {
                         </div>
                     </div>
                     <ImageCarousel images={images} />
-                    <Estimator
-                        data={currentCustomerData}
-                        key={currentCustomerData.user._id.$oid}
-                    />
+                    {/**Schema bundled with drafts FOR NOW */}
+                    {currentCustomerData.schema === undefined ? (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                            key={currentCustomerData.user._id.$oid}
+                        />
+                    ) : (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                            schema={currentCustomerData.schema}
+                            key={currentCustomerData.user._id.$oid}
+                        />
+                    )
+
+                    }
                 </>
                 :
                 null

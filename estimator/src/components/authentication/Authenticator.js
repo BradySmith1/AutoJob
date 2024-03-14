@@ -23,24 +23,21 @@ function Authenticator(props){
     const [loggedIn, setLoggedIn] = useState(true);
     //Jwt from context
     const {jwt, setJwt} = useContext(AuthContext);
-    console.log(jwt);
 
     //Get the refresh token
     const refresh = getCookie("AutoJobRefresh");
-    console.log(refresh);
 
     //When the jwt changes
     useEffect(() => {
         //if the refresh token is not blank but the jwt is
         if(refresh != "" && jwt == 0){
-            console.log("in here")
             //Silently log in
             axios.post('/auth/user/auth', {}, {withCredentials: true}).then((result) => {
+                console.log(result)
                 setJwt(result.data.jwt_token);
                 props.authenticate(true);
             }).catch((error) => {
                 props.authenticate(false);
-                console.log(error);
             });
         } else if(jwt != 0){
             props.authenticate(true);

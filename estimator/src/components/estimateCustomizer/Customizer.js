@@ -5,19 +5,25 @@
  * 
  * This file will be the estimate customizer.
  */
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import schemaJSON from "../JSONs/schema.json";
 import EstimatePreset from "./EstimatePresets";
 import defaultEstimate from "../JSONs/defaultEstimate.json";
 import "./Customizer.css";
+import { SchemaContext } from "./SchemaContextProvider";
 
 function Customizer(){
-    const [schema, setSchema] = useState(schemaJSON);
+    //const [schema, setSchema] = useState(schemaJSON);
+    const {schema, setSchema} = useContext(SchemaContext);
 
     const schemaUtils = {
         change: (values, index) => {
             var newSchema = [...schema];
-            newSchema[index] = values;
+            var newValues = {...values};
+            for(var i = 0; i < newValues.form.length; i++){
+                
+            }
+            newSchema[index] = values;  
             setSchema(newSchema);
         },
         swap: (fromIndex, toIndex) => {
@@ -57,6 +63,11 @@ function Customizer(){
                     <div className="AddPreset"></div>
                     <h3>Add Preset</h3>
                 </div>
+            </div>
+            <div className='TitleBar'>
+                <button className="SavePresetsButton">
+                    save
+                </button>
             </div>
         </div>
     );

@@ -24,9 +24,13 @@ function getTotal(arr){
     //Loop through billables
     for(var i = 0; i < arr.length; i++){
         //Add price * quantity to total
-        total = total + (arr[i].price * arr[i].quantity);
+        total = total + (arr[i].inputs.Price * arr[i].inputs.Quantity);
     }
     return total.toFixed(2);
+}
+
+function calculateGrandTotal(props){
+    
 }
 
 /**
@@ -38,19 +42,22 @@ function getTotal(arr){
  */
 function Overview(props){
 
+    console.log(props.schema)
+    console.log(props.values)
+
     const [grandTotal, setGrandTotal] = useState(0);
 
     //On first render, get the grand total;
     useEffect(() => {
         var total = 0;
         //Loop through the billables
-        for(const key of Object.keys(billableList)){
-            //For each billable, get it's sub total
-            for(var i = 0; i < props.values[billableList[key]].length; i++){
-                total = total + (props.values[billableList[key]][i].price * 
-                                 props.values[billableList[key]][i].quantity);
+        props.schema.form.forEach((stage, index) => {
+            for(var i = 0; i < props.values.form[index][stage.canonicalName].length; i++){
+                console.log(props.values.form[index][stage.canonicalName]);
+                total = total + (props.values.form[index][stage.canonicalName][i].inputs.Price * 
+                    props.values.form[index][stage.canonicalName][i].inputs.Quantity);
             }
-        }
+        })
         setGrandTotal(total.toFixed(2));
     }, []);
 
@@ -59,22 +66,27 @@ function Overview(props){
             <h2>Estimate Overview</h2>
             <div className="overviewWrapper">
                 {/**Map over the billable list to display each the overview for each billable array*/}
-                {Object.keys(billableList).map((key, index) => (
+                {props.schema.form.map((stage, index) => (
                     <div className="infoWrapper" key={index}>
                         <div className="headerWrapper">
-                            <h2>{key} Costs</h2>
+                            <h2>{stage.canonicalName} Costs</h2>
                             {/**display the grand total here */}
-                            <h3>Sub Total: ${getTotal(props.values[billableList[key]])}</h3>
+                            <h3>Sub Total: ${getTotal(props.values.form[index][stage.canonicalName])}</h3>
                         </div>
                         <div className="divide"></div>
                         {/**Map over the materials and display name, price, and quantity */}
-                        {props.values[billableList[key]].map((billable, index) => (
-                            <div className="contentWrapper" key={index}>
-                                {billable.name !== '' ? 
+                        {props.values.form[index][stage.canonicalName].map((billable, fieldIndex) => (
+                            <div className="contentWrapper" key={fieldIndex}>
+                                {billable.inputs.Name !== "" ? 
                                 (<>
-                                    <h3 className="fourth">{billable.name}</h3>
-                                    <h3 className="fourth">${billable.price}</h3>
-                                    <h3 className="fourth">Qty: {billable.quantity}</h3>
+                                    {props.schema.form[index].fields.map((field, index) => (
+                                        (field.showInOverview ? (
+                                            <h3 className="fourth">{field.name}: {billable.inputs[field.name]}</h3>
+                                        ) : (null))
+                                    ))}
+                                    {/* <h3 className="fourth">{billable.inputs.Name}</h3>
+                                    <h3 className="fourth">${billable.inputs.Price}</h3>
+                                    <h3 className="fourth">Qty: {billable.inputs.Quantity}</h3> */}
                                 </>) : null}
                             </div>
                         ))}

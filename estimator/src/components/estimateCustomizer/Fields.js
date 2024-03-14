@@ -8,20 +8,16 @@ import Up from "../../assets/Up.png"
 import Down from "../../assets/Down.png"
 import lightEdit from "../../assets/LightEdit.png";
 import Locked from "../../assets/Locked.png";
+import schemaJson from "../JSONs/schema.json"
 
 const units = [
     // Others
     { value: "Number", label: "Number" }, // Just a number
     { value: "Text", label: "Text" }, // Just text
-    { value: "Currency", label: "Currency"}
-
 ];
 
-const fieldSchema = {
-    name: "Name",
-    unit: "Text",
-    showInOverview: true
-}
+const fieldSchema = {...schemaJson[0].form[0].fields[2]};
+fieldSchema.name = "Default"; 
 
 function Fields(props){
     return(
