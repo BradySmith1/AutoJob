@@ -19,7 +19,7 @@ use console::Style;
 use std::path::Path;
 use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user,
                              get_all_users, get_image};
-use repository::mongodb_repo::MongoRepo;
+use crate::api::schema_api::{create_schema, get_all_schema, get_schema, update_schema};
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
                                    get_estimate, update_estimate};
@@ -142,6 +142,10 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
+            .service(update_schema)
+            .service(create_schema)
+            .service(get_schema)
+            .service(get_all_schema)
             .service(manual_web_scrape)
             .service(store_token)
             .service(index)

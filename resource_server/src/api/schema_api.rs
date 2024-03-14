@@ -1,7 +1,8 @@
 use actix_web::{get, HttpResponse, post, put};
 use actix_web::web::{Path, Query};
 use mongodb::bson::{doc, Document};
-use crate::api::api_helper::{get_data, post_data, push_update};
+use crate::api::api_helper::{get_all_data, get_data, post_data, push_update};
+use crate::model::estimate_model::JobEstimate;
 use crate::model::schema_model::Schema;
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
@@ -46,4 +47,9 @@ Query<Document>, ) -> HttpResponse {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
+}
+#[get("/schemas")]
+pub async fn get_all_schema(auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    get_all_data(&db).await
 }
