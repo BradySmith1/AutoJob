@@ -35,9 +35,10 @@ pub struct Billable {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Inputs {
-    name: String,
-    price: f32,
+#[derive(Clone)]
+pub struct Inputs {
+    pub(crate) name: String,
+    pub(crate) price: f32,
     quantity: f32
 }
 
