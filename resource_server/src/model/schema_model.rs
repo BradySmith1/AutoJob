@@ -14,20 +14,20 @@ fn default_schema() -> Schema {
                     FieldLayout {
                         name: "Name".to_string(),
                         unit: "Text".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     },
                     FieldLayout {
                         name: "Price".to_string(),
                         unit: "Number".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     },
                     FieldLayout {
                         name: "Quantity".to_string(),
                         unit: "Number".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     }
                 ]
             },
@@ -38,20 +38,20 @@ fn default_schema() -> Schema {
                     FieldLayout {
                         name: "Name".to_string(),
                         unit: "Text".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     },
                     FieldLayout {
                         name: "Price".to_string(),
                         unit: "Number".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     },
                     FieldLayout {
                         name: "Quantity".to_string(),
                         unit: "Number".to_string(),
-                        showInOverView: true,
-                        required: true,
+                        showInOverview: true,
+                        required: Some(true),
                     }
                 ]
             },
@@ -95,6 +95,7 @@ struct SchemeLayout{
 struct FieldLayout {
     name: String,
     unit: String,
-    showInOverView: bool,
-    required: bool,
+    showInOverview: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    required: Option<bool>,
 }
