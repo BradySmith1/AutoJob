@@ -9,7 +9,7 @@ use crate::utils::token_extractor::AuthenticationToken;
 
 const COLLECTION: &str = "schemas";
 
-#[put("/schema/{estimateType}")]
+#[put("/schema/{estimate_type}")]
 pub async fn update_schema(
     auth_token: AuthenticationToken,
     path: Path<String>,
