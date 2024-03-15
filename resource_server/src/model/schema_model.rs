@@ -27,7 +27,7 @@ fn default_schema() -> Schema {
                         name: "Quantity".to_string(),
                         unit: "Number".to_string(),
                         showInOverview: true,
-                        required: Some(true),
+                        required: None,
                     }
                 ]
             },
@@ -51,7 +51,7 @@ fn default_schema() -> Schema {
                         name: "Quantity".to_string(),
                         unit: "Number".to_string(),
                         showInOverview: true,
-                        required: Some(true),
+                        required: None,
                     }
                 ]
             },

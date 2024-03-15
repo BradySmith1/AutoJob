@@ -1,7 +1,7 @@
-use actix_web::{get, HttpResponse, post, put};
+use actix_web::{delete, get, HttpResponse, post, put};
 use actix_web::web::{Path, Query};
 use mongodb::bson::{doc, Document};
-use crate::api::api_helper::{get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::estimate_model::JobEstimate;
 use crate::model::schema_model::Schema;
 use crate::repository::mongodb_repo::MongoRepo;
@@ -60,4 +60,10 @@ Query<Document>, ) -> HttpResponse {
 pub async fn get_all_schema(auth_token: AuthenticationToken) -> HttpResponse {
     let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     get_all_data(&db).await
+}
+
+#[delete("/schema")]
+pub async fn delete_estimate(auth_token: AuthenticationToken, query: Query<Document>) -> HttpResponse {
+    let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    delete_data(&db, query.into_inner()).await
 }
