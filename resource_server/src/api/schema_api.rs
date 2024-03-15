@@ -19,7 +19,15 @@ pub async fn update_schema(
     if estimate_type.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let data: Schema = serde_json::from_str(&new_schema).expect("Issue parsing object");
+    let data = match serde_json::from_str(&new_schema){
+        Ok(parsed_json) => parsed_json,
+        Err(_) => {
+            println!("Incorrect JSON object format from HTTPRequest.");
+            return HttpResponse::InternalServerError()
+                .body("Incorrect JSON object format from HTTPRequest Post request.")
+        },
+
+    };
     let doc = doc! {"estimateType": estimate_type.clone()};
     let update_result = db.update_document(doc, data).await;
     push_update(update_result, &db, estimate_type).await
