@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
@@ -23,7 +24,11 @@ use crate::model::model_trait::Model;
 pub struct Billable {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub inputs: Inputs,
+    pub name: String,
+    pub price: f32,
+    pub quantity: f32,
+    #[serde(flatten)]
+    pub inputs: HashMap<String, ()>,
     pub description: String,
     pub autoImport: String,
     pub autoUpdate: String,
@@ -34,21 +39,6 @@ pub struct Billable {
     // line.
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
-pub struct Inputs {
-    pub(crate) name: String,
-    pub(crate) price: f32,
-    quantity: f32
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
-#[allow(non_snake_case)]
-pub struct MaterialFee {
-    #[serde(alias = "Fees")]
-    pub Materials: Vec<Billable>
-}
 
 impl Model<Billable> for Billable {
 

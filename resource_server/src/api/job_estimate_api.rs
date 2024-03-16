@@ -26,8 +26,8 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String,)
     let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let json: JobEstimate = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
+        Err(err) => {
+            println!("Incorrect JSON object format from HTTPRequest. {}", err.to_string());
             return HttpResponse::InternalServerError()
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         },

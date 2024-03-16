@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::model::billable_model::{Billable, MaterialFee};
+use crate::model::billable_model::{Billable};
 use crate::model::model_trait::Model;
 use crate::model::schema_model::Schema;
 use crate::model::user_model::UserEstimate;
@@ -20,10 +20,9 @@ use crate::model::user_model::UserEstimate;
 pub struct JobEstimate {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    #[serde(flatten)]
-    pub user: HashMap<String, UserEstimate>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub form: Option<Vec<MaterialFee>>,
+    pub user: UserEstimate,
+    #[serde(skip_serializing_if = "Option::is_none", flatten)]
+    pub form: Option<Vec<HashMap<String, Billable>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
     pub status: String

@@ -187,14 +187,14 @@ pub async fn check_libraries(){
             if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
                 let mut new_material = material.clone();
                 let scraper_data = match crate::api::scraper_api::get_scraper_data(material
-                                                                                       .inputs.name
+                                                                                       .name
                                                                                        .clone(),
                                                                                    material.company.clone()
                                                                                        .unwrap()).await{
                     Ok(data) => data,
                     Err(err) => {
                         if err.eq("no products found") {
-                            println!("No products found for material: {}, {}", material.inputs
+                            println!("No products found for material: {}, {}", material
                                 .name, material
                                 .company.clone().unwrap());
                         }else if err.eq("error getting web cache") {
@@ -205,16 +205,16 @@ pub async fn check_libraries(){
                         return;
                     }
                 };
-                new_material.inputs.price = scraper_data.price;
+                new_material.price = scraper_data.price;
                 new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
                 let doc = doc! {"_id": material.id.unwrap().to_string()};
                 let update_result: Result<UpdateResult, String> = db.update_document(doc,
                                                                              new_material).await;
                 match update_result {
-                    Ok(_) => println!("Updated material: {}, {}", material.inputs.name, material
+                    Ok(_) => println!("Updated material: {}, {}", material.name, material
                         .company
                         .clone().unwrap()),
-                    Err(_) => println!("Could not update material: {}, {}", material.inputs.name,
+                    Err(_) => println!("Could not update material: {}, {}", material.name,
                                        material.company
                         .clone().unwrap()),
                 }

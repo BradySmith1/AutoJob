@@ -96,7 +96,7 @@ pub async fn main() -> std::io::Result<()> {
     let target = format!("{}{}", prefix, port);
 
     //checks if MongoDB instance is running
-    check_mongodb();
+    //check_mongodb();
 
     // Creates the SSL builder for the Actix web server.
     let ssl = ssl_builder();
