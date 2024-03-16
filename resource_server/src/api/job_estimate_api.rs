@@ -81,7 +81,7 @@ pub async fn update_estimate(
     };
     let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
     data.id =  Some(ObjectId::parse_str(&id).unwrap());
-    let doc = doc! {"_id": id.to_string()};
+    let doc = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
     let update_result = db.update_document(doc, data).await;
     push_update(update_result, &db, id).await
 }

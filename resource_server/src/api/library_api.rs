@@ -207,7 +207,7 @@ pub async fn check_libraries(){
                 };
                 new_material.price = scraper_data.price;
                 new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
-                let doc = doc! {"_id": material.id.unwrap().to_string()};
+                let doc = doc! {"_id": ObjectId::parse_str(material.id.unwrap().to_string()).unwrap()};
                 let update_result: Result<UpdateResult, String> = db.update_document(doc,
                                                                              new_material).await;
                 match update_result {

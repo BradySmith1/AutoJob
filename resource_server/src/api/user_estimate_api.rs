@@ -192,7 +192,7 @@ pub async fn update_user(
         details: new_user.details.to_owned(),
         images: new_user.images.to_owned(),
     };
-    let doc = doc! {"_id": id.to_string()};
+    let doc = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
     let update_result = db.update_document(doc, data).await;
     push_update(update_result, &db, id).await
 }
