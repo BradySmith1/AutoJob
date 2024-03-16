@@ -29,7 +29,7 @@ pub struct Billable {
     pub price: f32,
     pub quantity: f32,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inputs: Option<HashMap<String, String>>,
+    pub inputs: Option<HashMap<String, serde_json::Value>>,
     pub description: String,
     pub autoImport: String,
     pub autoUpdate: String,
