@@ -21,8 +21,8 @@ pub struct JobEstimate {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub user: UserEstimate,
-    #[serde(skip_serializing_if = "Option::is_none", flatten)]
-    pub form: Option<Vec<HashMap<String, Billable>>>,
+    #[serde(flatten)]
+    pub form: Vec<HashMap<String, Billable>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
     pub status: String
