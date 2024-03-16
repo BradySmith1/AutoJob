@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
@@ -27,8 +28,8 @@ pub struct Billable {
     pub name: String,
     pub price: f32,
     pub quantity: f32,
-    #[serde(flatten, skip_serializing_if = "Option::is_none")]
-    pub inputs: Option<HashMap<String, ()>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub inputs: Option<HashMap<String, String>>,
     pub description: String,
     pub autoImport: String,
     pub autoUpdate: String,
