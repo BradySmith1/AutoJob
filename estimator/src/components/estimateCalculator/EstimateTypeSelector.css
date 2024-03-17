@@ -1,0 +1,10 @@
+.SelectEstimateWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.EstimateTypeSelect{
+    margin-bottom: 100px;
+    width: 500px;
+}

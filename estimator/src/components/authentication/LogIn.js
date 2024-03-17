@@ -18,7 +18,7 @@ function LogIn(props){
     const [authError, setAuthError] = useState("");
 
     //Jwt
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt, setJwt, user, setUser} = useContext(AuthContext);
 
     //Set up formik
     const formik = useFormik({
@@ -45,6 +45,7 @@ function LogIn(props){
                 .then((result) => {
                     //If succesful, set the jwt
                     setJwt(result.data.jwt_token);
+                    setUser({id: result.data.user_id});
                     console.log(result);
                     //reset the form
                     resetForm();

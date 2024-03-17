@@ -15,13 +15,13 @@ import "./EstimateInfo.css";
 import axios from 'axios';
 import React, { useContext, useEffect, useState } from "react";
 import Select from 'react-select';
-import Estimator from './Estimator.js';
 import ImageCarousel from "./ImageCarousel";
 import billableList from "../JSONs/billableList.json";
 import Library from "./subForms/Library.js";
 import Message from "../utilComponents/Message.js";
 import dropDownData from "../JSONs/dropDown.json";
 import { AuthContext } from "../authentication/AuthContextProvider.js";
+import EstimateTypeSelector from "./EstimateTypeSelector.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -79,6 +79,7 @@ async function getAutoImports() {
 async function packDrafts() {
     //Get the drafts
     const response = await axios.get('/api/estimate?status=draft');
+    console.log(response.data)
     return response.data;
 }
 
@@ -90,6 +91,27 @@ async function packDrafts() {
  * @returns {[Json Object]} outputData
  */
 function populateDropDown(data) {
+    //Create an empty array
+    var outputData = []
+    //loop through the customer data
+    data.forEach(entry => {
+        //Push a json for the drop down, made from customer data
+        outputData.push(
+            { value: entry, label: entry.user.fName + " " + entry.user.lName }
+        );
+    });
+    //return the array of Jsons for the drop down.
+    return outputData;
+}
+
+/**
+ * This function takes in an array of json of customer data and creates an
+ * array of json objects used to populate the drop down selector.
+ * 
+ * @param {[Json Object]} data 
+ * @returns {[Json Object]} outputData
+ */
+function populateDrafts(data) {
     //Create an empty array
     var outputData = []
     //loop through the customer data
@@ -118,14 +140,14 @@ var userDropDown = {};
  */
 function EstimateInfo() {
 
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt} = useContext(AuthContext);
 
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
 
     //Declare a use state variable that holds the currently selected customer data
-    const [currentCustomerData, setCurrentCustomerData] = useState(DEFAULT_ESTIMATE_DATA);
+    const [currentCustomerData, setCurrentCustomerData] = useState({...DEFAULT_ESTIMATE_DATA});
     //Use state for the images
     const [images, setImages] = useState(defaultImages);
     //Use state for the library display
@@ -147,7 +169,8 @@ function EstimateInfo() {
 
         //Get all the draft data
         packDrafts().then((data) => {
-            draftDropDown = populateDropDown(data);
+            //Change this back to populate drop downs
+            draftDropDown = populateDrafts(data);
             setDropDown(dropDown => ({ ...dropDown, drafts: data, draftsLoading: false }));
         }).catch((error) => {
             setNetworkError(true);
@@ -161,18 +184,7 @@ function EstimateInfo() {
      * @param {JSON} selectedOption the selected option
      */
     const handleChange = (selectedOption) => {
-        //If this is not a draft
-        if (!selectedOption.value.hasOwnProperty("_id")) {
-            //Tack on the auto imports
-            getAutoImports().then((data) => {
-                var estimateData = { ...data };
-                estimateData.user = selectedOption.value.user;
-                setCurrentCustomerData(estimateData);
-            });
-        } else {
-            //Otherwise, just set this as the current customer data
-            setCurrentCustomerData(selectedOption.value);
-        }
+        setCurrentCustomerData({...selectedOption.value});
 
         //If no images, set the image array to empty
         if (selectedOption.value.user.hasOwnProperty("images")) {
@@ -273,10 +285,21 @@ function EstimateInfo() {
                         </div>
                     </div>
                     <ImageCarousel images={images} />
-                    <Estimator
-                        data={currentCustomerData}
-                        key={currentCustomerData.user._id.$oid}
-                    />
+                    {/**Schema bundled with drafts FOR NOW */}
+                    {currentCustomerData.schema === undefined ? (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                            key={currentCustomerData.user._id.$oid}
+                        />
+                    ) : (
+                        <EstimateTypeSelector
+                            data={currentCustomerData}
+                            schema={currentCustomerData.schema}
+                            key={currentCustomerData.user._id.$oid}
+                        />
+                    )
+
+                    }
                 </>
                 :
                 null

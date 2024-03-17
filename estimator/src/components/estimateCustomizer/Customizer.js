@@ -5,20 +5,34 @@
  * 
  * This file will be the estimate customizer.
  */
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import schemaJSON from "../JSONs/schema.json";
 import EstimatePreset from "./EstimatePresets";
+import axios from "axios";
 import defaultEstimate from "../JSONs/defaultEstimate.json";
 import "./Customizer.css";
+import { SchemaContext } from "./SchemaContextProvider";
+import { AuthContext } from "../authentication/AuthContextProvider";
 
 function Customizer(){
-    const [schema, setSchema] = useState(schemaJSON);
+    //const [schema, setSchema] = useState(schemaJSON);
+    const {schema, setSchema} = useContext(SchemaContext);
+    console.log(schema);
+
+    const {jwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     const schemaUtils = {
         change: (values, index) => {
             var newSchema = [...schema];
-            newSchema[index] = values;
-            setSchema(newSchema);
+            var newValues = {...values};
+            newSchema[index] = newValues;  
+            axios.put('/api/schema/' + newValues.estimateType, newValues).then(() => {
+                setSchema(newSchema);
+            });
         },
         swap: (fromIndex, toIndex) => {
             if((fromIndex >= 0 && fromIndex < schema.length) && (toIndex >= 0 && toIndex < schema.length)){
@@ -32,13 +46,19 @@ function Customizer(){
             if((schema.length > 1) && (index >= 0 && index < schema.length)){
                 var copySchema = [...schema];
                 copySchema.splice(index, 1);
-                setSchema(copySchema);
+                axios.delete('/api/schema?estimateType=' + schema[index].estimateType).then((response) => {
+                    console.log(response);
+                    setSchema(copySchema);
+                });
             }
         },
         push: (element) => {
             var copySchema = [...schema];
             copySchema.push(element);
-            setSchema(copySchema);
+            axios.post('/api/schema', element).then((response) => {
+                console.log(response);
+                setSchema(copySchema);
+            });
         }
     }
 
@@ -57,6 +77,11 @@ function Customizer(){
                     <div className="AddPreset"></div>
                     <h3>Add Preset</h3>
                 </div>
+            </div>
+            <div className='TitleBar'>
+                <button className="SavePresetsButton">
+                    save
+                </button>
             </div>
         </div>
     );

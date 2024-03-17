@@ -8,8 +8,8 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form } from 'formik';
-import React, { useEffect, useState, useContext } from "react";
+import { Formik, Form, yupToFormErrors } from 'formik';
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -35,15 +35,57 @@ const billableSchema = [{
  * @param {validationSchema} errors, the validation schema 
  * @returns bool, boolean if there are errors or not
  */
-function determineErrors(errors) {
+function determineErrors(errors, schema) {
     var bool = false;
-    //Check for errors in each billable list
-    for (const key of Object.keys(billableList)) {
-        if (errors[billableList[key]]) {
+    console.log(errors)
+    // Check for errors in each billable list
+    schema.form.forEach((stage, index) => {
+        if(errors.form !== undefined && errors.form[index]){
             bool = true;
         }
-    }
+    });
     return bool;
+}
+
+function typeSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = "";
+            break;
+        case "Number":
+            defaultValue = 0.0;
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFields(stage){
+    var blankFields = {
+        description: stage.canonicalName,
+        autoImport: "false",
+        autoUpdate: "false"
+    }
+    var containsQuantity = false;
+    stage.fields.forEach((field) => {
+        if(field.name === "Name"){
+            blankFields.name = typeSwitch(field.unit);
+        }else if(field.name === "Price"){
+            blankFields.price = typeSwitch(field.unit);
+        }else if(field.name === "Quantity"){
+            blankFields.quantity = typeSwitch(field.unit);
+            containsQuantity = true;
+        }else{
+            if(blankFields.inputs === undefined){
+                blankFields.inputs = {};
+            }
+            blankFields.inputs[field.name] = typeSwitch(field.unit);
+        }
+    })
+    if(!containsQuantity){
+        blankFields.quantity = 1;
+    }
+    return [blankFields];
 }
 
 /**
@@ -51,14 +93,56 @@ function determineErrors(errors) {
  * billableList schema
  * @returns initialValues, the initial values of the form
  */
-function generateInitialValues() {
-    var initialValues = {};
-    //Generate inital values from the billableList schema
-    for (const key of Object.keys(billableList)) {
-        initialValues[billableList[key]] = [...billableSchema];
-    }
-    console.log(initialValues)
+function generateInitialValues(schema) {
+    var initialValues = {form: []};
+
+    schema.form.forEach((stage) => {
+        var newStage = {};
+        newStage[stage.canonicalName] = generateFields(stage);
+        initialValues.form.push(newStage);
+    });
     return initialValues;
+}
+
+function schemaSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = Yup.string()
+            .required('Required')
+            .max(20, "Must be less than 20 characters");
+            break;
+        case "Number":
+            defaultValue = Yup.number()
+            .required('Required');
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFieldSchema(stage){
+    var blankSchema = {};
+    stage.fields.forEach((stage) => {
+        if(stage.name !== "Name" && stage.name !== "Price" && stage.name !== "Quantity"){
+            blankSchema[stage.name] = schemaSwitch(stage.unit);
+        }
+    });
+    return {
+        inputs: Yup.object().shape(blankSchema),
+        name: Yup.string()
+            .required('Required')
+            .max(20, "Maximum of 20 characters"),
+        price: Yup.number()
+            .required('Required'),
+        quantity: Yup.number()
+            .required('Required'),
+        description: Yup.string()
+            .required('Required'),
+        autoImport: Yup.string()
+            .required('Required'),
+        autoUpdate: Yup.string()
+            .required('Required')
+    };
 }
 
 /**
@@ -66,29 +150,18 @@ function generateInitialValues() {
  * billableList schema
  * @returns formValidation
  */
-function generateYupSchema() {
-    var blankSchema = {};
-    //For each billable type in the json, make a schema
-    for (const key of Object.keys(billableList)) {
-        blankSchema[billableList[key]] = Yup.array(Yup.object().shape({
-            name: Yup.string()
-                .required('Required')
-                .max(20, "Must be less than 20 characters"),
+function generateYupSchema(schema) {
 
-            price: Yup.number('Must be a number')
-                .required('Required'),
-
-            quantity: Yup.number('Must be a number')
-                .required('Required')
-
-        })).min(1)
-    }
-    //Set the form validation schema to this generated schema
-    const formValidation = Yup.object(
-        blankSchema
-    );
-    console.log(formValidation);
-    return formValidation;
+    var blankSchema = { };
+    schema.form.forEach((stage) => {
+        blankSchema[stage.canonicalName] = Yup.array(Yup.object().shape(
+            generateFieldSchema(stage)
+        ));
+    });
+    var arraySchema = Yup.object().shape({
+        form: Yup.array(Yup.object().shape(blankSchema))
+    });
+    return arraySchema;
 }
 
 /**
@@ -99,13 +172,19 @@ function generateYupSchema() {
  * @param {JSON} data estimate data passed down from estimate info
  */
 function determineBillables(initialValues, data) {
-    for (const key of Object.keys(initialValues)) {
-        if (data.hasOwnProperty(key)) {
-            initialValues[key] = data[key];
-        } else {
-            initialValues[key] = billableSchema;
+    initialValues.form.forEach((value, index) => {
+        if(data.form[index] !== undefined){
+            initialValues.form[index] = data.form[index];
         }
-    }
+    });
+
+    // for (const key of Object.keys(initialValues)) {
+    //     if (data.hasOwnProperty(key)) {
+    //         initialValues[key] = data[key];
+    //     } else {
+    //         initialValues[key] = billableSchema;
+    //     }
+    // }
 }
 
 /**
@@ -130,11 +209,6 @@ function constructData(user, billables, status) {
     return estimateData;
 }
 
-//Generate the yup schema
-const validationSchema = generateYupSchema();
-//Generate the initial values
-var initialValues = generateInitialValues();
-
 /**
  * This function displays the three stage form. It uses a nave index to
  * keep track of where the user is and displays the correct form stage
@@ -145,11 +219,16 @@ var initialValues = generateInitialValues();
  */
 function Estimator(props) {
 
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt} = useContext(AuthContext);
 
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
+
+    //Generate the yup schema
+    const validationSchema = useMemo(() => generateYupSchema(props.schema), [props.schema]);
+    //Generate the initial values
+    var initialValues = useMemo(() => generateInitialValues(props.schema), []);
 
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
@@ -158,7 +237,7 @@ function Estimator(props) {
     const [formValues, setFormValues] = useState(initialValues);
 
     useEffect(() => {
-        setFormValues(determineBillables(initialValues, props.data))
+        setFormValues(determineBillables(initialValues, props.data, props.schema))
     }, []);
 
     /**
@@ -180,14 +259,22 @@ function Estimator(props) {
      * @param {*} status status of this form
      */
     const postDraftData = (values, status) => {
-        const estimateData = constructData(props.data, values, status);
-        console.log(estimateData);
+        const estimateData = {user: props.data.user, form: values.form, status: status};
         setPostError(false);
+
+        if(status !== "complete") {
+            estimateData.schema = props.schema;
+        }
+        if(props.data._id !== undefined){
+            estimateData._id = props.data._id;
+        }
+
+        console.log(estimateData);
 
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/api/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate/' + estimateData._id.$oid, estimateData, { timeout: 3000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -197,7 +284,7 @@ function Estimator(props) {
         } else {
             //If it doesnt have an id, this is not a draft so post it
             axios.post('/api/estimate', estimateData, { timeout: 3000 }).then((response) => {
-                props.data._id = { $oid: response.data.insertedId.$oid };
+                props.setData({...props.data, _id: {$oid: response.data.insertedId.$oid}});
                 //If the status is complete, delete from user estimates and
                 //refresh the page
                 axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
@@ -216,18 +303,18 @@ function Estimator(props) {
     return (
         <div className='materialsForm'>
             <div className='divider'>
-                <h2>Three Stage Estimate Calculator</h2>
+                <h2>Estimate Calculator</h2>
                 <div className='formNav'>
                     {/**Map over billable list schema to determine form navigation buttons */}
-                    {Object.keys(billableList).map((key, index) => (
-                        <button className='button' key={index}
+                    {props.schema.form.map((stage, index) => (
+                        <button className='button' key={stage.canonicalName + index}
                             onClick={() => { setNavIndex(index) }}>
-                            {key}s
+                            {stage.canonicalName}
                         </button>
                     ))
                     }
                     <button className='button'
-                        onClick={() => { setNavIndex(Object.keys(billableList).length) }}>
+                        onClick={() => { setNavIndex(props.schema.form.length) }}>
                         Overview
                     </button>
                 </div>
@@ -240,32 +327,35 @@ function Estimator(props) {
                 onSubmit={(values) => postDraftData(values, "complete")}
             >
                 {/*Here we are creating an arrow function that returns the form and passing it
-            our form values*/}
+                our form values*/}
                 {({ values, errors, touched }) => (
                     <Form>
                         {/**Map over billable list schema to generate stages of the estimate form */}
-                        {Object.keys(billableList).map((key, index) => (
+                        {props.schema.form.map((stage, index) => (
                             (navIndex === index ?
                                 (<Calculator
-                                    values={values[billableList[key]]}
-                                    name={key}
+                                    values={values.form[index][stage.canonicalName]}
+                                    path={`form[${index}][${stage.canonicalName}]`}
+                                    index={index}
                                     errors={errors}
                                     touched={touched}
+                                    schema={props.schema.form[index]}
+                                    generateFields={generateFields}
                                 />) : (null))
                         ))
                         }
                         {/**If nav index is at the end of the billable list length */}
-                        {navIndex === Object.keys(billableList).length ?
+                        {navIndex === props.schema.form.length ?
                             (
                                 //Display the overview page as well as submit buttons and
                                 //any error messages
                                 <>
-                                    <Overview values={values} />
+                                    <Overview values={values} schema={props.schema} />
                                     <button type="submit" className='button large'>Submit Estimate</button>
                                     <button type="button" className='button large' onClick={() => {
                                         postDraftData(values, "draft");
                                     }}>Save as Draft</button>
-                                    {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                                    {(determineErrors(errors, props.schema)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                     {saved ? <div className='center'>
                                                 <Message
                                                     timeout={3000}

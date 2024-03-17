@@ -13,6 +13,7 @@ import Calc from "../assets/Calculator.png"
 import Cust from "../assets/Customize.png"
 import Acc from "../assets/Account.png"
 import "./AppSwitcher.css";
+import SchemaContextProvider from "./estimateCustomizer/SchemaContextProvider";
 
 function AppSwitcher(){
     //Current page
@@ -58,8 +59,10 @@ function AppSwitcher(){
                 </div>
             </div>
             <div className="PageWrapper">
-                {/* //display the currently selected page */}
-                {renderedPage}
+                <SchemaContextProvider>
+                    {/* //display the currently selected page */}
+                    {renderedPage}
+                </SchemaContextProvider>
             </div>
         </div>
     );

@@ -43,12 +43,12 @@ function EstimatePreset(props) {
             <img src={edit} className="EditImg ImgEdit" onClick={() => {
                 setDisplay(true);
             }}/>
-            <img src={Left} className="EditImg ImgLeft" onClick={() => {
+            {/* <img src={Left} className="EditImg ImgLeft" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index - 1);
             }}/>
             <img src={Right} className="EditImg ImgRight" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index + 1);
-            }}/>
+            }}/> */}
             <img src={Close} className="EditImg ImgX" onClick={() => {
                 props.schemaUtils.remove(props.index);
             }}/>

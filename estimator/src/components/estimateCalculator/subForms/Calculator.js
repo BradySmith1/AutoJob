@@ -9,9 +9,25 @@
 
 import './Calculator.css';
 import { FieldArray, Field, ErrorMessage} from 'formik';
-import React, { useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import Library from './Library';
 import billableList from '../../JSONs/billableList.json';
+import CalcColumn from './CalcColumn';
+
+
+function displayCalcColumn(field, schemaIndex, props, billableIndex){
+    var jsxObject = (null);
+    if(field.name === "Name"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].name`} schema={props.schema.fields[schemaIndex]}/>)
+    }else if(field.name === "Price"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].price`} schema={props.schema.fields[schemaIndex]}/>)
+    }else if(field.name === "Quantity"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].quantity`} schema={props.schema.fields[schemaIndex]}/>)
+    }else{
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].inputs[${field.name}]`} schema={props.schema.fields[schemaIndex]}/>);
+    }   
+    return jsxObject;
+}
 
 /**
  * This method returns the calculator component. It is a
@@ -27,65 +43,32 @@ import billableList from '../../JSONs/billableList.json';
  */
 function Calculator(props){
 
-    const billableSchema = {
-        name: "",
-        price: 0.0,
-        quantity: 1,
-        description: props.name,
-        autoImport: "false",
-        autoUpdate: "false"
-    }
-
     //Use state used to keep track of if the material libaray should be displayed or not.
     const [display, setDisplay] = useState(false);
     //Formik name, derrived from the props.name, used to name input fields
-    const formikName = billableList[props.name];
+
+    const [defaultBillable] = useMemo((() => props.generateFields(props.schema)), [props.schema])
+
+    console.log(props.generateFields(props.schema))
+
+    // console.log(props.path)
+    // console.log(props.values)
 
     return(
-        <FieldArray name={(formikName)}>
+        <FieldArray name={props.path}>
             {/*Here we are creating an arrow function, passing it the remove and push field
             array methods so that we can use them in the form.*/}
-            {({ remove, push, insert }) => (
-                <div className='wrapper'>
-                    <h2>Add {props.name}s</h2>
+            {({ remove, push, insert, index }) => (
+                <div className='wrapper' id={index}>
+                    <h2>Add {props.schema.canonicalName}</h2>
                     {/*Here we are ensuring that the billable array length is always greater than zero and then
                     mapping over the billable array to create our resizeable form*/}
                     {props.values.length > 0 &&
-                    props.values.map((billable, index) => (
+                    props.values.map((value, billableIndex) => (
                         <div className="row" key={index}>
-                            {/** Input field for the name of the billable object, and a dive to display errors */}
-                            <div className="col">
-                                <div className='label' >{props.name}</div>
-                                <Field
-                                name={`${formikName}.${index}.name`}
-                                placeholder=""
-                                type="text"
-                                className="inputBox"
-                                />
-                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.name`} component='div'/></div>
-                            </div>
-                            {/** Input field for the price of the billable object, and a dive to display errors */}
-                            <div className="col">
-                                <div className='label' >Price</div>
-                                <Field
-                                name={`${formikName}.${index}.price`}
-                                placeholder=""
-                                type="number"
-                                className="inputBox"
-                                />
-                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.price`} component='div'/></div>
-                            </div>
-                            {/** Input field for the quantity of the billable object, and a dive to display errors */}
-                            <div className="col">
-                                <div className='label' >Qty.</div>
-                                <Field
-                                name={`${formikName}.${index}.quantity`}
-                                placeholder=""
-                                type="number"
-                                className="inputBox"
-                                />
-                                <div className='errors'><ErrorMessage name={`${formikName}.${index}.quantity`} component='div'/></div>
-                            </div>
+                            {props.schema.fields.map((field, schemaIndex) => (
+                                displayCalcColumn(field, schemaIndex, props, billableIndex)
+                            ))}
                             {/**This displays the subtotal for the column */}
                             <div className='col totalCol'>
                                 <div className='label'> Sub Total </div>
@@ -93,7 +76,7 @@ function Calculator(props){
                                     <div className='total'> 
                                     {/*Here we are calculating the total price for this billable*/}
                                     ${
-                                        (billable.price * billable.quantity).toFixed(2)
+                                        (props.values[billableIndex].price * props.values[billableIndex].quantity).toFixed(2)
                                     } 
                                     </div>
                                 </div>
@@ -106,7 +89,7 @@ function Calculator(props){
                                         //Here we are removing this element of the billable array
                                         //when the x button is clicked
                                         if(props.values.length > 1){
-                                            remove(index)
+                                            remove(billableIndex)
                                         }
                                     }}
                                 >
@@ -119,7 +102,7 @@ function Calculator(props){
                     <button
                         type="button"
                         className="button medium"
-                        onClick={() => push(billableSchema)}
+                        onClick={() => push(defaultBillable)}
                     >
                         + Add New {props.name}
                     </button>

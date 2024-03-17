@@ -15,10 +15,11 @@ import "./Account.css"
 
 function Account(){
     //Context used to set the jwt token
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt, setJwt, user} = useContext(AuthContext);
 
     return(
         <div className="AccountWrapper">
+            <h2 className="link">localhost:3000/{user.id}</h2>
             <button className="button" onClick={() => {
                 //reset the jwt
                 setJwt(0);
