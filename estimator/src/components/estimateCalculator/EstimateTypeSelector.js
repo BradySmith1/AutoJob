@@ -56,7 +56,7 @@ function EstimateTypeSelector(props){
     return(
         <>
             {selectedType !== undefined ? (
-                <Estimator data={estimateData} schema={selectedType} key={props.data.user._id.$oid}/>
+                <Estimator data={estimateData} setData={setEstimateData} schema={selectedType} key={props.data.user._id.$oid}/>
             ) : (
                 <div className="SelectEstimateWrapper">
                     <Select 

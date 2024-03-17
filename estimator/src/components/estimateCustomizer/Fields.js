@@ -8,7 +8,7 @@ import Up from "../../assets/Up.png"
 import Down from "../../assets/Down.png"
 import lightEdit from "../../assets/LightEdit.png";
 import Locked from "../../assets/Locked.png";
-import schemaJson from "../JSONs/schema.json"
+import defaultSchema from "../JSONs/defaultEstimate.json"
 
 const units = [
     // Others
@@ -16,7 +16,7 @@ const units = [
     { value: "Text", label: "Text" }, // Just text
 ];
 
-const fieldSchema = {...schemaJson[0].form[0].fields[2]};
+const fieldSchema = {...defaultSchema.form[0].fields[2]};
 fieldSchema.name = "Default"; 
 
 function Fields(props){
@@ -63,7 +63,7 @@ function Fields(props){
                                             <option values={element.unit}>{element.unit}</option>
                                         </select>
                                         <div className="BinaryContainer">
-                                            <input type="checkbox" checked="checked" onclick="return false;"/> 
+                                            <input type="checkbox" checked="checked" onClick={()=>{return false}}/> 
                                             <p>Show In Overview</p>
                                         </div>
                                         <button className="RemoveFieldButton" onClick={() => {

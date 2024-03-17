@@ -8,23 +8,31 @@
 import React, { useContext } from "react";
 import schemaJSON from "../JSONs/schema.json";
 import EstimatePreset from "./EstimatePresets";
+import axios from "axios";
 import defaultEstimate from "../JSONs/defaultEstimate.json";
 import "./Customizer.css";
 import { SchemaContext } from "./SchemaContextProvider";
+import { AuthContext } from "../authentication/AuthContextProvider";
 
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
+    console.log(schema);
+
+    const {jwt} = useContext(AuthContext);
+
+    axios.defaults.headers.common = {
+        "Authorization": jwt
+    }
 
     const schemaUtils = {
         change: (values, index) => {
             var newSchema = [...schema];
             var newValues = {...values};
-            for(var i = 0; i < newValues.form.length; i++){
-                
-            }
-            newSchema[index] = values;  
-            setSchema(newSchema);
+            newSchema[index] = newValues;  
+            axios.put('/api/schema/' + newValues.estimateType, newValues).then(() => {
+                setSchema(newSchema);
+            });
         },
         swap: (fromIndex, toIndex) => {
             if((fromIndex >= 0 && fromIndex < schema.length) && (toIndex >= 0 && toIndex < schema.length)){
@@ -38,13 +46,19 @@ function Customizer(){
             if((schema.length > 1) && (index >= 0 && index < schema.length)){
                 var copySchema = [...schema];
                 copySchema.splice(index, 1);
-                setSchema(copySchema);
+                axios.delete('/api/schema?estimateType=' + schema[index].estimateType).then((response) => {
+                    console.log(response);
+                    setSchema(copySchema);
+                });
             }
         },
         push: (element) => {
             var copySchema = [...schema];
             copySchema.push(element);
-            setSchema(copySchema);
+            axios.post('/api/schema', element).then((response) => {
+                console.log(response);
+                setSchema(copySchema);
+            });
         }
     }
 

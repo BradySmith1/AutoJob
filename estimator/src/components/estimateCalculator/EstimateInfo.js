@@ -79,6 +79,7 @@ async function getAutoImports() {
 async function packDrafts() {
     //Get the drafts
     const response = await axios.get('/api/estimate?status=draft');
+    console.log(response.data)
     return response.data;
 }
 
@@ -91,45 +92,7 @@ async function packDrafts() {
  */
 function populateDropDown(data) {
     //Create an empty array
-    var outputData = [{value: {user: {
-        _id: {$oid: '6572590648dea175423f277d'},
-        fName: 'asdsad',
-        lName: 'asdasd',
-        email: 'asdasdasd@asdad',
-        strAddr: 'asdads',
-        city: 'asdadsa',
-        state: 'asdad',
-        zip: '28906',
-        phoneNumber: '8282312132',
-        measurements: '',
-        details: ''
-      }}, label: 'test'},
-      {value: {user: {
-        _id: {$oid: 'ea175423f277d6572590648d'},
-        fName: 'asdsad',
-        lName: 'asdasd',
-        email: 'asdasdasd@asdad',
-        strAddr: 'asdads',
-        city: 'asdadsa',
-        state: 'asdad',
-        zip: '28906',
-        phoneNumber: '8282312132',
-        measurements: '',
-        details: ''
-      }}, label: 'test2'},
-      {value: {user: {
-        _id: {$oid: 'ea1754236572590648df277d'},
-        fName: 'asdsad',
-        lName: 'asdasd',
-        email: 'asdasdasd@asdad',
-        strAddr: 'asdads',
-        city: 'asdadsa',
-        state: 'asdad',
-        zip: '28906',
-        phoneNumber: '8282312132',
-        measurements: '',
-        details: ''
-      }}, label: 'test3'}]
+    var outputData = []
     //loop through the customer data
     data.forEach(entry => {
         //Push a json for the drop down, made from customer data
@@ -150,104 +113,7 @@ function populateDropDown(data) {
  */
 function populateDrafts(data) {
     //Create an empty array
-    var outputData = [{value: {
-        "_id": {"$oid": 'ea1754236572590648df277d'},
-        "user": {
-            "_id": {
-                "$oid": "6572590648dea175423f277d"
-            },
-            "fName": "asdsad",
-            "lName": "asdasd",
-            "email": "asdasdasd@asdad",
-            "strAddr": "asdads",
-            "city": "asdadsa",
-            "state": "asdad",
-            "zip": "28906",
-            "phoneNumber": "8282312132",
-            "measurements": "",
-            "details": ""
-        },
-        "form": [
-            {
-                "Materials": [
-                    {
-                        "inputs": {
-                            "Name": "hi",
-                            "Price": 2,
-                            "Quantity": 2
-                        },
-                        "description": "Materials",
-                        "autoImport": "false",
-                        "autoUpdate": "false"
-                    }
-                ]
-            },
-            {
-                "Fees": [
-                    {
-                        "inputs": {
-                            "Name": "hello",
-                            "Price": 2,
-                            "Quantity": 2
-                        },
-                        "description": "Fees",
-                        "autoImport": "false",
-                        "autoUpdate": "false"
-                    }
-                ]
-            }
-        ],
-        "schema": {
-            "estimateType": "Estimate",
-            "form": [
-                {
-                    "canonicalName": "Materials",
-                    "fields": [
-                        {
-                            "name": "Name",
-                            "unit": "Text",
-                            "showInOverview": true,
-                            "required": true
-                        },
-                        {
-                            "name": "Price",
-                            "unit": "Number",
-                            "showInOverview": true,
-                            "required": true
-                        },
-                        {
-                            "name": "Quantity",
-                            "unit": "Number",
-                            "showInOverview": true
-                        }
-                    ]
-                },
-                {
-                    "canonicalName": "Fees",
-                    "fields": [
-                        {
-                            "name": "Name",
-                            "unit": "Text",
-                            "showInOverview": true,
-                            "required": true
-                        },
-                        {
-                            "name": "Price",
-                            "unit": "Number",
-                            "showInOverview": true,
-                            "required": true
-                        },
-                        {
-                            "name": "Quantity",
-                            "unit": "Number",
-                            "showInOverview": true
-                        }
-                    ]
-                }
-            ]
-        },
-        "status": "complete"
-    }, label: "Draft Test"}]
+    var outputData = []
     //loop through the customer data
     data.forEach(entry => {
         //Push a json for the drop down, made from customer data

@@ -24,13 +24,23 @@ function getTotal(arr){
     //Loop through billables
     for(var i = 0; i < arr.length; i++){
         //Add price * quantity to total
-        total = total + (arr[i].inputs.Price * arr[i].inputs.Quantity);
+        total = total + (arr[i].price * arr[i].quantity);
     }
     return total.toFixed(2);
 }
 
-function calculateGrandTotal(props){
-    
+function displayOverviewFields(field, billable){
+    var jsxElement = (null);
+    if(field.name === "Name"){
+        jsxElement = (<h3 className="fourth">{field.name}: {billable.name}</h3>);
+    } else if(field.name === "Price"){
+        jsxElement = (<h3 className="fourth">{field.name}: {billable.price}</h3>);
+    } else if(field.name === "Quantity"){
+        jsxElement = (<h3 className="fourth">{field.name}: {billable.quantity}</h3>);
+    } else{
+        jsxElement = (<h3 className="fourth">{field.name}: {billable.inputs[field.name]}</h3>);
+    }
+    return jsxElement;
 }
 
 /**
@@ -54,8 +64,8 @@ function Overview(props){
         props.schema.form.forEach((stage, index) => {
             for(var i = 0; i < props.values.form[index][stage.canonicalName].length; i++){
                 console.log(props.values.form[index][stage.canonicalName]);
-                total = total + (props.values.form[index][stage.canonicalName][i].inputs.Price * 
-                    props.values.form[index][stage.canonicalName][i].inputs.Quantity);
+                total = total + (props.values.form[index][stage.canonicalName][i].price * 
+                    props.values.form[index][stage.canonicalName][i].quantity);
             }
         })
         setGrandTotal(total.toFixed(2));
@@ -77,11 +87,11 @@ function Overview(props){
                         {/**Map over the materials and display name, price, and quantity */}
                         {props.values.form[index][stage.canonicalName].map((billable, fieldIndex) => (
                             <div className="contentWrapper" key={fieldIndex}>
-                                {billable.inputs.Name !== "" ? 
+                                {billable.Name !== "" ? 
                                 (<>
-                                    {props.schema.form[index].fields.map((field, index) => (
+                                    {props.schema.form[index].fields.map((field) => (
                                         (field.showInOverview ? (
-                                            <h3 className="fourth">{field.name}: {billable.inputs[field.name]}</h3>
+                                            displayOverviewFields(field, billable)
                                         ) : (null))
                                     ))}
                                     {/* <h3 className="fourth">{billable.inputs.Name}</h3>

@@ -14,6 +14,21 @@ import Library from './Library';
 import billableList from '../../JSONs/billableList.json';
 import CalcColumn from './CalcColumn';
 
+
+function displayCalcColumn(field, schemaIndex, props, billableIndex){
+    var jsxObject = (null);
+    if(field.name === "Name"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].name`} schema={props.schema.fields[schemaIndex]}/>)
+    }else if(field.name === "Price"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].price`} schema={props.schema.fields[schemaIndex]}/>)
+    }else if(field.name === "Quantity"){
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].quantity`} schema={props.schema.fields[schemaIndex]}/>)
+    }else{
+        jsxObject = (<CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].inputs[${field.name}]`} schema={props.schema.fields[schemaIndex]}/>);
+    }   
+    return jsxObject;
+}
+
 /**
  * This method returns the calculator component. It is a
  * resizable form of some type, that could be either material
@@ -52,7 +67,7 @@ function Calculator(props){
                     props.values.map((value, billableIndex) => (
                         <div className="row" key={index}>
                             {props.schema.fields.map((field, schemaIndex) => (
-                                <CalcColumn key={schemaIndex} path={`${props.path}[${billableIndex}].inputs[${field.name}]`} values={value.inputs} schema={props.schema.fields[schemaIndex]}/>
+                                displayCalcColumn(field, schemaIndex, props, billableIndex)
                             ))}
                             {/**This displays the subtotal for the column */}
                             <div className='col totalCol'>
@@ -61,7 +76,7 @@ function Calculator(props){
                                     <div className='total'> 
                                     {/*Here we are calculating the total price for this billable*/}
                                     ${
-                                        (props.values[billableIndex].inputs.Price * props.values[billableIndex].inputs.Quantity).toFixed(2)
+                                        (props.values[billableIndex].price * props.values[billableIndex].quantity).toFixed(2)
                                     } 
                                     </div>
                                 </div>

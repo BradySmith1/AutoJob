@@ -12,17 +12,20 @@ import React, { useState, createContext } from 'react'
 //Initialize the auth context
 export const AuthContext = createContext({
     jwt: "0",
-    setJwt: () => {}
+    setJwt: () => {},
+    user: {},
+    setUser: () => {}
 });
 
 const AuthContextProvider = ({ children }) => {
     //state for the java web token
     const [jwt, setJwt] = useState("0");
+    const [user, setUser] = useState({});
 
     //return a provider for auth context wrapped around
     //any children
     return(
-        <AuthContext.Provider value={{jwt, setJwt}}>
+        <AuthContext.Provider value={{jwt, setJwt, user, setUser}}>
             {children}
         </AuthContext.Provider>
     );

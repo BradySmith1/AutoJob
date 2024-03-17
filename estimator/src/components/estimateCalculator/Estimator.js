@@ -35,14 +35,15 @@ const billableSchema = [{
  * @param {validationSchema} errors, the validation schema 
  * @returns bool, boolean if there are errors or not
  */
-function determineErrors(errors) {
+function determineErrors(errors, schema) {
     var bool = false;
-    //Check for errors in each billable list
-    for (const key of Object.keys(billableList)) {
-        if (errors[billableList[key]]) {
+    console.log(errors)
+    // Check for errors in each billable list
+    schema.form.forEach((stage, index) => {
+        if(errors.form !== undefined && errors.form[index]){
             bool = true;
         }
-    }
+    });
     return bool;
 }
 
@@ -61,20 +62,28 @@ function typeSwitch(unit){
 
 function generateFields(stage){
     var blankFields = {
-        inputs: {},
         description: stage.canonicalName,
         autoImport: "false",
         autoUpdate: "false"
     }
     var containsQuantity = false;
     stage.fields.forEach((field) => {
-        blankFields.inputs[field.name] = typeSwitch(field.unit);
-        if(field.name === "Quantity"){
+        if(field.name === "Name"){
+            blankFields.name = typeSwitch(field.unit);
+        }else if(field.name === "Price"){
+            blankFields.price = typeSwitch(field.unit);
+        }else if(field.name === "Quantity"){
+            blankFields.quantity = typeSwitch(field.unit);
             containsQuantity = true;
+        }else{
+            if(blankFields.inputs === undefined){
+                blankFields.inputs = {};
+            }
+            blankFields.inputs[field.name] = typeSwitch(field.unit);
         }
     })
     if(!containsQuantity){
-        blankFields.inputs.Quantity = 1;
+        blankFields.quantity = 1;
     }
     return [blankFields];
 }
@@ -114,10 +123,19 @@ function schemaSwitch(unit){
 function generateFieldSchema(stage){
     var blankSchema = {};
     stage.fields.forEach((stage) => {
-        blankSchema[stage.name] = schemaSwitch(stage.unit);
+        if(stage.name !== "Name" && stage.name !== "Price" && stage.name !== "Quantity"){
+            blankSchema[stage.name] = schemaSwitch(stage.unit);
+        }
     });
     return {
         inputs: Yup.object().shape(blankSchema),
+        name: Yup.string()
+            .required('Required')
+            .max(20, "Maximum of 20 characters"),
+        price: Yup.number()
+            .required('Required'),
+        quantity: Yup.number()
+            .required('Required'),
         description: Yup.string()
             .required('Required'),
         autoImport: Yup.string()
@@ -201,7 +219,7 @@ function constructData(user, billables, status) {
  */
 function Estimator(props) {
 
-    const {jwt, setJwt} = useContext(AuthContext);
+    const {jwt} = useContext(AuthContext);
 
     axios.defaults.headers.common = {
         "Authorization": jwt
@@ -235,28 +253,28 @@ function Estimator(props) {
         }
     }
 
-    const handleSubmit = (values) => {
-        console.log({user: props.data.user, form: values.form, schema: props.schema, status: "complete"})
-    }
-
     /**
      * Post the form data to the backend
      * @param {*} values values to post
      * @param {*} status status of this form
      */
     const postDraftData = (values, status) => {
-        const estimateData = constructData(props.data, values, status);
-        console.log(estimateData);
+        const estimateData = {user: props.data.user, form: values.form, status: status};
         setPostError(false);
 
         if(status !== "complete") {
             estimateData.schema = props.schema;
         }
+        if(props.data._id !== undefined){
+            estimateData._id = props.data._id;
+        }
+
+        console.log(estimateData);
 
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/api/estimate/' + props.data._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate/' + estimateData._id.$oid, estimateData, { timeout: 3000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -266,7 +284,7 @@ function Estimator(props) {
         } else {
             //If it doesnt have an id, this is not a draft so post it
             axios.post('/api/estimate', estimateData, { timeout: 3000 }).then((response) => {
-                props.data._id = { $oid: response.data.insertedId.$oid };
+                props.setData({...props.data, _id: {$oid: response.data.insertedId.$oid}});
                 //If the status is complete, delete from user estimates and
                 //refresh the page
                 axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
@@ -306,7 +324,7 @@ function Estimator(props) {
                 validationSchema={validationSchema}
                 validateOnChange={false}
                 validateOnBlur={true}
-                onSubmit={(values) => /**postDraftData(values, "complete")*/handleSubmit(values)}
+                onSubmit={(values) => postDraftData(values, "complete")}
             >
                 {/*Here we are creating an arrow function that returns the form and passing it
                 our form values*/}
@@ -337,7 +355,7 @@ function Estimator(props) {
                                     <button type="button" className='button large' onClick={() => {
                                         postDraftData(values, "draft");
                                     }}>Save as Draft</button>
-                                    {(determineErrors(errors)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
+                                    {(determineErrors(errors, props.schema)) ? <div className='center invalid'>Input Errros Prevent Submission</div> : null}
                                     {saved ? <div className='center'>
                                                 <Message
                                                     timeout={3000}

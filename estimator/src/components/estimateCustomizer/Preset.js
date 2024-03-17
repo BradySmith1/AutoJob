@@ -6,7 +6,7 @@ import Fields from "./Fields";
 import "./Preset.css";
 import Editable from "../utilComponents/Editable";
 import lightEdit from "../../assets/LightEdit.png";
-import schemaJson from "../JSONs/schema.json"
+import defaultSchema from "../JSONs/defaultEstimate.json"
 
 //Taken from pbelaustegui on github.com
 //https://github.com/jquense/yup/issues/345
@@ -15,6 +15,12 @@ Yup.addMethod(Yup.array, 'unique', function (message, mapper= a=>a) {
         return list.length  === new Set(list.map(mapper)).size;
     });
 });
+
+Yup.addMethod(Yup.string, 'doesNotMatch', function (message) {
+    return this.test('doesNotMatch', message, function () {
+        
+    });
+})
 
 const validationSchema = Yup.object().shape({
     estimateType: Yup.string()
@@ -36,7 +42,7 @@ const validationSchema = Yup.object().shape({
     })).unique("Duplicate names", a=>a.canonicalName)
 });
 
-const defaultStage = {...schemaJson[0].form[0]};
+const defaultStage = {...defaultSchema.form[0]};
 defaultStage.canonicalName = "Default";
 
 const submit = (values, props) => {
