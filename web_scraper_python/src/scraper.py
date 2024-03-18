@@ -33,13 +33,14 @@ class WebScraper:
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
-        #self.options.add_argument("--headless=new")
+        self.options.add_argument("--headless=new")
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_page(self, url, zip_code):
         wait = WebDriverWait(self.driver, 10)
-        wait.until(self.driver.current_url != url)
         self.driver.get(url)
+        time.sleep(3)
+        #wait.until(self.driver.current_url != url) # TODO need to get this to work so im not waiting a set amount time
         if zip_code is not None:
             self.driver.find_element(By.ID, 'store-search-handler').click()
             self.driver.find_element(By.TAG_NAME, 'text').send_keys(zip_code)
