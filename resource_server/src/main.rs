@@ -84,7 +84,7 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_BACKTRACE", "1");
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
     std::env::set_var("IMAGE_PATH", "../images/");
-    std::env::set_var("WEB_CACHE_URL", "https://localhost:5000/cache");
+    std::env::set_var("WEB_CACHE_URL", "http://localhost:3005/cache");
     std::env::set_var("AUTHSERVERTOKEN","sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8");
     env_logger::init();
 

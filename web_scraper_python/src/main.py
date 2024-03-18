@@ -38,7 +38,7 @@ def get_cached_materials():
         db_collection.insert_one(material_to_cache)
         print(material_to_cache)
         # need to serialize the material_to_cache object, wont do it right now
-        return {"name": scraped_material.get("name"), "price": scraped_material.get("price")}
+        return {"name": scraped_material.get("name"), "price": scraped_material.get("price"), "company": company}
 
 
 def scrape_and_cache(name, company, zip_code=None):

@@ -57,11 +57,11 @@ pub async fn manual_web_scrape(query: Query<HashMap<String, String>>,
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 pub async fn get_scraper_data(name: String, company: String) -> Result<ScraperData, String> {
     let url = std::env::var("WEB_CACHE_URL").unwrap();
-    //let client = reqwest::Client::new();  //this is used when not using a self-signed cert
-    let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
+    let client = reqwest::Client::new();  //this is used when not using a self-signed cert
+    // let client = reqwest::Client::builder()
+    //     .danger_accept_invalid_certs(true)
+    //     .build()
+    //     .unwrap();
     let res = client.get(&url);
     let res = res.query(&[("name", name), ("company", company)]);
     let res = res.timeout(std::time::Duration::from_secs(15));
