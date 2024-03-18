@@ -1,6 +1,18 @@
+/**
+ * @version 1, March 18th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This component is used for displaying a field in the calculator
+ */
 import React, { useContext } from "react";
 import { Field, ErrorMessage} from 'formik';
 
+/**
+ * Returns an input field for the estimate calculator
+ * @param {*} props 
+ * @returns 
+ */
 function CalcColumn(props){
     console.log(props.schema)
     return(

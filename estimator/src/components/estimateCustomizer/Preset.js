@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import Seperator from "../utilComponents/Seperator";
 import { Formik, Field, Form, FieldArray } from 'formik';
@@ -16,12 +18,13 @@ Yup.addMethod(Yup.array, 'unique', function (message, mapper= a=>a) {
     });
 });
 
-Yup.addMethod(Yup.string, 'doesNotMatch', function (message) {
-    return this.test('doesNotMatch', message, function () {
+// Yup.addMethod(Yup.string, 'doesNotMatch', function (message) {
+//     return this.test('doesNotMatch', message, function () {
         
-    });
-})
+//     });
+// })
 
+//Yup schema
 const validationSchema = Yup.object().shape({
     estimateType: Yup.string()
         .required('Required')
@@ -42,14 +45,20 @@ const validationSchema = Yup.object().shape({
     })).unique("Duplicate names", a=>a.canonicalName)
 });
 
+//Default stage
 const defaultStage = {...defaultSchema.form[0]};
 defaultStage.canonicalName = "Default";
 
+//Submit function
 const submit = (values, props) => {
     props.setSchema(values, props.index);
 }
 
-
+/**
+ * This function maps over stages and displays them in the modal window
+ * @param {Object} props 
+ * @returns JSX element
+ */
 function Preset(props){
     return(
         <div className="PresetWrapper">

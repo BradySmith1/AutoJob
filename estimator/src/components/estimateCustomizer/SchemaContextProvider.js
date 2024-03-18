@@ -3,9 +3,8 @@
  * @author Andrew Monroe 
  * @author Brady Smith
  * 
- * This file is the provider for the auth context,
- * which consists of the jwt value and the function to
- * set the jwt value
+ * This file is the provider for the schema context,
+ * which consists of the schema and a function to set the schema
  */
 import React, { useState, createContext, useMemo, useContext } from 'react'
 import axios from 'axios';
@@ -17,16 +16,21 @@ export const SchemaContext = createContext(defaultSchema);
 
 const SchemaContextProvider = ({ children }) => {
 
+    //Pull in jwt
     const {jwt} = useContext(AuthContext);
 
+    //JWT header
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
 
+    //Schema state
     const [schema, setSchema] = useState(defaultSchema);
 
+    //Loading message
     const [loading, setLoading] = useState(true);
 
+    //Get the schemas from the database
     useMemo(() => {
         axios.get('/api/schemas').then((response) => {
             console.log(response.data)

@@ -3,7 +3,8 @@
  * @author Andrew Monroe 
  * @author Brady Smith
  * 
- * This file will be the estimate customizer.
+ * Estimate customizer, array of editeable schemas. These schemas can be selected from in
+ * a drop down in the estimate calculator.
  */
 import React, { useContext } from "react";
 import schemaJSON from "../JSONs/schema.json";

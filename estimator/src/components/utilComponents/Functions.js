@@ -1,3 +1,12 @@
+/**
+ * This function was taken from w3schools
+ * https://www.w3schools.com/js/js_cookies.asp
+ * 
+ * Get a cookie based off of a name
+ * 
+ * @param {String} cname 
+ * @returns String, cookie
+ */
 export const getCookie = (cname) => {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);

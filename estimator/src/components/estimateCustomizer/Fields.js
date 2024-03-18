@@ -1,3 +1,11 @@
+/**
+ * @version 1, March 18th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This component is the fields displayed within a stage.
+ */
+
 import React from "react";
 import { FieldArray, Field } from "formik";
 import Seperator from "../utilComponents/Seperator";
@@ -10,15 +18,22 @@ import lightEdit from "../../assets/LightEdit.png";
 import Locked from "../../assets/Locked.png";
 import defaultSchema from "../JSONs/defaultEstimate.json"
 
+//Units that can be selected from the unit drop down
 const units = [
-    // Others
     { value: "Number", label: "Number" }, // Just a number
     { value: "Text", label: "Text" }, // Just text
 ];
 
+//Default schema for a field
 const fieldSchema = {...defaultSchema.form[0].fields[2]};
+//Change the name to default
 fieldSchema.name = "Default"; 
 
+/**
+ * This function returns the estimate
+ * @param {*} props 
+ * @returns 
+ */
 function Fields(props){
     return(
         <div className="FieldsWrapper">
@@ -32,8 +47,10 @@ function Fields(props){
                         {props.formValues.form[props.index].fields.length > 0 && 
                          props.formValues.form[props.index].fields.map((element, index) => (
                             <div className="FieldsContainer">
+                                {/**If this field is editeable */}
                                 {element.required === undefined ? (
                                     <>
+                                        {/**Display input fields */}
                                         <Editable path={lightEdit}>
                                             <Field className="Name NoInputStyle Black" name={`form[${props.index}].fields[${index}].name`} />
                                         </Editable>
@@ -54,6 +71,7 @@ function Fields(props){
                                     </>
                                 ) : (
                                     <>
+                                        {/**Display fake input fields */}
                                         <Editable path={Locked}>
                                             <div className="Name FakeField">
                                                 {element.name}
@@ -87,6 +105,7 @@ function Fields(props){
                     </div>
                 )}
             </FieldArray>
+            {/**Remove Button */}
             {props.formValues.form.length > 1 ? (
                 <img src={Close} className="RemoveStage" onClick={() => {
                     props.remove(props.index);
@@ -94,7 +113,7 @@ function Fields(props){
             ) : (
                 null
             )}
-
+            {/**Swap up button */}
             {props.index > 0 ? (
                 <img src={Up} className="Up Arrow" onClick={() => {
                         props.move(props.index, props.index - 1);
@@ -102,7 +121,7 @@ function Fields(props){
             ) : (
                 null
             )}
-
+            {/**Swap down button */}
             {props.index < props.formValues.form.length - 1 ? (
                 <img src={Down} className="Down Arrow" onClick={() => {
                     props.move(props.index, props.index + 1);
