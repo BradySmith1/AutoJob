@@ -17,23 +17,37 @@ import { AuthContext } from "../authentication/AuthContextProvider";
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
-    console.log(schema);
 
+    //Pull in jwt
     const {jwt} = useContext(AuthContext);
 
+    //Set axios auth header
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
 
+    //An object containing helper functions for the schema
     const schemaUtils = {
+        /**
+         * Change, or modify a schema
+         * 
+         * @param {Object} values, new values for the schema 
+         * @param {Number} index, index of the schema to change 
+         */
         change: (values, index) => {
             var newSchema = [...schema];
             var newValues = {...values};
             newSchema[index] = newValues;  
-            axios.put('/api/schema/' + newValues.estimateType, newValues).then(() => {
+            axios.put('/api/schema/' + schema[index].estimateType, newValues).then(() => {
                 setSchema(newSchema);
             });
         },
+        /**
+         * swap two schemas in the array
+         * 
+         * @param {Number} fromIndex 
+         * @param {Number} toIndex 
+         */
         swap: (fromIndex, toIndex) => {
             if((fromIndex >= 0 && fromIndex < schema.length) && (toIndex >= 0 && toIndex < schema.length)){
                 var copySchema = [...schema];
@@ -42,6 +56,11 @@ function Customizer(){
                 setSchema(copySchema);
             }
         },
+        /**
+         * Remove a schema from the array
+         * 
+         * @param {Number} index 
+         */
         remove: (index) => {
             if((schema.length > 1) && (index >= 0 && index < schema.length)){
                 var copySchema = [...schema];
@@ -52,6 +71,10 @@ function Customizer(){
                 });
             }
         },
+        /**
+         * Add a schema to the array
+         * @param {Object} element, the new schema to add 
+         */
         push: (element) => {
             var copySchema = [...schema];
             copySchema.push(element);
