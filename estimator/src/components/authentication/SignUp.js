@@ -7,14 +7,16 @@
  */
 import "./LogIn.css";
 import axios from 'axios';
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFormik } from 'formik';
 import * as Yup from "yup";
+import { NotificationContext } from "../utilComponents/NotificationProvider";
 
 function SignUp(props){
 
     //Error message
     const [authError, setAuthError] = useState("");
+    const {addMessage} = useContext(NotificationContext);
 
     //Set up formik
     const formik = useFormik({
@@ -55,6 +57,8 @@ function SignUp(props){
                 setAuthError("Could not create account.");
                 return;
             }
+
+            addMessage("Account Creation Succesfull! Please log in.");
 
             //Reset the form
             resetForm();

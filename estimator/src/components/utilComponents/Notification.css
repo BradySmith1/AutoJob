@@ -1,0 +1,17 @@
+.Notification{
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    position: fixed;
+    top: 50px;
+    left: calc(50% - 200px);
+    background-color: #191D23;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    animation: fadeIn 200ms;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}

@@ -14,10 +14,12 @@ import defaultEstimate from "../JSONs/defaultEstimate.json";
 import "./Customizer.css";
 import { SchemaContext } from "./SchemaContextProvider";
 import { AuthContext } from "../authentication/AuthContextProvider";
+import { NotificationContext } from "../utilComponents/NotificationProvider";
 
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
+    const {addMessage} = useContext(NotificationContext);
 
     //Pull in jwt
     const {jwt} = useContext(AuthContext);
@@ -115,7 +117,9 @@ function Customizer(){
                 </div>
             </div>
             <div className='TitleBar'>
-                <button className="SavePresetsButton">
+                <button className="SavePresetsButton" onClick={() => {
+                    addMessage("This is a message");
+                }}>
                     save
                 </button>
             </div>
