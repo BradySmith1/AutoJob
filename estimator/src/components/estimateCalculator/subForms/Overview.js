@@ -73,7 +73,7 @@ function Overview(props){
 
     return(
         <>
-            <h2>Estimate Overview</h2>
+            {props.displayHeader === true ? (<h2>Estimate Overview</h2>) : (null)}
             <div className="overviewWrapper">
                 {/**Map over the billable list to display each the overview for each billable array*/}
                 {props.schema.form.map((stage, index) => (

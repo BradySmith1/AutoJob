@@ -7,11 +7,13 @@
  */
 import React, {useState} from "react"
 import EstimateInfo from "./estimateCalculator/EstimateInfo";
+import EstimateHistory from "./estimateHistory/EstimateHistory";
 import Account from "./accountPage/Account";
 import Customizer from "./estimateCustomizer/Customizer";
 import Calc from "../assets/Calculator.png"
 import Cust from "../assets/Customize.png"
 import Acc from "../assets/Account.png"
+import History from "../assets/history.png"
 import "./AppSwitcher.css";
 import SchemaContextProvider from "./estimateCustomizer/SchemaContextProvider";
 
@@ -29,6 +31,9 @@ function AppSwitcher(){
         //If at 1, render the customizer
         renderedPage = (<Customizer />);
     }else if(page === 2){
+        //If at 2, render the account page
+        renderedPage = (<EstimateHistory />);
+    }else if(page === 3){
         //If at 2, render the account page
         renderedPage = (<Account />);
     }else{
@@ -54,6 +59,12 @@ function AppSwitcher(){
                 <div className="MainMenuButton" onClick={() => {
                     //Set page to 2 on click
                     setPage(2);
+                }}>
+                    <img src={History} className="MenuImage"></img>
+                </div>
+                <div className="MainMenuButton" onClick={() => {
+                    //Set page to 3 on click
+                    setPage(3);
                 }}>
                     <img src={Acc} className="MenuImage"></img>
                 </div>

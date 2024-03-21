@@ -1,0 +1,17 @@
+.HistoryInfoWrapper{
+    margin-left: 13%;
+    margin-right: 13%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+}
+
+.HistoryInfo{
+    background-color: #191D23;
+    width: 45%;
+    text-align: left;
+    padding: 10px;
+    border-radius: 10px;
+}
