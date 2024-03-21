@@ -38,9 +38,15 @@ function Customizer(){
         change: (values, index) => {
             var newSchema = [...schema];
             var newValues = {...values};
-            newSchema[index] = newValues;  
-            axios.put('/api/schema/' + schema[index].estimateType, newValues).then(() => {
-                setSchema(newSchema);
+            const oldSchema = [...schema]
+            newSchema[index] = newValues; 
+            setSchema(newSchema);
+            axios.put('/api/schema/' + schema[index].estimateType, newValues)
+            .then((response) => {
+                console.log(response)
+            }).catch((error) => {
+                console.log(error)
+                setSchema(oldSchema);
             });
         },
         /**
@@ -65,10 +71,13 @@ function Customizer(){
         remove: (index) => {
             if((schema.length > 1) && (index >= 0 && index < schema.length)){
                 var copySchema = [...schema];
+                const oldSchema = [...schema]
                 copySchema.splice(index, 1);
+                setSchema(copySchema);
                 axios.delete('/api/schema?estimateType=' + schema[index].estimateType).then((response) => {
                     console.log(response);
-                    setSchema(copySchema);
+                }).catch(() => {
+                    setSchema(oldSchema);
                 });
             }
         },
@@ -78,10 +87,13 @@ function Customizer(){
          */
         push: (element) => {
             var copySchema = [...schema];
+            const oldSchema = [...schema]
             copySchema.push(element);
+            setSchema(copySchema);
             axios.post('/api/schema', element).then((response) => {
                 console.log(response);
-                setSchema(copySchema);
+            }).catch(() => {
+                setSchema(oldSchema)
             });
         }
     }
