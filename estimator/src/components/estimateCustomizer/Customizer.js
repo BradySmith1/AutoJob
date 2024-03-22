@@ -16,6 +16,8 @@ import { SchemaContext } from "./SchemaContextProvider";
 import { AuthContext } from "../authentication/AuthContextProvider";
 import { NotificationContext } from "../utilComponents/NotificationProvider";
 
+var count = 0;
+
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
@@ -118,7 +120,8 @@ function Customizer(){
             </div>
             <div className='TitleBar'>
                 <button className="SavePresetsButton" onClick={() => {
-                    addMessage("This is a message");
+                    addMessage("This is message " + count, 3000);
+                    count = count + 1;
                 }}>
                     save
                 </button>

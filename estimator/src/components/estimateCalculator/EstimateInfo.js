@@ -79,7 +79,6 @@ async function getAutoImports() {
 async function packDrafts() {
     //Get the drafts
     const response = await axios.get('/api/estimate?status=draft');
-    console.log(response.data)
     return response.data;
 }
 

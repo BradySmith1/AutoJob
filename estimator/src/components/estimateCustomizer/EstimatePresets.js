@@ -48,8 +48,7 @@ const calcFields = (estimate) => {
  * @returns jsx element
  */
 function EstimatePreset(props) {
-
-    console.log(props.estimate);
+    
     const fieldString = useMemo(() => calcFields(props.estimate), [props.estimate]);
     const [display, setDisplay] = useState(false);
 
