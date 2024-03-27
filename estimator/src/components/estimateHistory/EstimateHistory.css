@@ -23,3 +23,11 @@
     padding-left: 40%;
     padding-right: 40%;
 }
+
+.ButtonWrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

@@ -4,6 +4,7 @@ import Overview from "../estimateCalculator/subForms/Overview";
 import axios from 'axios';
 import Expandable from "../utilComponents/Expandable";
 import "./EstimateHistory.css";
+import { NotificationContext } from "../utilComponents/NotificationProvider";
 
 
 /**
@@ -28,6 +29,7 @@ function searchString(string, searchStr){
 
 function EstimateHistory(){
     const {jwt} = useContext(AuthContext);
+    const {addNotification} = useContext(NotificationContext);
     const [loading, setLoading] = useState(true);
 
     axios.defaults.headers.common = {
@@ -79,7 +81,7 @@ function EstimateHistory(){
                         </input>
                     </div>
             {!loading ? (
-                pastEstimates.length > 0 && pastEstimates.map((current) => {
+                pastEstimates.length > 0 && pastEstimates.map((current, index) => {
                     return (
                         (searchString(current.user.fName + current.user.lName, searchStr) ? 
                             (<Expandable title={current.user.fName + " " + current.user.lName}>
@@ -98,6 +100,22 @@ function EstimateHistory(){
                                     </div>
                                 </div>
                                 <Overview values={{form: current.form}} schema={current.schema} displayHeader={false}/>
+                                <div className="ButtonWrapper">
+                                    <button className="xButton" onClick={() => {
+                                        var newEstimates = [...pastEstimates];
+                                        const oldEstimates = [...pastEstimates];
+                                        setPastEstimates(newEstimates);
+                                        newEstimates.splice(index, 1);
+                                        axios.delete(`/api/estimate?_id=${current._id.$oid}`).then((response) => {
+                                            console.log(response);
+                                        }).catch(() => {
+                                            setPastEstimates(oldEstimates);
+                                            addNotification("Network Error: could not delete estimate.", 5);
+                                        });
+                                    }}>
+                                        Delete
+                                    </button>
+                                </div>
                             </Expandable>) : 
                         (null))
                     )
