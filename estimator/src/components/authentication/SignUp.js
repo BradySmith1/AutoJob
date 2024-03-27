@@ -58,7 +58,7 @@ function SignUp(props){
                 return;
             }
 
-            addMessage("Account Creation Succesfull! Please log in.");
+            addMessage("Account Creation Succesfull! Please log in.", 6000);
 
             //Reset the form
             resetForm();

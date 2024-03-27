@@ -11,6 +11,7 @@ import { AuthContext } from "./AuthContextProvider";
 import React, { useContext, useState } from "react";
 import { useFormik } from 'formik';
 import * as Yup from "yup";
+import { NotificationContext } from "../utilComponents/NotificationProvider";
 
 function LogIn(props){
 
@@ -19,6 +20,7 @@ function LogIn(props){
 
     //Jwt
     const {jwt, setJwt, user, setUser} = useContext(AuthContext);
+    const {addMessage} = useContext(NotificationContext);
 
     //Set up formik
     const formik = useFormik({

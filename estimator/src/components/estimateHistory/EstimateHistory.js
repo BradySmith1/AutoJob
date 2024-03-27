@@ -95,8 +95,8 @@ function EstimateHistory(){
                                     </div>
                                     <div className="HistoryInfo"> 
                                         <h2>Address</h2>
-                                        {current.user.address} {current.user.city} <br />
-                                        {current.user.state} {current.user.zip}
+                                        {current.user.strAddr} <br />
+                                        {current.user.city} {current.user.state}, {current.user.zip}
                                     </div>
                                 </div>
                                 <Overview values={{form: current.form}} schema={current.schema} displayHeader={false}/>
