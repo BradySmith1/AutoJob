@@ -63,7 +63,7 @@ function Fields(props){
                                             <Field className="showInOverview" type="checkbox" name={`form[${props.index}].fields[${index}].showInOverview`} />
                                             <p>Show In Overview</p>
                                         </div>
-                                        <button className="RemoveFieldButton" onClick={() => {
+                                        <button className="RemoveFieldButton xButton" onClick={() => {
                                             remove(index);
                                         }}>
                                             Remove
@@ -84,11 +84,8 @@ function Fields(props){
                                             <input type="checkbox" checked="checked" onClick={()=>{return false}}/> 
                                             <p>Show In Overview</p>
                                         </div>
-                                        <button className="RemoveFieldButton" onClick={() => {
-
-                                        }}>
-                                            Locked
-                                        </button>
+                                        <div className="RemoveFieldButton" >
+                                        </div>
                                     </>
                                 )}
                             </div>

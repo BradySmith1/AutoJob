@@ -22,7 +22,7 @@
 
 .historySearchWrapper{
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     padding-left: 40%;
     padding-right: 40%;

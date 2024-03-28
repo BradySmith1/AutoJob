@@ -68,7 +68,6 @@
 }
 
 .xButton{
-    left: 325px;
     background-color: #d61f2c;
     cursor: pointer;
     color: white;
@@ -80,7 +79,6 @@
     min-width: 35px;
     border-radius: 25px;
     transition-duration: 200ms;
-    margin-top: 25px;
     border-style: none;
 }
 

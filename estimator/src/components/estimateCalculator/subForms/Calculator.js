@@ -87,6 +87,7 @@ function Calculator(props){
                                 <button
                                     type="button"
                                     className="xButton"
+                                    style={{marginTop: "25px"}}
                                     onClick={() => {
                                         //Here we are removing this element of the billable array
                                         //when the x button is clicked

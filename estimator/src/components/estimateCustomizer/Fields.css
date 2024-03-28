@@ -50,12 +50,14 @@
     background-color: #0d0f12 !important;
     border: none;
     color: white;
+    /* Remove default arrow */
+}
+
+.Unit select{
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    /* Remove default arrow */
-    background-image: url('../../assets/expandDown.png') no-repeat right white;
-    object-fit: cover;
+    background-color: #0d0f12 !important;
 }
 
 .RemoveStage{
@@ -71,6 +73,11 @@
 .RemoveStage:hover{
     background-color: rgba(255, 255, 255, .1);
     cursor: pointer;
+}
+
+.RemoveFieldButton{
+    height: 30px;
+    width: 94.48px;
 }
 
 .Up{
