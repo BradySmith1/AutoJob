@@ -113,7 +113,7 @@ pub async fn generate_id(path: Path<String>) -> HttpResponse {
     for _ in 0..number {
         let id: String = rand::thread_rng()
             .sample_iter(&Alphanumeric)
-            .take(24)
+            .take(16)
             .map(char::from)
             .collect();
         vec.push(id);

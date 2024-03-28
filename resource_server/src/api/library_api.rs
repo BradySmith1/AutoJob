@@ -9,6 +9,7 @@ use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
 use mongodb::Client;
 use std::string::String;
+use serde_json::Value;
 
 const COLLECTION: &str = "materialFeeLibrary";
 
@@ -54,24 +55,26 @@ pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationTok
     let preset_id = data.get("presetID").unwrap().as_str().unwrap();
     let inputs = data.get("inputs").unwrap().as_document().unwrap();
     let doc = doc! {"stageID": stage_id, "presetID": preset_id};
-    let result = db.get_document(doc).await;
-    let mut billable = match result {
+    let result = db.get_documents_by_attribute(doc).await;
+    let mut billables = match result {
         Ok(billable) => billable,
         Err(_) => {
             return HttpResponse::InternalServerError().body("Could not retrieve billable");
         }
     };
-    let mut input_map = billable.inputs.unwrap();
-    for (key, value) in inputs.iter() {
-        input_map.insert(key.clone(), value.clone());
+    for mut billable in billables {
+        let mut input_map = billable.inputs.unwrap();
+        for (key, value) in inputs.iter() {
+            input_map.insert(key.clone(), Value::from(value.clone()));
+        }
+        billable.inputs = Some(input_map);
+        let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
+        let update_result = db.update_document(doc, billable).await;
+        if update_result.is_err(){
+            return HttpResponse::InternalServerError().body("Could not add inputs");
+        }
     }
-    billable.inputs = Some(input_map);
-    let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
-    let update_result = db.update_document(doc, billable).await;
-    match update_result {
-        Ok(_) => HttpResponse::Ok().body("Successfully added inputs"),
-        Err(_) => HttpResponse::InternalServerError().body("Could not add inputs"),
-    }
+    HttpResponse::Ok().body("Successfully added inputs")
 }
 
 fn check_auto_update(json: &mut Billable) -> HttpResponse {
@@ -184,24 +187,26 @@ pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationTok
     let preset_id = data.get("presetID").unwrap().as_str().unwrap();
     let inputs = data.get("inputs").unwrap().as_document().unwrap();
     let doc = doc! {"stageID": stage_id, "presetID": preset_id};
-    let result = db.get_document(doc).await;
-    let mut billable = match result {
+    let result = db.get_documents_by_attribute(doc).await;
+    let mut billables = match result {
         Ok(billable) => billable,
         Err(_) => {
             return HttpResponse::InternalServerError().body("Could not retrieve billable");
         }
     };
-    let mut input_map = billable.inputs.unwrap();
-    for (key, _) in inputs.iter() {
-        input_map.remove(key);
+    for mut billable in billables {
+        let mut input_map = billable.inputs.unwrap();
+        for (key, _) in inputs.iter() {
+            input_map.remove(key);
+        }
+        billable.inputs = Some(input_map);
+        let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
+        let update_result = db.update_document(doc, billable).await;
+        if update_result.is_err(){
+            return HttpResponse::InternalServerError().body("Could not delete inputs")
+        }
     }
-    billable.inputs = Some(input_map);
-    let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
-    let update_result = db.update_document(doc, billable).await;
-    match update_result {
-        Ok(_) => HttpResponse::Ok().body("Successfully deleted inputs"),
-        Err(_) => HttpResponse::InternalServerError().body("Could not delete inputs"),
-    }
+    HttpResponse::Ok().body("Successfully deleted inputs")
 }
 
 /// Retrieve all materialLibrary entry details via a GET request.

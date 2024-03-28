@@ -1,14 +1,18 @@
 use crate::model::model_trait::Model;
 use mongodb::bson::oid::ObjectId;
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 
 fn default_schema() -> Schema {
     Schema {
         estimateType: "Default".to_string(),
+        presetID: generate_id(),
         form: vec![
             SchemeLayout {
                 canonicalName: "Materials".to_string(),
+                stageID: generate_id(),
                 fields: vec![
                     FieldLayout {
                         name: "Name".to_string(),
@@ -32,6 +36,7 @@ fn default_schema() -> Schema {
             },
             SchemeLayout {
                 canonicalName: "Fees".to_string(),
+                stageID: generate_id(),
                 fields: vec![
                     FieldLayout {
                         name: "Name".to_string(),
@@ -57,11 +62,20 @@ fn default_schema() -> Schema {
     }
 }
 
+fn generate_id() -> String {
+    let id: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(16)
+        .map(char::from)
+        .collect();
+    id
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct Schema {
-
     estimateType: String,
+    presetID: String,
     form: Vec<SchemeLayout>,
 }
 
@@ -81,6 +95,7 @@ impl Model<Schema> for Schema {
 #[allow(non_snake_case)]
 struct SchemeLayout {
     canonicalName: String,
+    stageID: String,
     fields: Vec<FieldLayout>,
 }
 
