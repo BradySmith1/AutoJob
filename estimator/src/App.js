@@ -14,6 +14,8 @@ import React, { useState } from 'react';
 import AuthContextProvider from './components/authentication/AuthContextProvider.js';
 import Authenticator from './components/authentication/Authenticator.js';
 import NotificationProvider from './components/utilComponents/NotificationProvider.js';
+import 'react-tooltip/dist/react-tooltip.css'
+import { Tooltip } from 'react-tooltip'
 
 /**
  * Modified this App function from the default to have a header and the estimate
@@ -29,6 +31,9 @@ function App() {
   return (
     <AuthContextProvider>
       <NotificationProvider>
+        <Tooltip anchorSelect=".not-editable" place="left" style={{zIndex: "9999"}}>
+          Cannot Edit This Field
+        </Tooltip>
         <div className="App">
               {authenticated ? 
                 (<AppSwitcher />) 

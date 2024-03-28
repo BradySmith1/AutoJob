@@ -1,0 +1,25 @@
+diff --git a/node_modules/react-tooltip/package.json b/node_modules/react-tooltip/package.json
+index e55d3f3f..ab0408d9 100644
+--- a/node_modules/react-tooltip/package.json
++++ b/node_modules/react-tooltip/package.json
+@@ -32,16 +32,16 @@
+   "bugs": {
+     "url": "https://github.com/ReactTooltip/react-tooltip/issues"
+   },
+-  "main": "dist/react-tooltip.min.cjs",
++  "main": "dist/react-tooltip.min.mjs",
+   "module": "dist/react-tooltip.min.mjs",
+   "exports": {
+     ".": {
+       "types": "./dist/react-tooltip.d.ts",
+-      "require": "./dist/react-tooltip.min.cjs",
++      "require": "./dist/react-tooltip.min.mjs",
+       "import": "./dist/react-tooltip.min.mjs",
+-      "default": "./dist/react-tooltip.min.cjs"
++      "default": "./dist/react-tooltip.min.mjs"
+     },
+-    "./dist/react-tooltip": "./dist/react-tooltip.min.cjs",
++    "./dist/react-tooltip": "./dist/react-tooltip.min.mjs",
+     "./dist/react-tooltip.css": "./dist/react-tooltip.min.css",
+     "./dist/react-tooltip.d.ts": "./dist/react-tooltip.d.ts",
+     "./package.json": "./package.json"

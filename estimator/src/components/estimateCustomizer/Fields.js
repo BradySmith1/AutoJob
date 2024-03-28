@@ -17,6 +17,7 @@ import Down from "../../assets/Down.png"
 import lightEdit from "../../assets/LightEdit.png";
 import Locked from "../../assets/Locked.png";
 import defaultSchema from "../JSONs/defaultEstimate.json"
+import 'react-tooltip/dist/react-tooltip.css'
 
 //Units that can be selected from the unit drop down
 const units = [
@@ -46,11 +47,11 @@ function Fields(props){
                     <div>
                         {props.formValues.form[props.index].fields.length > 0 && 
                          props.formValues.form[props.index].fields.map((element, index) => (
-                            <div className="FieldsContainer">
-                                {/**If this field is editeable */}
-                                {element.required === undefined ? (
-                                    <>
+                                /**If this field is editeable */
+                                (element.required === undefined ? (
+                                    <div className="FieldsContainer">
                                         {/**Display input fields */}
+
                                         <Editable path={lightEdit}>
                                             <Field className="Name NoInputStyle Black" name={`form[${props.index}].fields[${index}].name`} />
                                         </Editable>
@@ -68,27 +69,29 @@ function Fields(props){
                                         }}>
                                             Remove
                                         </button>
-                                    </>
+                                    </div>
                                 ) : (
-                                    <>
-                                        {/**Display fake input fields */}
-                                        <Editable path={Locked}>
-                                            <div className="Name FakeField">
-                                                {element.name}
-                                            </div>
-                                        </Editable>
-                                        <select className="Unit">
-                                            <option values={element.unit}>{element.unit}</option>
-                                        </select>
-                                        <div className="BinaryContainer">
-                                            <input type="checkbox" checked="checked" onClick={()=>{return false}}/> 
-                                            <p>Show In Overview</p>
+                                    <a className="not-editable">
+                                        <div className="FieldsContainer">
+                                            {/**Display fake input fields */}
+                                                <Editable path={Locked}>
+                                                    <div className="Name FakeField">
+                                                    {element.name}
+                                                    </div>
+                                                </Editable>
+                                            
+                                                <select className="Unit">
+                                                    <option values={element.unit}>{element.unit}</option>
+                                                </select>
+                                                <div className="BinaryContainer">
+                                                    <input type="checkbox" checked="checked" onClick={()=>{return false}}/> 
+                                                    <p>Show In Overview</p>
+                                                </div>
+                                                <div className="RemoveFieldButton" >
+                                                </div>
                                         </div>
-                                        <div className="RemoveFieldButton" >
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                                    </a>
+                                ))
                         ))}
                         <div className="AddButtonWrapper">
                             <button
