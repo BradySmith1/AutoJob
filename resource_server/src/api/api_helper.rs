@@ -1,8 +1,8 @@
+use crate::model::model_trait::Model;
+use crate::repository::mongodb_repo::MongoRepo;
 use actix_web::HttpResponse;
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
-use crate::model::model_trait::Model;
-use crate::repository::mongodb_repo::MongoRepo;
 
 /// A helper function used to create a new document in the database.
 ///
@@ -18,9 +18,10 @@ pub async fn post_data<T: Model<T>>(db: &MongoRepo<T>, new_json: T) -> HttpRespo
     let user_detail = db.create_document(new_json).await;
     match user_detail {
         Ok(user) => HttpResponse::Ok().json(user),
-        Err(_) => HttpResponse::InternalServerError()
-            .body("Could not add document to the jobEstimate collection. Check if MongoDB \
-                is running"),
+        Err(_) => HttpResponse::InternalServerError().body(
+            "Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running",
+        ),
     }
 }
 
@@ -32,14 +33,15 @@ pub async fn post_data<T: Model<T>>(db: &MongoRepo<T>, new_json: T) -> HttpRespo
 ///
 /// # Returns
 /// A Result object containing the retrieved data. or an error if the data could not be retrieved.
-pub async fn get_data<T: Model<T>>(db: &MongoRepo<T>, mut query: Document) ->
-                                                                                 Result<Vec<T>,
-                                                                                     String> {
-    let user_detail:Result<Vec<T>, String>;
+pub async fn get_data<T: Model<T>>(
+    db: &MongoRepo<T>,
+    mut query: Document,
+) -> Result<Vec<T>, String> {
+    let user_detail: Result<Vec<T>, String>;
     if query.is_empty() {
         user_detail = db.get_all_documents().await;
-    }else{
-        if query.contains_key("_id"){
+    } else {
+        if query.contains_key("_id") {
             let id = query.get("_id").unwrap().to_string().replace("\"", "");
             let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
             query.remove("_id");
@@ -59,11 +61,11 @@ pub async fn get_data<T: Model<T>>(db: &MongoRepo<T>, mut query: Document) ->
 /// # Returns
 /// returns an HTTP 200 OK response with the JSON representation of the deleted document.
 /// If the document is not deleted, it returns an HTTP 500 Internal Server Error response
-pub async fn delete_data<T: Model<T>>(db: &MongoRepo<T>,mut query: Document) -> HttpResponse {
+pub async fn delete_data<T: Model<T>>(db: &MongoRepo<T>, mut query: Document) -> HttpResponse {
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid attribute");
     }
-    if query.contains_key("_id"){
+    if query.contains_key("_id") {
         let id = query.get("_id").unwrap().to_string().replace("\"", "");
         let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
         query.remove("_id");
@@ -111,8 +113,11 @@ pub async fn get_all_data<T: Model<T>>(db: &MongoRepo<T>) -> HttpResponse {
 /// it returns an HTTP 200 OK response with the JSON representation of the created document.
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response.
 /// If the id is not a valid ID, it returns a HTTP Not Found Error Response.
-pub async fn push_update<T: Model<T>>(result: Result<UpdateResult, String>, db:
-&MongoRepo<T>, id: String) -> HttpResponse{
+pub async fn push_update<T: Model<T>>(
+    result: Result<UpdateResult, String>,
+    db: &MongoRepo<T>,
+    id: String,
+) -> HttpResponse {
     match result {
         Ok(update) => {
             if update.matched_count == 1 {

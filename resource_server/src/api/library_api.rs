@@ -1,14 +1,14 @@
-use crate::{repository::mongodb_repo::MongoRepo};
-use actix_web::{post, web::{Path}, HttpResponse, get, put, delete};
-use mongodb::bson::oid::ObjectId;
-use std::string::String;
-use actix_web::web::Query;
-use mongodb::bson::{doc, Document};
-use mongodb::Client;
-use mongodb::results::UpdateResult;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::billable_model::Billable;
+use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
+use actix_web::web::Query;
+use actix_web::{delete, get, post, put, web::Path, HttpResponse};
+use mongodb::bson::oid::ObjectId;
+use mongodb::bson::{doc, Document};
+use mongodb::results::UpdateResult;
+use mongodb::Client;
+use std::string::String;
 
 const COLLECTION: &str = "materialFeeLibrary";
 
@@ -26,32 +26,36 @@ const COLLECTION: &str = "materialFeeLibrary";
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/library")]
-pub async fn create_library_entry(new_user: String,
-                                  auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn create_library_entry(
+    new_user: String,
+    auth_token: AuthenticationToken,
+) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let mut json: Billable = match serde_json::from_str(&new_user){
+    let mut json: Billable = match serde_json::from_str(&new_user) {
         Ok(parsed_json) => parsed_json,
         Err(_) => {
             println!("Incorrect JSON object format from HTTPRequest.");
             return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
+                .body("Incorrect JSON object format from HTTPRequest Post request.");
+        }
     };
     let response = check_auto_update(&mut json);
-    if !response.status().is_success(){
+    if !response.status().is_success() {
         return response;
     }
     post_data(&db, json).await
 }
 
-fn check_auto_update(json: &mut Billable) -> HttpResponse{
+fn check_auto_update(json: &mut Billable) -> HttpResponse {
     if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
-        if json.company.is_none(){
-            return HttpResponse::BadRequest().body("auto_update field is true but no company was \
-            provided");
+        if json.company.is_none() {
+            return HttpResponse::BadRequest().body(
+                "auto_update field is true but no company was \
+            provided",
+            );
         }
         let company = json.clone().company.unwrap();
-        if !company.eq("lowes") && !company.eq("homedepot"){
+        if !company.eq("lowes") && !company.eq("homedepot") {
             return HttpResponse::BadRequest().body("Invalid company name");
         }
         json.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
@@ -75,13 +79,14 @@ fn check_auto_update(json: &mut Billable) -> HttpResponse{
 /// response with an error message or an HTTP 500 Internal Server Error response with an error
 /// message.
 #[get("/library")]
-pub async fn get_library_entry(query: Query<Document>,
-                               auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn get_library_entry(
+    query: Query<Document>,
+    auth_token: AuthenticationToken,
+) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-   return match get_data(&db, query.into_inner()).await{
+    return match get_data(&db, query.into_inner()).await {
         Ok(data) => HttpResponse::Ok().json(data),
-        Err(err) => HttpResponse::InternalServerError()
-            .body(err.to_string()),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     };
 }
 
@@ -103,20 +108,21 @@ pub async fn get_library_entry(query: Query<Document>,
 pub async fn update_library_entry(
     path: Path<String>,
     new_user: String,
-    auth_token: AuthenticationToken) -> HttpResponse {
+    auth_token: AuthenticationToken,
+) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
     let mut data: Billable = serde_json::from_str(&new_user).expect("Issue parsing object");
-    data.id =  Some(ObjectId::parse_str(&id).unwrap());
+    data.id = Some(ObjectId::parse_str(&id).unwrap());
     let response = check_auto_update(&mut data);
-    if !response.status().is_success(){
+    if !response.status().is_success() {
         return response;
     }
     let doc = doc! {"_id": id.to_string()};
-    let update_result: Result<UpdateResult, String>= db.update_document(doc , data).await;
+    let update_result: Result<UpdateResult, String> = db.update_document(doc, data).await;
     push_update(update_result, &db, id).await
 }
 
@@ -134,8 +140,10 @@ pub async fn update_library_entry(
 /// Bad Request response with an error message or an HTTP 500 Internal Server Error response with
 /// an error message.
 #[delete("/library")]
-pub async fn delete_library_entry(query: Query<Document>,
-                                  auth_token: AuthenticationToken) -> HttpResponse {
+pub async fn delete_library_entry(
+    query: Query<Document>,
+    auth_token: AuthenticationToken,
+) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     delete_data(&db, query.into_inner()).await
 }
@@ -164,62 +172,79 @@ pub async fn get_all_library_entries(auth_token: AuthenticationToken) -> HttpRes
 /// # Parameters
 /// db : A Data object containing a MongoDB repository (MongoRepoEstimate) for materialLibrary
 /// entry data storage.
-pub async fn check_libraries(){
-    let client = Client::with_uri_str(std::env::var("MONGOURL").unwrap()).await.unwrap();
+pub async fn check_libraries() {
+    let client = Client::with_uri_str(std::env::var("MONGOURL").unwrap())
+        .await
+        .unwrap();
     let db_list = client.list_database_names(doc! {}, None).await.unwrap();
-    for dbs in db_list{
-        let db:MongoRepo<Billable> = MongoRepo::init(COLLECTION, dbs.as_str()).await;
-        println!("{}: Starting Web Scraping Task", chrono::Utc::now().to_string());
-        let materials = match db.get_all_documents().await{
+    for dbs in db_list {
+        let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, dbs.as_str()).await;
+        println!(
+            "{}: Starting Web Scraping Task",
+            chrono::Utc::now().to_string()
+        );
+        let materials = match db.get_all_documents().await {
             Ok(materials) => materials,
             Err(_) => {
                 println!("Could not retrieve materials from database");
                 return;
             }
         };
-        if materials.is_empty(){
+        if materials.is_empty() {
             println!("No materials in database");
             return;
         }
-        for material in materials{
+        for material in materials {
             //ttl is still implemented. however i dont know if i need it or not. I might just deal with
             //the time to live in the web scraper api
             if material.autoUpdate.eq("true") && material.autoUpdate.clone().eq("true") {
                 let mut new_material = material.clone();
-                let scraper_data = match crate::api::scraper_api::get_scraper_data(material
-                                                                                       .name
-                                                                                       .clone(),
-                                                                                   material.company.clone()
-                                                                                       .unwrap()).await{
+                let scraper_data = match crate::api::scraper_api::get_scraper_data(
+                    material.name.clone(),
+                    material.company.clone().unwrap(),
+                )
+                .await
+                {
                     Ok(data) => data,
                     Err(err) => {
                         if err.eq("no products found") {
-                            println!("No products found for material: {}, {}", material
-                                .name, material
-                                .company.clone().unwrap());
-                        }else if err.eq("error getting web cache") {
+                            println!(
+                                "No products found for material: {}, {}",
+                                material.name,
+                                material.company.clone().unwrap()
+                            );
+                        } else if err.eq("error getting web cache") {
                             println!("Error getting web cache. Check if web cache is running");
-                        }else{
+                        } else {
                             println!("Internal Server error.");
                         }
                         return;
                     }
                 };
                 new_material.price = scraper_data.price;
-                new_material.ttl = Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
-                let doc = doc! {"_id": ObjectId::parse_str(material.id.unwrap().to_string()).unwrap()};
-                let update_result: Result<UpdateResult, String> = db.update_document(doc,
-                                                                             new_material).await;
+                new_material.ttl =
+                    Some((chrono::Utc::now() + chrono::Duration::days(7)).to_string());
+                let doc =
+                    doc! {"_id": ObjectId::parse_str(material.id.unwrap().to_string()).unwrap()};
+                let update_result: Result<UpdateResult, String> =
+                    db.update_document(doc, new_material).await;
                 match update_result {
-                    Ok(_) => println!("Updated material: {}, {}", material.name, material
-                        .company
-                        .clone().unwrap()),
-                    Err(_) => println!("Could not update material: {}, {}", material.name,
-                                       material.company
-                        .clone().unwrap()),
+                    Ok(_) => println!(
+                        "Updated material: {}, {}",
+                        material.name,
+                        material.company.clone().unwrap()
+                    ),
+                    Err(_) => println!(
+                        "Could not update material: {}, {}",
+                        material.name,
+                        material.company.clone().unwrap()
+                    ),
                 }
             }
         }
-        println!("{}: Finished Web Scraping Task", chrono::Utc::now().to_string());
+        println!(
+            "{}: Finished Web Scraping Task",
+            chrono::Utc::now().to_string()
+        );
     }
 }

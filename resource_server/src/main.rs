@@ -9,23 +9,30 @@ mod repository;
 mod model;
 mod utils;
 
-use std::io::{Read};
-use clokwerk::{AsyncScheduler, TimeUnits};
-use std::time::Duration;
-use std::process::{Command, Stdio};
-use actix_web::{App, HttpServer, middleware::Logger};
-use actix_web::web::Data;
-use console::Style;
-use std::path::Path;
-use api::user_estimate_api::{create_user, index, get_user, update_user, delete_user,
-                             get_all_users, get_image};
-use crate::api::schema_api::{create_schema, delete_schema, get_all_schema, get_schema, update_schema};
-use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
-use crate::api::job_estimate_api::{create_estimate, delete_estimate, get_all_estimates,
-                                   get_estimate, update_estimate};
+use crate::api::job_estimate_api::{
+    create_estimate, delete_estimate, get_all_estimates, get_estimate, update_estimate,
+};
 use crate::api::jwt_api::store_token;
-use crate::api::library_api::{check_libraries, create_library_entry, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
+use crate::api::library_api::{
+    check_libraries, create_library_entry, delete_library_entry, get_all_library_entries,
+    get_library_entry, update_library_entry,
+};
+use crate::api::schema_api::{
+    create_schema, delete_schema, get_all_schema, get_schema, update_schema,
+};
 use crate::api::scraper_api::manual_web_scrape;
+use actix_web::web::Data;
+use actix_web::{middleware::Logger, App, HttpServer};
+use api::user_estimate_api::{
+    create_user, delete_user, get_all_users, get_image, get_user, index, update_user,
+};
+use clokwerk::{AsyncScheduler, TimeUnits};
+use console::Style;
+use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
+use std::io::Read;
+use std::path::Path;
+use std::process::{Command, Stdio};
+use std::time::Duration;
 
 /// This function checks if MongoDB is running on the local machine.
 fn check_mongodb() {
@@ -43,7 +50,12 @@ fn check_mongodb() {
             .spawn()
             .unwrap();
         let mut output = String::new();
-        start.stdout.as_mut().unwrap().read_to_string(&mut output).expect("Failed to read stdout");
+        start
+            .stdout
+            .as_mut()
+            .unwrap()
+            .read_to_string(&mut output)
+            .expect("Failed to read stdout");
         println!("{}", output);
     }
 }
@@ -85,12 +97,14 @@ pub async fn main() -> std::io::Result<()> {
     std::env::set_var("MONGOURL", "mongodb://localhost:27017");
     std::env::set_var("IMAGE_PATH", "../images/");
     std::env::set_var("WEB_CACHE_URL", "http://localhost:3005/cache");
-    std::env::set_var("AUTHSERVERTOKEN","sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8");
+    std::env::set_var(
+        "AUTHSERVERTOKEN",
+        "sZfYyXXTuv-Umlk9JA9IJ-7LynBO3MUs-wNe1idUbop-EMWIK5l5N8",
+    );
     env_logger::init();
 
     // Format the hypertext link to the localhost.
-    let blue = Style::new()
-        .blue();
+    let blue = Style::new().blue();
     let prefix = "0.0.0.0:";
     let port = 3000;
     let target = format!("{}{}", prefix, port);
@@ -116,8 +130,10 @@ pub async fn main() -> std::io::Result<()> {
     //     }
     // });
 
-
-    println!("\nServer ready at {}", blue.apply_to(format!("https://{}",&target)));
+    println!(
+        "\nServer ready at {}",
+        blue.apply_to(format!("https://{}", &target))
+    );
 
     // Creation of the api server
     HttpServer::new(move || {
@@ -150,11 +166,8 @@ pub async fn main() -> std::io::Result<()> {
             .service(manual_web_scrape)
             .service(store_token)
             .service(index)
-
     })
-        .bind_openssl(&target, ssl)?
-        .run()
-        .await
+    .bind_openssl(&target, ssl)?
+    .run()
+    .await
 }
-
-

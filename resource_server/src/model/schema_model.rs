@@ -1,8 +1,7 @@
+use crate::model::model_trait::Model;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::model::model_trait::Model;
-
 
 fn default_schema() -> Schema {
     Schema {
@@ -28,10 +27,9 @@ fn default_schema() -> Schema {
                         unit: "Number".to_string(),
                         showInOverview: true,
                         required: None,
-                    }
-                ]
+                    },
+                ],
             },
-
             SchemeLayout {
                 canonicalName: "Fees".to_string(),
                 fields: vec![
@@ -52,20 +50,18 @@ fn default_schema() -> Schema {
                         unit: "Number".to_string(),
                         showInOverview: true,
                         required: None,
-                    }
-                ]
+                    },
+                ],
             },
-        ]
+        ],
     }
-
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct Schema {
     estimateType: String,
-    form: Vec<SchemeLayout>
+    form: Vec<SchemeLayout>,
 }
 
 impl Default for Schema {
@@ -80,17 +76,14 @@ impl Model<Schema> for Schema {
     }
 }
 
-
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
-struct SchemeLayout{
+struct SchemeLayout {
     canonicalName: String,
-    fields: Vec<FieldLayout>
+    fields: Vec<FieldLayout>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 struct FieldLayout {
     name: String,

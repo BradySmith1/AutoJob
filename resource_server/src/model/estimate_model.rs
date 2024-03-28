@@ -1,11 +1,11 @@
-use std::collections::HashMap;
-use mongodb::bson::oid::ObjectId;
-use serde_derive::{Deserialize, Serialize};
-use serde_json::to_string;
-use crate::model::billable_model::{Billable};
+use crate::model::billable_model::Billable;
 use crate::model::model_trait::Model;
 use crate::model::schema_model::Schema;
 use crate::model::user_model::UserEstimate;
+use mongodb::bson::oid::ObjectId;
+use serde_derive::{Deserialize, Serialize};
+use serde_json::to_string;
+use std::collections::HashMap;
 
 /// Represents a job estimate. This is the model that will be used to create JSON objects.
 ///
@@ -24,11 +24,12 @@ pub struct JobEstimate {
     pub form: Vec<HashMap<String, Vec<Billable>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
-    pub status: String
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<String>,
+    pub status: String,
 }
-impl Model<JobEstimate> for JobEstimate{
-
-    fn to_string(&self) -> String{
+impl Model<JobEstimate> for JobEstimate {
+    fn to_string(&self) -> String {
         to_string(self).unwrap()
     }
 }

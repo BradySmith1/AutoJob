@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-use std::fmt::Display;
+use crate::model::model_trait::Model;
 use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::model::model_trait::Model;
+use std::collections::HashMap;
+use std::fmt::Display;
 
 /// Represents a material or fee. This will be used to represent a material or in the materials
 /// array.
@@ -19,8 +19,7 @@ use crate::model::model_trait::Model;
 /// autoUpdate: Either false or true. If true the price will be auto updated in the background
 /// ttl: the time to live of the material in the backend
 /// company: Either lowes or homedepot
-#[derive(Debug, Serialize, Deserialize)]
-#[derive(Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct Billable {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
@@ -37,12 +36,10 @@ pub struct Billable {
     pub ttl: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub company: Option<String>, //will need to change this to the store or region later down the
-    // line.
+                                 // line.
 }
 
-
 impl Model<Billable> for Billable {
-
     fn to_string(&self) -> String {
         to_string(self).unwrap()
     }

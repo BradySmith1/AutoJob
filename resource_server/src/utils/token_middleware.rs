@@ -1,22 +1,25 @@
-use std::future::{ ready, Ready };
-use actix_web::{HttpRequest, FromRequest, web, dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform}, Error as ActixWebError, Error, HttpResponse};
-use actix_web::error::ErrorUnauthorized;
-use actix_web::http::header::HeaderValue;
-use futures_util::future::LocalBoxFuture;
-use jsonwebtoken::{Algorithm, decode, DecodingKey, errors::Error as JwtError, TokenData,
-                   Validation};
-use mongodb::bson::doc;
-use serde::{ Serialize, Deserialize };
 use crate::model::jwt_model::{Claims, JWT};
 use crate::repository::mongodb_repo::MongoRepo;
+use actix_web::error::ErrorUnauthorized;
+use actix_web::http::header::HeaderValue;
+use actix_web::{
+    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    web, Error as ActixWebError, Error, FromRequest, HttpRequest, HttpResponse,
+};
 use chrono::Utc;
+use futures_util::future::LocalBoxFuture;
+use jsonwebtoken::{
+    decode, errors::Error as JwtError, Algorithm, DecodingKey, TokenData, Validation,
+};
+use mongodb::bson::doc;
+use serde::{Deserialize, Serialize};
+use std::future::{ready, Ready};
 use tokio::runtime::Runtime;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthenticationBody {
     token: String,
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AuthenticationToken {
@@ -29,10 +32,10 @@ pub struct Protected;
 
 // Transfom "transforms" a service by wrapping it in another service.
 impl<S, B> Transform<S, ServiceRequest> for Protected
-    where
-        S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixWebError>,
-        S::Future: 'static,
-        B: 'static,
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixWebError>,
+    S::Future: 'static,
+    B: 'static,
 {
     type Response = ServiceResponse<B>;
     type Error = ActixWebError;
@@ -46,19 +49,15 @@ impl<S, B> Transform<S, ServiceRequest> for Protected
     }
 }
 
-
-
-
-
 pub struct ProtectedMiddleware<S> {
     service: S,
 }
 
 impl<S, B> Service<ServiceRequest> for ProtectedMiddleware<S>
-    where
-        S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixWebError>,
-        S::Future: 'static,
-        B: 'static,
+where
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixWebError>,
+    S::Future: 'static,
+    B: 'static,
 {
     type Response = ServiceResponse<B>;
     type Error = ActixWebError;
@@ -97,11 +96,10 @@ impl<S, B> Service<ServiceRequest> for ProtectedMiddleware<S>
             println!("Hi from response");
             Ok(res)
         })
-
     }
 }
 
-fn check_protected(req: &HttpRequest) -> bool{
+fn check_protected(req: &HttpRequest) -> bool {
     let path = req.path();
     let unprotected_paths = ["/user"]; //grow this array as unprotected routes are added
     for paths in unprotected_paths {
@@ -114,15 +112,24 @@ fn check_protected(req: &HttpRequest) -> bool{
 
 async fn check_authorization(req: &HttpRequest) -> Result<String, Error> {
     let req = req.clone();
-    let authorization_header_option: Option<&HeaderValue> = req.headers().get(actix_web::http::header::AUTHORIZATION);
+    let authorization_header_option: Option<&HeaderValue> =
+        req.headers().get(actix_web::http::header::AUTHORIZATION);
 
     // No Header was sent
-    if authorization_header_option.is_none() { return Err(ErrorUnauthorized("No authentication token sent!")); }
+    if authorization_header_option.is_none() {
+        return Err(ErrorUnauthorized("No authentication token sent!"));
+    }
 
-    let authentication_token: String = authorization_header_option.unwrap().to_str().unwrap_or("").to_string();
+    let authentication_token: String = authorization_header_option
+        .unwrap()
+        .to_str()
+        .unwrap_or("")
+        .to_string();
 
     // Couldn't convert Header::Authorization to String
-    if authentication_token.is_empty() { return Err(ErrorUnauthorized("Authentication token has foreign chars!")) }
+    if authentication_token.is_empty() {
+        return Err(ErrorUnauthorized("Authentication token has foreign chars!"));
+    }
 
     // TODO put secret in app_state
     let secret: &str = &req.app_data::<web::Data<String>>().unwrap();
@@ -139,28 +146,36 @@ async fn check_authorization(req: &HttpRequest) -> Result<String, Error> {
     }
 
     let token = token_result.unwrap();
-    let result = check_auth_mongodb(AuthenticationToken { userid: token.claims.userid,
-        issuerid: token.claims.issuerid, exp: token.claims.exp }).await;
+    let result = check_auth_mongodb(AuthenticationToken {
+        userid: token.claims.userid,
+        issuerid: token.claims.issuerid,
+        exp: token.claims.exp,
+    })
+    .await;
     match result {
-        Ok(_) => {return Ok("Token is authorized".to_string())}
-        Err(err) => {Err(err)}
+        Ok(_) => return Ok("Token is authorized".to_string()),
+        Err(err) => Err(err),
     }
 }
 
 async fn check_auth_mongodb(token: AuthenticationToken) -> Result<String, Error> {
     let db: MongoRepo<JWT> = MongoRepo::init("tokens", "admin").await; //TODO not correct
-    // implementation
+                                                                       // implementation
     let obj_id = mongodb::bson::oid::ObjectId::parse_str(&token.userid).unwrap();
     let doc = doc! {"_id" : obj_id};
     let result = db.get_documents_by_attribute(doc).await.unwrap();
-    let stored_token = match result.get(0){
-        None => {return Err(ErrorUnauthorized("No JWT Matches in DB"))}
-        Some(token) => {token}
+    let stored_token = match result.get(0) {
+        None => return Err(ErrorUnauthorized("No JWT Matches in DB")),
+        Some(token) => token,
     };
-    if stored_token.userid == token.userid && stored_token.issuerid == token.issuerid &&
-        stored_token.exp != ((Utc::now()).timestamp() as usize) {
+    if stored_token.userid == token.userid
+        && stored_token.issuerid == token.issuerid
+        && stored_token.exp != ((Utc::now()).timestamp() as usize)
+    {
         return Ok("Token is authorized".to_string());
-    }else{
-        return Err(ErrorUnauthorized("Found token in db does not align with supplied JWT"))
+    } else {
+        return Err(ErrorUnauthorized(
+            "Found token in db does not align with supplied JWT",
+        ));
     }
 }

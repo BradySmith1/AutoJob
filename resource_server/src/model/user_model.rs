@@ -1,8 +1,10 @@
-use mongodb::bson::oid::ObjectId;
-use serde::{Serialize, Deserialize};
-use serde_json::to_string;
 use crate::model::image_model::Image;
 use crate::model::model_trait::Model;
+use mongodb::bson::oid::ObjectId;
+use serde::{Deserialize, Serialize};
+use serde_json::to_string;
+use actix_multipart::form::text::Text;
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 
 /// Represents a user estimate.
 ///
@@ -36,12 +38,24 @@ pub struct UserEstimate {
     pub measurements: String,
     pub details: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub images: Option<Vec<Image>>
+    pub images: Option<Vec<Image>>,
 }
 
 impl Model<UserEstimate> for UserEstimate {
-
     fn to_string(&self) -> String {
         to_string(self).unwrap()
     }
+}
+
+/// A struct for the uploading of a userEstimate with images.
+///
+/// # Fields
+/// user: The userEstimate object in the format of a JSON but passed in as a string and parsed.
+/// files: The list of possible images being sent.
+#[derive(Debug, MultipartForm)]
+pub struct UserEstimateUploadForm {
+    pub user: Text<String>,
+    pub company_id: Text<String>,
+    #[multipart(rename = "files")]
+    pub files: Vec<TempFile>,
 }

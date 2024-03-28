@@ -1,15 +1,21 @@
-use std::env;
-use std::process::exit;
 use dotenv::dotenv;
-use mongodb::{bson::{doc, oid::ObjectId}, results::{InsertOneResult}, options::ClientOptions, Client, Collection, bson, Database};
 use futures::stream::TryStreamExt;
 use mongodb::bson::Document;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
+use mongodb::{
+    bson,
+    bson::{doc, oid::ObjectId},
+    options::ClientOptions,
+    results::InsertOneResult,
+    Client, Collection, Database,
+};
+use std::env;
+use std::process::exit;
 //add this
+use crate::model::model_trait::Model;
 use mongodb::results::{DeleteResult, UpdateResult};
 use serde_json::json;
-use crate::model::model_trait::Model;
 
 /// A struct representing a MongoDB repository for user estimates.
 pub struct MongoRepo<T> {
@@ -17,10 +23,8 @@ pub struct MongoRepo<T> {
     col: Collection<T>,
 }
 
-
 /// Implementation of the MongoRepo struct.
 impl<T: Model<T>> MongoRepo<T> {
-
     /// Initialize a MongoDB repository for sepcified collection.
     ///
     /// # Returns
@@ -50,7 +54,9 @@ impl<T: Model<T>> MongoRepo<T> {
         let client = match client {
             Ok(client) => client,
             Err(_) => {
-                println!("Error: Could not connect to the repository. Check if mongoDB is running.");
+                println!(
+                    "Error: Could not connect to the repository. Check if mongoDB is running."
+                );
                 exit(1);
             }
         };
@@ -69,19 +75,19 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Panics
     /// This function may panic if there are errors during the insert operation.
-    pub async fn create_document(&self, new_user: T) -> Result<InsertOneResult,
-        ConnectionCheckoutFailedReason> {
-        let user = self
-            .col
-            .insert_one(&new_user, None)
-            .await
-            .ok();
+    pub async fn create_document(
+        &self,
+        new_user: T,
+    ) -> Result<InsertOneResult, ConnectionCheckoutFailedReason> {
+        let user = self.col.insert_one(&new_user, None).await.ok();
         match user {
             None => {
-                println!("Could not add document to the jobEstimate collection. Check if MongoDB \
-                is running");
+                println!(
+                    "Could not add document to the jobEstimate collection. Check if MongoDB \
+                is running"
+                );
                 Err(ConnectionError)
-            },
+            }
             Some(_) => Ok(user.unwrap()),
         }
     }
@@ -96,10 +102,8 @@ impl<T: Model<T>> MongoRepo<T> {
     /// Returns a Result containing a vector of documents that match the filter or an error.
     pub async fn get_documents_by_attribute(&self, filter: Document) -> Result<Vec<T>, String> {
         let mut cursor = match self.col.find(filter, None).await {
-            Ok(curs)   => curs,
-            Err(_) => {
-                return Err("Filter is not a valid Document".to_string())
-            }
+            Ok(curs) => curs,
+            Err(_) => return Err("Filter is not a valid Document".to_string()),
         };
         let mut users: Vec<T> = Vec::new();
         while let Some(user) = cursor
@@ -122,12 +126,14 @@ impl<T: Model<T>> MongoRepo<T> {
     ///
     /// # Returns
     /// Returns a Result containing the updated document or an error.
-    pub async fn update_document(&self, filter: Document, updated_user: T) -> Result<UpdateResult,
-        String> {
+    pub async fn update_document(
+        &self,
+        filter: Document,
+        updated_user: T,
+    ) -> Result<UpdateResult, String> {
         let doc = json!({"$set": updated_user});
         let doc = bson::to_document(&doc).unwrap();
-        let updated_doc = match self.col
-            .update_one(filter, doc, None).await{
+        let updated_doc = match self.col.update_one(filter, doc, None).await {
             Ok(doc) => doc,
             Err(_) => return Err("Error updating document".to_string()),
         };
@@ -147,7 +153,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
     pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, String> {
-        let user_detail = match self.col.delete_one(filter, None).await{
+        let user_detail = match self.col.delete_one(filter, None).await {
             Ok(doc) => doc,
             Err(_) => return Err("Error deleting document".to_string()),
         };
@@ -180,11 +186,11 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
-    pub fn set_collection(&mut self, collection: Collection<T>){
+    pub fn set_collection(&mut self, collection: Collection<T>) {
         self.col = collection;
     }
 
-    pub fn set_database(&mut self, db: Database){
+    pub fn set_database(&mut self, db: Database) {
         self.db = db;
     }
 }

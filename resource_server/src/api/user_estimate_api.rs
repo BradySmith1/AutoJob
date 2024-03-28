@@ -1,20 +1,22 @@
-use crate::{model::user_model::UserEstimate, repository::mongodb_repo::MongoRepo,
-            model::form_data_model::UserEstimateUploadForm};
-use actix_web::{post, web::{Json, Path}, HttpResponse, Error, get, Responder, put, delete, HttpRequest};
-use actix_multipart::{
-    form::{
-        MultipartForm,
-    },
-};
-use actix_files::NamedFile;
-use actix_web::body::MessageBody;
-use actix_web::web::Query;
-use mongodb::bson::{doc, Document};
-use mongodb::bson::oid::ObjectId;
-use serde_json::{json, Value};
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::image_model::Image;
 use crate::utils::token_extractor::AuthenticationToken;
+use crate::{
+    model::user_model::UserEstimateUploadForm, model::user_model::UserEstimate,
+    repository::mongodb_repo::MongoRepo,
+};
+use actix_files::NamedFile;
+use actix_multipart::form::MultipartForm;
+use actix_web::body::MessageBody;
+use actix_web::web::Query;
+use actix_web::{
+    delete, get, post, put,
+    web::{Json, Path},
+    Error, HttpRequest, HttpResponse, Responder,
+};
+use mongodb::bson::oid::ObjectId;
+use mongodb::bson::{doc, Document};
+use serde_json::{json, Value};
 
 const COLLECTION: &str = "userEstimates";
 
@@ -32,8 +34,9 @@ const COLLECTION: &str = "userEstimates";
 /// an error during the creation process, it returns an HTTP 500 Internal Server Error response with
 /// an error message.
 #[post("/user")]
-pub async fn create_user(MultipartForm(form):
-MultipartForm<UserEstimateUploadForm>) -> HttpResponse {
+pub async fn create_user(
+    MultipartForm(form): MultipartForm<UserEstimateUploadForm>,
+) -> HttpResponse {
     //initializes the MongoDB repository
     let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, form.company_id.as_str()).await;
 
@@ -44,35 +47,40 @@ MultipartForm<UserEstimateUploadForm>) -> HttpResponse {
     }
 
     //parses the JSON object from the HTTP request
-    let json: UserEstimate = match serde_json::from_str(&user){
+    let json: UserEstimate = match serde_json::from_str(&user) {
         Ok(parsed_json) => parsed_json,
         Err(_) => {
             println!("Incorrect JSON object format from HTTPRequest.");
             return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.")
-        },
+                .body("Incorrect JSON object format from HTTPRequest Post request.");
+        }
     };
 
     //creates a new userEstimate in the userEstimate collection
-    let json = post_data(&db, json).await.into_body().try_into_bytes().unwrap();
+    let json = post_data(&db, json)
+        .await
+        .into_body()
+        .try_into_bytes()
+        .unwrap();
     let mut id = std::str::from_utf8(&json).unwrap();
     id = id.rsplit("\"").collect::<Vec<&str>>()[1];
 
     //saves the images to the computer
-    let references = match save_files(form, id).await{
-        Ok(refers) => {refers},
+    let references = match save_files(form, id).await {
+        Ok(refers) => refers,
         Err(_) => {
             println!("Error: Could not save files from FormData");
             return HttpResponse::InternalServerError().body("Could not save files");
-        },
+        }
     };
     if references.is_empty() {
         let mut hash = Document::new();
         hash.insert("_id".to_string(), id);
-        return match get_data(&db, hash).await { //get data takes a id as a string and parses it
-            Ok(user) => HttpResponse::Ok().json(user),//inside the function
+        return match get_data(&db, hash).await {
+            //get data takes a id as a string and parses it
+            Ok(user) => HttpResponse::Ok().json(user), //inside the function
             Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        }
+        };
     }
 
     let mut user_value: Value = serde_json::from_str(user).unwrap();
@@ -92,8 +100,7 @@ MultipartForm<UserEstimateUploadForm>) -> HttpResponse {
 ///
 /// # Returns
 /// Returns a result of a vec of image references and where to find them in the computer.
-async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>,
-    Error> {
+async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>, Error> {
     let mut image_vec: Vec<Value> = vec![];
     if form.files.len() == 0 {
         return Ok(image_vec);
@@ -102,7 +109,7 @@ async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>
     for f in form.files {
         let path = format!("{}{}", image_path, id);
         std::fs::create_dir_all(&path).expect("Could not create directories");
-        let path = format!("{}{}/{}",image_path, id, f.file_name.clone().unwrap());
+        let path = format!("{}{}/{}", image_path, id, f.file_name.clone().unwrap());
         f.file.persist(&path).unwrap();
         let path = format!("{}/{}", id, f.file_name.unwrap());
         image_vec.push(json!({"reference": &path}));
@@ -128,7 +135,7 @@ pub async fn get_user(query: Query<Document>, auth_token: AuthenticationToken) -
     return match get_data(&db, query.into_inner()).await {
         Ok(user) => HttpResponse::Ok().json(user),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+    };
 }
 
 /// A helper function to get a image through a file path
@@ -141,16 +148,15 @@ pub async fn get_user(query: Query<Document>, auth_token: AuthenticationToken) -
 /// response if the image cannot be found.
 #[get("/userimage")]
 pub async fn get_image(req: HttpRequest, _auth_token: AuthenticationToken) -> HttpResponse {
-    let name_query =  &req.query_string().to_string();
-    let name = std::env::var("IMAGE_PATH").unwrap() +
-        name_query.split("=").collect::<Vec<&str>>()[1];
+    let name_query = &req.query_string().to_string();
+    let name =
+        std::env::var("IMAGE_PATH").unwrap() + name_query.split("=").collect::<Vec<&str>>()[1];
     let name_change = format!("reference={}", name);
     let query = Query::<Image>::from_query(&*name_change).unwrap();
     let path = std::path::PathBuf::from(&query.reference);
     let file = NamedFile::open_async(path).await.unwrap();
 
     file.into_response(&req)
-
 }
 
 /// Update userEstimate details by their ID via a PUT request.
@@ -171,7 +177,7 @@ pub async fn get_image(req: HttpRequest, _auth_token: AuthenticationToken) -> Ht
 pub async fn update_user(
     path: Path<String>,
     new_user: Json<UserEstimate>,
-    auth_token: AuthenticationToken
+    auth_token: AuthenticationToken,
 ) -> HttpResponse {
     let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let id = path.into_inner();
@@ -211,8 +217,7 @@ pub async fn update_user(
 /// is empty or there's an error during the deletion process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[delete("/user")]
-pub async fn delete_user(query: Query<Document>, auth_token: AuthenticationToken) ->
-                                                                                    HttpResponse {
+pub async fn delete_user(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse {
     let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     delete_data(&db, query.into_inner()).await
 }
