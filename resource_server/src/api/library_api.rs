@@ -47,13 +47,19 @@ pub async fn create_library_entry(
     post_data(&db, json).await
 }
 
-#[post("/library/input")]
-pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse {
+#[post("/library/inputs")]
+pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationToken, inputs: String)
+    -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let data = query.into_inner();
     let stage_id = data.get("stageID").unwrap().as_str().unwrap();
     let preset_id = data.get("presetID").unwrap().as_str().unwrap();
-    let inputs = data.get("inputs").unwrap().as_document().unwrap();
+    let inputs: Vec<String> = match serde_json::from_str(&inputs){
+        Ok(vec) => vec,
+        Err(_) => {
+            return HttpResponse::BadRequest().body("Not a array of strings in the body.")
+        }
+    };
     let doc = doc! {"stageID": stage_id, "presetID": preset_id};
     let result = db.get_documents_by_attribute(doc).await;
     let mut billables = match result {
@@ -64,8 +70,8 @@ pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationTok
     };
     for mut billable in billables {
         let mut input_map = billable.inputs.unwrap();
-        for (key, value) in inputs.iter() {
-            input_map.insert(key.clone(), Value::from(value.clone()));
+        for key in inputs.iter() {
+            input_map.insert(key.clone(), Value::from(""));
         }
         billable.inputs = Some(input_map);
         let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
@@ -179,13 +185,20 @@ pub async fn delete_library_entry(
     delete_data(&db, query.into_inner()).await
 }
 
-#[delete("/library/input")]
-pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse{
+#[delete("/library/inputs")]
+pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationToken, inputs: String)
+    ->
+                                                                                     HttpResponse{
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     let data = query.into_inner();
     let stage_id = data.get("stageID").unwrap().as_str().unwrap();
     let preset_id = data.get("presetID").unwrap().as_str().unwrap();
-    let inputs = data.get("inputs").unwrap().as_document().unwrap();
+    let inputs: Vec<String> = match serde_json::from_str(&inputs){
+        Ok(vec) => vec,
+        Err(_) => {
+            return HttpResponse::BadRequest().body("Not a array of strings in the body.")
+        }
+    };
     let doc = doc! {"stageID": stage_id, "presetID": preset_id};
     let result = db.get_documents_by_attribute(doc).await;
     let mut billables = match result {
@@ -196,7 +209,7 @@ pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationTok
     };
     for mut billable in billables {
         let mut input_map = billable.inputs.unwrap();
-        for (key, _) in inputs.iter() {
+        for key in inputs.iter() {
             input_map.remove(key);
         }
         billable.inputs = Some(input_map);
