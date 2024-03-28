@@ -1,12 +1,13 @@
 use crate::model::jwt_model::{Claims, JSONToken, JWT};
 use crate::model::schema_model::Schema;
 use crate::repository::mongodb_repo::MongoRepo;
-use actix_web::web::Data;
-use actix_web::{post, HttpResponse};
+use actix_web::web::{Data, Path};
+use actix_web::{post, HttpResponse, get};
 use jsonwebtoken::{
     decode, errors::Error as JwtError, Algorithm, DecodingKey, TokenData, Validation,
 };
 use mongodb::bson::doc;
+use rand::{distributions::Alphanumeric, Rng};
 
 /// This function stores a JWT token in the MongoDB database.
 ///
@@ -103,4 +104,19 @@ pub async fn store_token(new_token: String, secret: Data<String>) -> HttpRespons
             .expect("MONGODB not running");
         return HttpResponse::Ok().json(user);
     }
+}
+
+#[get("/generate_id/{number}")]
+pub async fn generate_id(path: Path<String>) -> HttpResponse {
+    let number = path.into_inner().parse::<i32>().unwrap();
+    let mut vec =  vec![];
+    for _ in 0..number {
+        let id: String = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(24)
+            .map(char::from)
+            .collect();
+        vec.push(id);
+    }
+    HttpResponse::Ok().json(vec)
 }

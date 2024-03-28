@@ -12,11 +12,8 @@ mod utils;
 use crate::api::job_estimate_api::{
     create_estimate, delete_estimate, get_all_estimates, get_estimate, update_estimate,
 };
-use crate::api::jwt_api::store_token;
-use crate::api::library_api::{
-    check_libraries, create_library_entry, delete_library_entry, get_all_library_entries,
-    get_library_entry, update_library_entry,
-};
+use crate::api::jwt_api::{generate_id, store_token};
+use crate::api::library_api::{check_libraries, create_inputs, create_library_entry, delete_inputs, delete_library_entry, get_all_library_entries, get_library_entry, update_library_entry};
 use crate::api::schema_api::{
     create_schema, delete_schema, get_all_schema, get_schema, update_schema,
 };
@@ -158,6 +155,8 @@ pub async fn main() -> std::io::Result<()> {
             .service(update_library_entry)
             .service(delete_library_entry)
             .service(get_all_library_entries)
+            .service(create_inputs)
+            .service(delete_inputs)
             .service(update_schema)
             .service(create_schema)
             .service(delete_schema)
@@ -165,6 +164,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(get_all_schema)
             .service(manual_web_scrape)
             .service(store_token)
+            .service(generate_id)
             .service(index)
     })
     .bind_openssl(&target, ssl)?

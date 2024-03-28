@@ -60,6 +60,7 @@ fn default_schema() -> Schema {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct Schema {
+
     estimateType: String,
     form: Vec<SchemeLayout>,
 }

@@ -375,6 +375,7 @@ dependencies = [
  "jsonwebtoken",
  "mongodb",
  "openssl",
+ "rand",
  "reqwest",
  "serde",
  "serde_derive",

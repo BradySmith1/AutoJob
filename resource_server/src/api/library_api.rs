@@ -46,6 +46,34 @@ pub async fn create_library_entry(
     post_data(&db, json).await
 }
 
+#[post("/library/input")]
+pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse {
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let data = query.into_inner();
+    let stage_id = data.get("stageID").unwrap().as_str().unwrap();
+    let preset_id = data.get("presetID").unwrap().as_str().unwrap();
+    let inputs = data.get("inputs").unwrap().as_document().unwrap();
+    let doc = doc! {"stageID": stage_id, "presetID": preset_id};
+    let result = db.get_document(doc).await;
+    let mut billable = match result {
+        Ok(billable) => billable,
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Could not retrieve billable");
+        }
+    };
+    let mut input_map = billable.inputs.unwrap();
+    for (key, value) in inputs.iter() {
+        input_map.insert(key.clone(), value.clone());
+    }
+    billable.inputs = Some(input_map);
+    let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
+    let update_result = db.update_document(doc, billable).await;
+    match update_result {
+        Ok(_) => HttpResponse::Ok().body("Successfully added inputs"),
+        Err(_) => HttpResponse::InternalServerError().body("Could not add inputs"),
+    }
+}
+
 fn check_auto_update(json: &mut Billable) -> HttpResponse {
     if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
         if json.company.is_none() {
@@ -146,6 +174,34 @@ pub async fn delete_library_entry(
 ) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     delete_data(&db, query.into_inner()).await
+}
+
+#[delete("/library/input")]
+pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse{
+    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let data = query.into_inner();
+    let stage_id = data.get("stageID").unwrap().as_str().unwrap();
+    let preset_id = data.get("presetID").unwrap().as_str().unwrap();
+    let inputs = data.get("inputs").unwrap().as_document().unwrap();
+    let doc = doc! {"stageID": stage_id, "presetID": preset_id};
+    let result = db.get_document(doc).await;
+    let mut billable = match result {
+        Ok(billable) => billable,
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Could not retrieve billable");
+        }
+    };
+    let mut input_map = billable.inputs.unwrap();
+    for (key, _) in inputs.iter() {
+        input_map.remove(key);
+    }
+    billable.inputs = Some(input_map);
+    let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
+    let update_result = db.update_document(doc, billable).await;
+    match update_result {
+        Ok(_) => HttpResponse::Ok().body("Successfully deleted inputs"),
+        Err(_) => HttpResponse::InternalServerError().body("Could not delete inputs"),
+    }
 }
 
 /// Retrieve all materialLibrary entry details via a GET request.
