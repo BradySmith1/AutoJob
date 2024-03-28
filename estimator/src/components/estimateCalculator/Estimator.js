@@ -259,12 +259,9 @@ function Estimator(props) {
      * @param {*} status status of this form
      */
     const postDraftData = (values, status) => {
-        const estimateData = {user: props.data.user, form: values.form, status: status};
+        const estimateData = {user: props.data.user, form: values.form, status: status, schema: props.schema};
         setPostError(false);
 
-        if(status !== "complete") {
-            estimateData.schema = props.schema;
-        }
         if(props.data._id !== undefined){
             estimateData._id = props.data._id;
         }

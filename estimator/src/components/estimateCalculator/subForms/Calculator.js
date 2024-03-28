@@ -60,17 +60,19 @@ function Calculator(props){
             array methods so that we can use them in the form.*/}
             {({ remove, push, insert, index }) => (
                 <div className='wrapper' id={index}>
-                    <h2>Add {props.schema.canonicalName}</h2>
+                    <h2>{props.schema.canonicalName} Stage</h2>
                     {/*Here we are ensuring that the billable array length is always greater than zero and then
                     mapping over the billable array to create our resizeable form*/}
                     {props.values.length > 0 &&
                     props.values.map((value, billableIndex) => (
                         <div className="row" key={index}>
-                            {props.schema.fields.map((field, schemaIndex) => (
-                                displayCalcColumn(field, schemaIndex, props, billableIndex)
-                            ))}
+                            <div className='fieldsContainer'>
+                                {props.schema.fields.map((field, schemaIndex) => (
+                                    displayCalcColumn(field, schemaIndex, props, billableIndex)
+                                ))}
+                            </div>
                             {/**This displays the subtotal for the column */}
-                            <div className='col totalCol'>
+                            <div className='col'>
                                 <div className='label'> Sub Total </div>
                                 <div className='totalContainer'>
                                     <div className='total'> 
@@ -85,6 +87,7 @@ function Calculator(props){
                                 <button
                                     type="button"
                                     className="xButton"
+                                    style={{marginTop: "25px"}}
                                     onClick={() => {
                                         //Here we are removing this element of the billable array
                                         //when the x button is clicked
@@ -99,23 +102,25 @@ function Calculator(props){
                         </div>
                     ))}
                     {/*In this on click fuction, we are pushing a new empty billable to the array*/}
-                    <button
-                        type="button"
-                        className="button medium"
-                        onClick={() => push(defaultBillable)}
-                    >
-                        + Add New {props.name}
-                    </button>
-                    {/**In this click function, we are setting display to true so that we can display the material library */}
-                    <button
-                        type="button"
-                        className="button medium"
-                        onClick={() => {
-                            setDisplay(true);
-                        }}
-                    >
-                        + Import {props.name}
-                    </button>
+                    <div className='AddImportWrapper'>
+                        <button
+                            type="button"
+                            className="button medium"
+                            onClick={() => push(defaultBillable)}
+                        >
+                            + Add New {props.name}
+                        </button>
+                        {/**In this click function, we are setting display to true so that we can display the material library */}
+                        <button
+                            type="button"
+                            className="button medium"
+                            onClick={() => {
+                                setDisplay(true);
+                            }}
+                        >
+                            + Import {props.name}
+                        </button>
+                    </div>
                     {/**If display is true, display the material library */}
                     {display ? <Library 
                                 insert={insert}
