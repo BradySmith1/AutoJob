@@ -13,13 +13,19 @@ const COLLECTION: &str = "schemas";
 #[put("/schema")]
 pub async fn update_schema(
     auth_token: AuthenticationToken,
-    query: Query<Document>,
+    mut query: Query<Document>,
     new_schema: String,
 ) -> HttpResponse {
     let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
+    if query.contains_key("_id") {
+        let id = query.get("_id").unwrap().to_string().replace("\"", "");
+        let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
+        query.remove("_id");
+        query.insert("_id", obj_id);
+    }
     let data: Schema = serde_json::from_str(&new_schema).expect("Issue parsing object");
     let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
         Ok(update) => update,

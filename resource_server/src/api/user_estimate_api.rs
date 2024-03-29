@@ -186,7 +186,7 @@ pub async fn get_image(req: HttpRequest, _auth_token: AuthenticationToken) -> Ht
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/user")]
 pub async fn update_user(
-    query: Query<Document>,
+    mut query: Query<Document>,
     new_user: String,
     auth_token: AuthenticationToken,
 ) -> HttpResponse {
@@ -195,6 +195,12 @@ pub async fn update_user(
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
+    if query.contains_key("_id") {
+        let id = query.get("_id").unwrap().to_string().replace("\"", "");
+        let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
+        query.remove("_id");
+        query.insert("_id", obj_id);
+    }
     let data: UserEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
     let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
         Ok(update) => update,

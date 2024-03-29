@@ -107,7 +107,7 @@ pub async fn get_library_entry(
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
 #[put("/library")]
 pub async fn update_library_entry(
-    query: Query<Document>,
+    mut query: Query<Document>,
     new_user: String,
     auth_token: AuthenticationToken,
 ) -> HttpResponse {
@@ -115,6 +115,12 @@ pub async fn update_library_entry(
     if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
+    if query.contains_key("_id") {
+        let id = query.get("_id").unwrap().to_string().replace("\"", "");
+        let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
+        query.remove("_id");
+        query.insert("_id", obj_id);
+    }
     let mut data: Billable = serde_json::from_str(&new_user).expect("Issue parsing object");
     let response = check_auto_update(&mut data);
     if !response.status().is_success() {
