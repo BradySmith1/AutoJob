@@ -114,23 +114,13 @@ pub async fn get_all_data<T: Model<T>>(db: &MongoRepo<T>) -> HttpResponse {
 /// If the document is not created, it returns an HTTP 500 Internal Server Error response.
 /// If the id is not a valid ID, it returns a HTTP Not Found Error Response.
 pub async fn push_update<T: Model<T>>(
-    result: Result<UpdateResult, String>,
     db: &MongoRepo<T>,
     id: String,
 ) -> HttpResponse {
-    match result {
-        Ok(update) => {
-            if update.matched_count == 1 {
-                let document = doc! {"_id": id};
-                let updated_user_info = db.get_documents_by_attribute(document).await;
-                return match updated_user_info {
-                    Ok(user) => HttpResponse::Ok().json(user),
-                    Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-                };
-            } else {
-                return HttpResponse::NotFound().body("No user found with specified ID");
-            }
-        }
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-    }
+            let document = doc! {"_id": id};
+            let updated_user_info = db.get_documents_by_attribute(document).await;
+            return match updated_user_info {
+                Ok(user) => HttpResponse::Ok().json(user),
+                Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+            };
 }

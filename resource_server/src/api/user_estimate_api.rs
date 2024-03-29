@@ -16,7 +16,9 @@ use actix_web::{
 };
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
+use mongodb::results::UpdateResult;
 use serde_json::{json, Value};
+use crate::model::estimate_model::JobEstimate;
 
 const COLLECTION: &str = "userEstimates";
 
@@ -87,8 +89,17 @@ pub async fn create_user(
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
     let doc = doc! {"_id": id.to_string()};
-    let response = db.update_document(doc, json_user).await;
-    push_update(response, &db, id.to_string()).await
+    let response = match db.update_document(doc, json_user).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
+        }
+    };
+    return if response.matched_count < 1 {
+        push_update(&db, id.to_string()).await
+    }else {
+        HttpResponse::InternalServerError().body("Could not update material")
+    }
     //might want to just return a id
 }
 
@@ -173,34 +184,29 @@ pub async fn get_image(req: HttpRequest, _auth_token: AuthenticationToken) -> Ht
 /// it returns an HTTP 200 OK response with the JSON representation of the updated userEstimate's details. If the provided ID
 /// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[put("/user/{id}")]
+#[put("/user")]
 pub async fn update_user(
-    path: Path<String>,
-    new_user: Json<UserEstimate>,
+    query: Query<Document>,
+    new_user: String,
     auth_token: AuthenticationToken,
 ) -> HttpResponse {
-    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let id = path.into_inner();
-    if id.is_empty() {
+    let db: MongoRepo<UserEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str())
+        .await;
+    if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let data = UserEstimate {
-        id: Some(ObjectId::parse_str(&id).unwrap()),
-        fName: new_user.fName.to_owned(),
-        lName: new_user.lName.to_owned(),
-        email: new_user.email.to_owned(),
-        strAddr: new_user.strAddr.to_owned(),
-        city: new_user.city.to_owned(),
-        state: new_user.state.to_owned(),
-        zip: new_user.zip.to_owned(),
-        phoneNumber: new_user.phoneNumber.to_owned(),
-        measurements: new_user.measurements.to_owned(),
-        details: new_user.details.to_owned(),
-        images: new_user.images.to_owned(),
+    let data: UserEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
+        }
     };
-    let doc = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
-    let update_result = db.update_document(doc, data).await;
-    push_update(update_result, &db, id).await
+    return if update_result.matched_count < 1 {
+        push_update(&db, update_result.upserted_id.unwrap().to_string()).await
+    }else{
+        HttpResponse::InternalServerError().body("Could not update material")
+    }
 }
 
 /// Delete userEstimate details by their ID via a DELETE request.

@@ -6,31 +6,32 @@ use crate::utils::token_extractor::AuthenticationToken;
 use actix_web::web::{Path, Query};
 use actix_web::{delete, get, post, put, HttpResponse};
 use mongodb::bson::{doc, Document};
+use mongodb::results::UpdateResult;
 
 const COLLECTION: &str = "schemas";
 
 #[put("/schema/{estimate_type}")]
 pub async fn update_schema(
     auth_token: AuthenticationToken,
-    path: Path<String>,
+    query: Query<Document>,
     new_schema: String,
 ) -> HttpResponse {
     let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let estimate_type = path.into_inner();
-    if estimate_type.is_empty() {
+    if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let data = match serde_json::from_str(&new_schema) {
-        Ok(parsed_json) => parsed_json,
-        Err(_) => {
-            println!("Incorrect JSON object format from HTTPRequest.");
-            return HttpResponse::InternalServerError()
-                .body("Incorrect JSON object format from HTTPRequest Post request.");
+    let data: Schema = serde_json::from_str(&new_schema).expect("Issue parsing object");
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
         }
     };
-    let doc = doc! {"estimateType": estimate_type.clone()};
-    let update_result = db.update_document(doc, data).await;
-    push_update(update_result, &db, estimate_type).await
+    return if update_result.matched_count < 1 {
+        push_update(&db, update_result.upserted_id.unwrap().to_string()).await
+    }else{
+        HttpResponse::InternalServerError().body("Could not update material")
+    }
 }
 
 #[post("/schema")]

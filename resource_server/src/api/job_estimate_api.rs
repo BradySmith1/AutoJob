@@ -6,6 +6,8 @@ use actix_web::{delete, get, post, put, web::Path, HttpResponse};
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use std::string::String;
+use mongodb::results::UpdateResult;
+use crate::model::billable_model::Billable;
 
 const COLLECTION: &str = "jobEstimates";
 
@@ -70,22 +72,28 @@ pub async fn get_estimate(auth_token: AuthenticationToken, query: Query<Document
 /// it returns an HTTP 200 OK response with the JSON representation of the updated jobEstimate's details. If the provided ID
 /// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[put("/estimate/{id}")]
+#[put("/estimate")]
 pub async fn update_estimate(
     auth_token: AuthenticationToken,
-    path: Path<String>,
+    query: Query<Document>,
     new_user: String,
 ) -> HttpResponse {
     let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let id = path.into_inner();
-    if id.is_empty() {
+    if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
-    data.id = Some(ObjectId::parse_str(&id).unwrap());
-    let doc = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
-    let update_result = db.update_document(doc, data).await;
-    push_update(update_result, &db, id).await
+    let data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
+        }
+    };
+    return if update_result.matched_count < 1 {
+        push_update(&db, update_result.upserted_id.unwrap().to_string()).await
+    }else{
+        HttpResponse::InternalServerError().body("Could not update material")
+    }
 }
 
 /// Delete jobEstimate details by their ID via a DELETE request.
