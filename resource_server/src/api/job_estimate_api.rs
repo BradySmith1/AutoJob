@@ -89,7 +89,7 @@ pub async fn update_estimate(
             return HttpResponse::InternalServerError().body(err.to_string());
         }
     };
-    return if update_result.matched_count < 1 {
+    return if update_result.modified_count > 0 {
         HttpResponse::Ok().json("Material has been updated (ID is the same)")
     }else{
         HttpResponse::InternalServerError().body("Could not update material")
