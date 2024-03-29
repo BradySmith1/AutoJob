@@ -203,7 +203,7 @@ pub async fn update_user(
         }
     };
     return if update_result.matched_count < 1 {
-        push_update(&db, update_result.upserted_id.unwrap().to_string()).await
+        HttpResponse::Ok().json("Material has been updated (ID is the same)")
     }else{
         HttpResponse::InternalServerError().body("Could not update material")
     }

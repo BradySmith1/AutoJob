@@ -162,10 +162,10 @@ pub async fn update_library_entry(
             return HttpResponse::InternalServerError().body(err.to_string());
         }
     };
-    return if update_result.matched_count < 1 {
-        push_update(&db, update_result.upserted_id.unwrap().to_string()).await
+    return if update_result.modified_count > 0 {
+        HttpResponse::Ok().json("Material has been updated (ID is the same)")
     }else{
-        HttpResponse::InternalServerError().body("Could not update material")
+        HttpResponse::Ok().body("No changes made")
     }
 }
 
