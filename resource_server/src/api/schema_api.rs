@@ -10,7 +10,7 @@ use mongodb::results::UpdateResult;
 
 const COLLECTION: &str = "schemas";
 
-#[put("/schema/{estimate_type}")]
+#[put("/schema")]
 pub async fn update_schema(
     auth_token: AuthenticationToken,
     query: Query<Document>,
