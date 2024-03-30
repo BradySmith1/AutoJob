@@ -1,5 +1,6 @@
 import json
 
+import selenium.common.exceptions
 from flask import *
 import pymongo
 from datetime import datetime, timedelta
@@ -27,11 +28,19 @@ def get_cached_materials():
             return cache_returned
     # Needs to be changed later on, cant just take the first option
     if zip_code is not None:
-        scraped_material = scrape_and_cache(name, company, zip_code)
+        try:
+            scraped_material = scrape_and_cache(name, company, zip_code)[0]
+        except selenium.common.exceptions.NoSuchElementException:
+            print("Not a valid zipcode.")
+            abort(400)
     else:
-        scraped_material = scrape_and_cache(name, company)[0]
+        try:
+            scraped_material = scrape_and_cache(name, company)[0]
+        except selenium.common.exceptions.NoSuchElementException:
+            print("Not a valid zipcode.")
+            abort(400)
     if scraped_material is None:
-        abort(401)
+        abort(404)
     else:
         material_to_cache = {"name": scraped_material.get("name"), "price": scraped_material.get("price"),
                              "company": company, "ttl": (datetime.utcnow() + timedelta(days=7)).timestamp()}

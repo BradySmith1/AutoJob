@@ -1,6 +1,9 @@
 import time
+
+import selenium.common.exceptions
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -33,7 +36,7 @@ class WebScraper:
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
-        self.options.add_argument("--headless=new")
+        #self.options.add_argument("--headless=new")
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_page(self, url, zip_code):
@@ -43,9 +46,13 @@ class WebScraper:
         #wait.until(self.driver.current_url != url) # TODO need to get this to work so im not waiting a set amount time
         if zip_code is not None:
             self.driver.find_element(By.ID, 'store-search-handler').click()
-            self.driver.find_element(By.TAG_NAME, 'text').send_keys(zip_code)
-            self.driver.find_element(By.ID, 'ButtonBase-sc-1ngvxvr-0 jIEdNT backyard button size--large variant--primary color--interactive shape--rounded rightArrowBtn').click()
-            self.driver.find_element(By.ID, 'ButtonBase-sc-1ngvxvr-0 jIEdNT backyard button size--small variant--primary color--interactive shape--rounded setStore met-sl-set-as-my-store').click()
+            input_field = self.driver.find_element(By.XPATH, "//input[@value=\"2634\"]")
+            input_field.send_keys(Keys.CONTROL, "a")
+            input_field.send_keys(Keys.DELETE)
+            input_field.send_keys(zip_code)
+            self.driver.find_element(By.XPATH, '//div[@class="inputContainer"]//button[position()=2]').click()
+            self.driver.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]').click()
+            time.sleep(3)
         page_source = self.driver.page_source
         page_parsed = BeautifulSoup(page_source, 'html.parser')
         self.page = page_parsed
