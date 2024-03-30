@@ -24,8 +24,10 @@ use std::fmt::Display;
 pub struct Billable {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub presetID: String,
-    pub stageID: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presetID: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stageID: Option<String>,
     pub name: String,
     pub price: f32,
     pub quantity: f32,
