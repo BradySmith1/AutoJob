@@ -17,6 +17,8 @@ def get_cached_materials():
     zip_code = request.args.get('zip')
     if name is None or company is None:
         abort(400)
+
+    # Checks cache
     # gets first material returned. Will have to redo this part of the code later
     cache_returned = list(db_collection.find({"name": {'$regex': name}, "company": company}))
     if cache_returned.__len__() > 0:
@@ -26,6 +28,9 @@ def get_cached_materials():
             db_collection.delete_one({"name": name, "company": company})
         else:
             return cache_returned
+
+    # Scrapes website
+    scraper_instance.set_company(company)
     # Needs to be changed later on, cant just take the first option
     if zip_code is not None:
         try:
