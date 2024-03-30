@@ -10,6 +10,7 @@ use argon2::{
     },
     Argon2
 };
+use mongodb::bson::doc;
 
 
 /// This function enrolls a user via a POST request to the api web server
@@ -37,6 +38,15 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(json.password.as_bytes(), &salt).unwrap().to_string();
+    let doc = doc! {
+        "username": json.username.clone()
+    };
+    let user = db.find_one(doc).await;
+    match user {
+        Ok(_) => return HttpResponse::Conflict()
+            .body("User already exists in the database."),
+        Err(_) => ()
+    }
     let new_user: User = User{
         id: None,
         username: json.username,
