@@ -10,7 +10,10 @@ function Expandable( props ){
     return(
         <>
             <div className="expandableHeader">
-                <h2>{props.title}</h2>
+                {props.large !== undefined && props.large === true ? 
+                (<h2>{props.title}</h2>) 
+                :
+                (<h3 style={{color: "white !important", margin: "0px"}}>{props.title}</h3>)}
                 {expanded ? 
                 (<img src={expandUp} className="expandImg" onClick={()=> {
                     setExpanded(false)

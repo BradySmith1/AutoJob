@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .formContainer{
@@ -32,6 +32,11 @@
     color: red;
     width: 90%;
     margin-left: 10%;
+}
+
+.customBox{
+    margin-right: 0px !important;
+    width: 100% !important;
 }
 
 @media (max-width: 1235px) {

@@ -8,26 +8,14 @@
  * estimate calculator.
  */
 import './Estimator.css';
-import { Formik, Form, yupToFormErrors } from 'formik';
+import { Formik, Form } from 'formik';
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
 import Overview from './subForms/Overview.js';
-import billableList from '../JSONs/billableList.json';
 import Message from '../utilComponents/Message.js';
 import { AuthContext } from '../authentication/AuthContextProvider.js';
-
-//Declare initial values for the form, an array of material objects
-//and an array of fee objects
-const billableSchema = [{
-    name: '',
-    price: 0.0,
-    quantity: 1.0,
-    description: '',
-    autoImport: "false",
-    autoUpdate: "false"
-}]
 
 /**
  * This function determines if there are validation errors
@@ -171,12 +159,21 @@ function generateYupSchema(schema) {
  * @param {JSON} initialValues the values of the form
  * @param {JSON} data estimate data passed down from estimate info
  */
-function determineBillables(initialValues, data) {
-    initialValues.form.forEach((value, index) => {
-        if(data.form[index] !== undefined){
-            initialValues.form[index] = data.form[index];
-        }
+function determineBillables(initialValues, data, schema) {
+    var localValues = {...initialValues}
+    var localData = {...data}
+    schema.form.forEach((stage, index) => {
+        localData.form.forEach((dataStage, dataIndex) => {
+            console.log("In here!!!")
+            console.log(dataStage)
+            if(dataStage !== undefined && dataStage.hasOwnProperty(stage.canonicalName)){
+                console.log("In here now yippee!!!")
+                localValues.form[index] = dataStage;
+            }
+        })
     });
+    console.log(localValues)
+    return localValues;
 
     // for (const key of Object.keys(initialValues)) {
     //     if (data.hasOwnProperty(key)) {
@@ -185,28 +182,6 @@ function determineBillables(initialValues, data) {
     //         initialValues[key] = billableSchema;
     //     }
     // }
-}
-
-/**
- * This method constructs the data prior to posting to the
- * backend
- * @param {JSON} user the user object
- * @param {JSON} billables the billables
- * @param {String} status the status, complete or draft
- * @returns 
- */
-function constructData(user, billables, status) {
-    var estimateData = { ...user };
-    //Add each billable list to the estimate data
-    for (const key of Object.keys(billableList)) {
-        var billableArr = {};
-        billableArr[billableList[key]] = [...billables[billableList[key]]];
-        estimateData = { ...estimateData, ...billableArr }
-    }
-    //Add status to the estimate data
-    estimateData = { ...estimateData, status: status };
-
-    return estimateData;
 }
 
 /**
@@ -227,18 +202,20 @@ function Estimator(props) {
 
     //Generate the yup schema
     const validationSchema = useMemo(() => generateYupSchema(props.schema), [props.schema]);
+    console.log(props.data);
     //Generate the initial values
-    var initialValues = useMemo(() => generateInitialValues(props.schema), []);
+    var initialValues = useMemo(() => determineBillables(generateInitialValues(props.schema), props.data, props.schema), []);
 
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
     const [saved, setSaved] = useState(false);
     const [postError, setPostError] = useState(false);
-    const [formValues, setFormValues] = useState(initialValues);
+    // const [formValues, setFormValues] = useState(initialValues);
 
-    useEffect(() => {
-        setFormValues(determineBillables(initialValues, props.data, props.schema))
-    }, []);
+    // useMemo(() => {
+    //     setFormValues(determineBillables(initialValues, props.data, props.schema))
+    //     console.log(formValues)
+    // }, []);
 
     /**
      * Helper function to reload the page on submit
@@ -271,7 +248,7 @@ function Estimator(props) {
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/api/estimate/' + estimateData._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate?_id=' + estimateData._id.$oid, estimateData, { timeout: 3000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -317,7 +294,7 @@ function Estimator(props) {
                 </div>
             </div>
             <Formik
-                initialValues={formValues}
+                initialValues={initialValues}
                 validationSchema={validationSchema}
                 validateOnChange={false}
                 validateOnBlur={true}
@@ -337,6 +314,7 @@ function Estimator(props) {
                                     errors={errors}
                                     touched={touched}
                                     schema={props.schema.form[index]}
+                                    pID={props.schema.presetID}
                                     generateFields={generateFields}
                                 />) : (null))
                         ))

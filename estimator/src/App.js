@@ -34,6 +34,7 @@ function App() {
         <Tooltip anchorSelect=".not-editable" place="left" style={{zIndex: "9999"}}>
           Cannot Edit This Field
         </Tooltip>
+        <Tooltip id="menu-tooltip" style={{zIndex: "9999"}}/>
         <div className="App">
               {authenticated ? 
                 (<AppSwitcher />) 

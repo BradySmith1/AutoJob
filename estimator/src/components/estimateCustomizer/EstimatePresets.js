@@ -36,7 +36,7 @@ const calcFields = (estimate) => {
         fields = fields.substring(0, fieldsLength) + "...";
     }
 
-    return fields
+    return fields;
 }
 
 /**

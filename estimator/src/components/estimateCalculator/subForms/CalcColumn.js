@@ -14,7 +14,6 @@ import { Field, ErrorMessage} from 'formik';
  * @returns 
  */
 function CalcColumn(props){
-    console.log(props.schema)
     return(
         <div className='col'>
             <div className='label' >{props.schema.name}</div>

@@ -35,3 +35,15 @@
     justify-content: center;
     align-items: center;
 }
+
+.Centered{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchInput{
+    margin: 0px !important;
+    width: 400px !important;
+}

@@ -49,8 +49,6 @@ function Calculator(props){
 
     const [defaultBillable] = useMemo((() => props.generateFields(props.schema)), [props.schema])
 
-    console.log(props.generateFields(props.schema))
-
     // console.log(props.path)
     // console.log(props.values)
 
@@ -108,7 +106,7 @@ function Calculator(props){
                             className="button medium"
                             onClick={() => push(defaultBillable)}
                         >
-                            + Add New {props.name}
+                            + Add to {props.schema.canonicalName}
                         </button>
                         {/**In this click function, we are setting display to true so that we can display the material library */}
                         <button
@@ -118,7 +116,7 @@ function Calculator(props){
                                 setDisplay(true);
                             }}
                         >
-                            + Import {props.name}
+                            + Import {props.schema.canonicalName}
                         </button>
                     </div>
                     {/**If display is true, display the material library */}
@@ -126,7 +124,7 @@ function Calculator(props){
                                 insert={insert}
                                 setDisplay={setDisplay}
                                 data={props.values}
-                                name={props.name}/> : null}
+                                selectedLib={{pID: props.pID, sID: props.schema.stageID, name: props.schema.canonicalName, schema: props.schema}}/> : null}
                 </div>
             )}
         </FieldArray>

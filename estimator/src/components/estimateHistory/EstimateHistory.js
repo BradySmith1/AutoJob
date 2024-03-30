@@ -31,6 +31,7 @@ function EstimateHistory(){
     const {jwt} = useContext(AuthContext);
     const {addNotification} = useContext(NotificationContext);
     const [loading, setLoading] = useState(true);
+    var searchStringCount = 0;
 
     axios.defaults.headers.common = {
         "Authorization": jwt
@@ -47,6 +48,7 @@ function EstimateHistory(){
             newEstimate.form = current.form;
             newEstimate.schema = current.schema;
             newEstimate._id = current._id;
+            newEstimate.date = current.date;
             return newEstimate;
         });
         console.log(trimmedData);
@@ -71,7 +73,7 @@ function EstimateHistory(){
             </div>
             <div className="historySearchWrapper">
                         <input
-                            className="inputBox search"
+                            className="inputBox search searchInput"
                             name="search"
                             type="text"
                             value={searchStr}
@@ -81,10 +83,15 @@ function EstimateHistory(){
                         </input>
                     </div>
             {!loading ? (
-                pastEstimates.length > 0 && pastEstimates.map((current, index) => {
+                <>
+                {pastEstimates.length > 0 && pastEstimates.map((current, index) => {
+                    const display = searchString(current.user.fName + current.user.lName + current.date.slice(0, 10), searchStr);
+                    if(display){
+                        searchStringCount++;
+                    }
                     return (
-                        (searchString(current.user.fName + current.user.lName, searchStr) ? 
-                            (<Expandable title={current.user.fName + " " + current.user.lName}>
+                        (display ? 
+                            (<Expandable title={current.user.fName + " " + current.user.lName + " | " + current.date.slice(0, 10)}>
                                 <div className="HistoryInfoWrapper">
                                     <div className="HistoryInfo">
                                         <h2>Contact</h2>
@@ -119,9 +126,11 @@ function EstimateHistory(){
                             </Expandable>) : 
                         (null))
                     )
-                })
-            ) : (
-                <h2>Loading...</h2>
+                })}
+                {searchStringCount === 0 && pastEstimates.length > 0 ? (<h3 className="Centered">Nothing Found</h3>) : (null)}
+                {pastEstimates.length > 0 ? (null) : (<h3 className="Centered">No Past Estimates</h3>)}
+                </>) : (
+                <h2 className="Centered">Loading...</h2>
             )}
         </div>
     );

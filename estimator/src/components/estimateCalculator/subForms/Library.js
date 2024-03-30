@@ -177,7 +177,7 @@ function Library(props){
     const getLibrary = (name) =>{
         setLoading(true);
 
-        axios.get('/api/library?description=' + name).then((response) => {
+        axios.get(`/api/library?presetID=${props.selectedLib.pID}&stageID=${props.selectedLib.sID}`).then((response) => {
             //initialize the state array
             var vallueArr = [];
             for(const billable of response.data){
@@ -199,7 +199,8 @@ function Library(props){
     //on the first render
     useEffect(() => {
         //Get all billables from the library that have the needed description
-        getLibrary(props.name);
+        getLibrary(props.selectedLib.name);
+        setLibrary({name: props.selectedLib.name, billables: []});
 
         //Hide the scrollbar on the body while the library is open
         document.body.style.overflowY = 'hidden';
@@ -213,15 +214,6 @@ function Library(props){
         <div className="pageContainer">
             <div className="overflowWrapper">
                 <div className="contentContainer">
-                    <div className="libNav">
-                        {props.data === undefined && Object.keys(billableList).map((key, index) => (
-                                <button className='button' key={index}
-                                        onClick={() => {getLibrary(key)}}>
-                                    {key}s
-                                </button>
-                            ))
-                        }
-                    </div>
                     {/**Titles for each column of the form */}
                     <h2>{library.name} Library</h2>
                     <div className="searchWrapper">
@@ -282,7 +274,7 @@ function Library(props){
                             setDisplay(true);
                         }}    
                     >
-                        Add New {library.name}
+                        Add to {library.name}
                     </button>
                 </div>
                 <button
@@ -316,7 +308,7 @@ function Library(props){
             {display ? 
                 <AddToLibrary 
                     addToLibrary={addToLibrary}
-                    name={library.name}
+                    selectedLib={props.selectedLib}
                     setDisplay={setDisplay}
             /> : null}
         </div>

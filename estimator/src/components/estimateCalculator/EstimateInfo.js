@@ -303,12 +303,6 @@ function EstimateInfo() {
                 :
                 null
             }
-            <button className="button large fixedBtn"
-                onClick={() => {
-                    setLibDisplay(true);
-                }}>
-                Access Library
-            </button>
         </div>
     );
 }
