@@ -84,6 +84,8 @@ function Billable(props){
         "Authorization": jwt
     }
 
+    console.log(props.billable.data.autoImport)
+
     //ID for this billable
     const billableID = useId();
     //ID for the auto import tick box
@@ -115,19 +117,27 @@ function Billable(props){
      * @returns response, the axios response
      */
     const putToDb = async (id, billable) => {
-        const respone = await axios.put("/api/library/" + id, billable);
+        console.log(billable)
+        const respone = await axios.put("/api/library?_id=" + id, billable);
         return respone;
     }
 
     return(
         <div className="billableWrapper" ref={wrapperRef} id={props.index}>
             {/**Show the name of the billable item */}
-            <div className="section">
-                {props.billable.data.name}
-            </div>
-            {/**Show the price of the billable item */}
-            <div className="section">
-                ${props.billable.data.price}
+            <div className="inputsWrapper">
+                <div className="section">
+                    {props.billable.data.name}
+                </div>
+                {/**Show the price of the billable item */}
+                <div className="section">
+                    ${props.billable.data.price}
+                </div>
+                {props.billable.data.inputs !== undefined && Object.keys(props.billable.data.inputs).map((key) => (
+                    <div className="section">
+                        {key}: {props.billable.data.inputs[key]}
+                    </div>
+                ))}
             </div>
             {/**Show either an import button or "imported" as well as a remove button
             * for this billable object
@@ -189,6 +199,7 @@ function Billable(props){
                                 onClick={() => {
                                     //On click, set modify the billable to auto import
                                     props.billable.data.autoImport = toggle(props.billable.data.autoImport);
+                                    console.log(props.billable.data.autoImport);
                                     determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport)
                                     putToDb(props.billable.data._id.$oid, props.billable.data);
                                     if(!props.billable.imported && props.insertBillable !== undefined && props.billable.data.autoImport === "true"){

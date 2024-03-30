@@ -13,12 +13,17 @@
 }
 
 .section{
-    width: 25%;
     text-align: left;
+    margin-right: 20px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     font-size: 18px;
+}
+
+.inputsWrapper{
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .buttonSection{

@@ -19,21 +19,37 @@ const populateEstimateTypes = (schema) => {
  * 
  * @returns autoImports, promise of the auto import JSON.
  */
-function getAutoImports(schema, data, setEstimateData) {
-    var autoImports = [];
-    console.log(schema)
-    schema.form.forEach((value, index) => {
-        axios.get("/api/library?autoImport=true&description=" + value.canonicalName + "&type=" + schema.estimateType).then((response) => {
-            if (response.data.length > 0) {
-                //Add that array of billables to the user object
-                var billable = {}
-                billable[value.canonicalName] = response.data;
-                autoImports.push(billable);
-            }
-        });
+async function getAutoImports(schema, setLoading, setEstimateData, data) {
+    var billableArr = [];
+    // for(const stage of schema.form){
+    //     const response = await axios.get(("/api/library?autoImport=true&presetID=" + schema.presetID + "&stageID=" + stage.stageID));
+    //     console.log(response)
+    //     if(response.data.length > 0){
+    //         var billable = {}
+    //         billable[stage.canonicalName] = [...response.data];
+    //         billableArr.push({...billable});
+    //     }
+    // }
+
+    var promises = [];
+    for(const stage of schema.form){
+        promises.push(
+            axios.get("/api/library?autoImport=true&presetID=" + schema.presetID + "&stageID=" + stage.stageID).then((response) => {
+                console.log(response)
+                if(response.data.length > 0){
+                    var billable = {}
+                    billable[stage.canonicalName] = [...response.data];
+                    billableArr.push({...billable});
+                }
+            })
+        );
+    }
+
+    Promise.all(promises).then(() => {
+        console.log(billableArr)
+        setLoading(false);
+        setEstimateData({...data, form: billableArr});
     });
-    console.log(JSON.stringify(autoImports));
-    setEstimateData({...data, form: autoImports});
 }
 
 function EstimateTypeSelector(props){
@@ -41,22 +57,28 @@ function EstimateTypeSelector(props){
     const {schema} = useContext(SchemaContext);
     const [selectedType, setSelectedType] = useState(props.schema);
     const [estimateData, setEstimateData] = useState(props.data);
+    const [loading, setLoading] = useState(false);
     const dropDownData = useMemo(() => populateEstimateTypes(schema), [schema]);
-    console.log(estimateData)
     
     const handleChange = (selectedOption) => {
+        setLoading(true);
         setSelectedType(selectedOption.value);
         console.log(selectedOption.value)
         if(!props.data.hasOwnProperty("_id")){
-            getAutoImports(selectedOption.value, estimateData, setEstimateData)
+            getAutoImports(selectedOption.value, setLoading, setEstimateData, estimateData);
         }
-        console.log(estimateData);
     }
 
     return(
         <>
             {selectedType !== undefined ? (
-                <Estimator data={estimateData} setData={setEstimateData} schema={selectedType} key={props.data.user._id.$oid}/>
+                (loading ? (<h2 className="Centered" style={{marginBottom: "50px"}}>Loading...</h2>) : 
+                (<Estimator 
+                    data={estimateData} 
+                    setData={setEstimateData} 
+                    schema={selectedType} 
+                    key={props.data.user._id.$oid}
+                />))
             ) : (
                 <div className="SelectEstimateWrapper">
                     <Select 

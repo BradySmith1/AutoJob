@@ -12,6 +12,82 @@ import './AddToLibrary.css';
 import { useFormik } from 'formik';
 import * as Yup from "yup"
 
+function typeSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = "";
+            break;
+        case "Number":
+            defaultValue = 0.0;
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFields(selectedLib){
+    var blankFields = {
+        name: "",
+        price: 0.0,
+        quantity: 1,
+        description: selectedLib.name,
+        autoImport: "false",
+        autoUpdate: "false",
+        presetID: selectedLib.pID,
+        stageID: selectedLib.sID
+    }
+    selectedLib.schema.fields.forEach((field) => {
+        if(field.name !== "Name" && field.name !== "Price" && field.name !== "Quantity"){
+            if(blankFields.inputs === undefined){
+                blankFields.inputs = {};
+            }
+            blankFields.inputs[field.name] = typeSwitch(field.unit);
+    }})
+    console.log(blankFields)
+    return blankFields;
+}
+
+function schemaSwitch(unit){
+    var defaultValue;
+    switch(unit){
+        case "Text":
+            defaultValue = Yup.string()
+            .required('Required')
+            .max(20, "Must be less than 20 characters");
+            break;
+        case "Number":
+            defaultValue = Yup.number()
+            .required('Required');
+            break;
+    }
+    return defaultValue;
+}
+
+function generateFieldSchema(stage){
+    var blankSchema = {};
+    stage.fields.forEach((stage) => {
+        if(stage.name !== "Name" && stage.name !== "Price" && stage.name !== "Quantity"){
+            blankSchema[stage.name] = schemaSwitch(stage.unit);
+        }
+    });
+    return {
+        inputs: Yup.object().shape(blankSchema),
+        name: Yup.string()
+            .required('Required')
+            .max(20, "Maximum of 20 characters"),
+        price: Yup.number()
+            .required('Required'),
+        quantity: Yup.number()
+            .required('Required'),
+        description: Yup.string()
+            .required('Required'),
+        autoImport: Yup.string()
+            .required('Required'),
+        autoUpdate: Yup.string()
+            .required('Required')
+    };
+}
+
 /**
  * 
  * @param {JSON object} props 
@@ -24,24 +100,12 @@ function AddToLibrary(props){
 
     const formik = useFormik({
         //Declare initial values for the form
-        initialValues: {
-            name: "",
-            price: 0.0,
-            quantity: 1,
-            description: props.name,
-            autoImport: "false",
-            autoUpdate: "false"
-        },
+        initialValues: generateFields(props.selectedLib),
     
         //Declare a validation schema for the form
-        validationSchema: Yup.object({
-            name: Yup.string()
-                .required('Required')
-                .max(20, "Must be less than 20 characters"),
-    
-            price: Yup.number('Must be a number')
-                .required('Must be a number'),
-        }),
+        validationSchema: Yup.object(
+           generateFieldSchema(props.selectedLib.schema)
+        ),
 
         /**
          * Submit function
@@ -59,13 +123,13 @@ function AddToLibrary(props){
     return(
         <div className="Back">
             <div className="formContainer">
-                <h2>Add a new {props.name}</h2>
+                <h2>Add a new {props.selectedLib.name}</h2>
                 <div id="libraryForm">
                     {/**Input field for the name of the billable and error messages */}
                     <div className="boxAndLable">
                         <h3>Name</h3>
                         <input
-                            className="inputBox" 
+                            className="inputBox customBox" 
                             type="text" 
                             id="name" 
                             name="name"
@@ -80,7 +144,7 @@ function AddToLibrary(props){
                     <div className="boxAndLable">
                         <h3>Price</h3>
                         <input
-                            className="inputBox" 
+                            className="inputBox customBox" 
                             type="number" 
                             id="price" 
                             name="price"
@@ -91,6 +155,24 @@ function AddToLibrary(props){
                         </input>
                         {formik.touched.price && formik.errors.price ? <p className="error">{formik.errors.name}</p> : null}
                     </div>
+                    {(formik.values.inputs !== undefined) && Object.keys(formik.values.inputs).map((key) => 
+                        (
+                        <div className="boxAndLable" key={key}>
+                            <h3>{key}</h3>
+                            <input
+                                className="inputBox customBox" 
+                                type={typeof(formik.values.inputs[key]) == "number" ? ("number") : ("text")} 
+                                id={`inputs[${key}]`}
+                                name={`inputs[${key}]`}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                value={formik.values.inputs[key]}
+                            >
+                            </input>
+                            {/**Fix this, for some reason undefined */}
+                            {/* {formik.touched.inputs[key] && formik.errors.inputs[key] ? <p className="error">{formik.errors.inputs[key]}</p> : null} */}
+                        </div>
+                    ))}
                     {/**Submit button */}
                     <button
                         type="submit"

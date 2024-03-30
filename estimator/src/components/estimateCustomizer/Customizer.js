@@ -6,7 +6,7 @@
  * Estimate customizer, array of editeable schemas. These schemas can be selected from in
  * a drop down in the estimate calculator.
  */
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useMemo, useState, useRef } from "react";
 import schemaJSON from "../JSONs/schema.json";
 import EstimatePreset from "./EstimatePresets";
 import axios from "axios";
@@ -15,13 +15,22 @@ import "./Customizer.css";
 import { SchemaContext } from "./SchemaContextProvider";
 import { AuthContext } from "../authentication/AuthContextProvider";
 import { NotificationContext } from "../utilComponents/NotificationProvider";
+import { Buffer } from "../utilComponents/Buffer";
 
 var count = 0;
+var idBuffer = new Buffer(10, '/api/generate_id/20', (data) => {return data});
 
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
     const {addMessage} = useContext(NotificationContext);
+
+    useMemo(() => {
+        axios.get('/api/generate_id/30').then((response) => {
+            console.log(response.data);
+            idBuffer.initialize(response.data);
+        })
+    }, []);
 
     //Pull in jwt
     const {jwt} = useContext(AuthContext);
@@ -40,14 +49,82 @@ function Customizer(){
          * @param {Number} index, index of the schema to change 
          */
         change: (values, index) => {
+            const oldSchema = [...schema]
             var newSchema = [...schema];
             var newValues = {...values};
-            const oldSchema = [...schema]
+
+            console.log(oldSchema[index]);
+
+            //Add new id's
+            newValues.form.forEach((stage) => {
+                if(stage.stageID === undefined){
+                    stage.stageID = idBuffer.read();
+                }
+            })
+
+
+            // const keptStages = oldSchema[index].form.filter((stage) => {
+            //     var contains = false;
+            //     newValues.form.forEach((newStage) => {
+            //         if(stage.stageID === newStage.stageID){
+            //             contains = true;
+            //         }
+            //     });
+            //     return contains;
+            // });
+
+            // var deleteInputs = []
+            // keptStages.forEach((stage) => {
+            //     var deleteArr = [];
+            //     newValues.form.forEach((newStage) => {
+            //         if(stage.stageID === newStage.stageID){
+            //             const deletedFields = stage.fields.filter((field) => {
+            //                 var contains = false;
+            //                 newStage.fields.forEach((newField) => {
+            //                     if(field.name === newField.name){
+            //                         contains = true;
+            //                     }
+            //                 });
+            //                 return !contains;
+            //             });
+            //             deletedFields.forEach((field) => {
+            //                 deleteArr.push(field.name);
+            //             });
+            //         }
+            //     });
+            //     if(deleteArr.length > 0){
+            //         deleteInputs.push({pID: oldSchema[index].presetID, sID: stage.stageID, delete: deleteArr});
+            //     }
+            // });
+
+            const deletedStages = oldSchema[index].form.filter((stage) => {
+                var contains = false;
+                newValues.form.forEach((newStage) => {
+                    if(stage.stageID === newStage.stageID){
+                        contains = true;
+                    }
+                });
+                return !contains;
+            });
+
+            const deletedIds = deletedStages.map((stage) => {
+                return stage.stageID;
+            });
+
             newSchema[index] = newValues; 
             setSchema(newSchema);
-            axios.put('/api/schema/' + schema[index].estimateType, newValues)
+            axios.put('/api/schema?presetID=' + schema[index].presetID, newValues)
             .then((response) => {
                 console.log(response)
+                deletedIds.forEach(id => {
+                    axios.delete(`/api/library?presetID=${values.presetID}&stageID=${id}`).then((response) => {
+                        console.log(response);
+                    }).catch((error)=>{
+                        if(error.response.status === 404){
+                            console.log("No billables of that ID found.")
+                        }
+                    });
+                })
             }).catch((error) => {
                 console.log(error)
                 setSchema(oldSchema);
@@ -80,6 +157,13 @@ function Customizer(){
                 setSchema(copySchema);
                 axios.delete('/api/schema?estimateType=' + schema[index].estimateType).then((response) => {
                     console.log(response);
+                    axios.delete('/api/library?presetID=' + oldSchema[index].presetID).then((response) => {
+                        console.log(response);
+                    }).catch((error)=>{
+                        if(error.response.status === 404){
+                            console.log("No billables of that ID found.")
+                        }
+                    });
                 }).catch(() => {
                     setSchema(oldSchema);
                 });
@@ -91,7 +175,12 @@ function Customizer(){
          */
         push: (element) => {
             var copySchema = [...schema];
-            const oldSchema = [...schema]
+            const oldSchema = [...schema];
+            element.presetID = idBuffer.read();
+            element.form.forEach(stage => {
+                stage.stageID = idBuffer.read();
+                console.log(stage.stageID);
+            });
             copySchema.push(element);
             setSchema(copySchema);
             axios.post('/api/schema', element).then((response) => {
