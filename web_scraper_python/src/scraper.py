@@ -102,7 +102,7 @@ class WebScraper:
             product_details = find_product_details(product_details)
             product_price = find_product_price(product_price)
             if product_price is not None:
-                products.append({"name": product_details, "price": product_price})
+                products.append({"name": product_details, "price": product_price, "store_number": self.store_number})
         return products
 
     def set_zipcode_lowes(self, zip_code):
@@ -160,7 +160,7 @@ class WebScraper:
                 product_price = find_product_price(raw_prices[index])
                 product_details = raw_details[index].string
             if product_price is not None:
-                products.append({"name": product_details, "price": product_price})
+                products.append({"name": product_details, "price": product_price, "store_number": self.store_number})
             index += 1
             if index == raw_prices.__len__():
                 done = True
