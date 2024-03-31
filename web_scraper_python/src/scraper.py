@@ -15,6 +15,7 @@ class WebScraper:
     store_number = None
     options = webdriver.ChromeOptions()
     page = None
+    timeout = 5
 
     def __init__(self, company=None):
         self.company = company
@@ -43,10 +44,7 @@ class WebScraper:
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_page(self, url, zip_code):
-        wait = WebDriverWait(self.driver, 10)
         self.driver.get(url)
-        time.sleep(3)
-        # wait.until(self.driver.current_url != url) # TODO need to get this to work so im not waiting a set amount time
         if zip_code is not None:
             if self.company == "lowes":
                 self.set_zipcode_lowes(zip_code)
@@ -65,7 +63,7 @@ class WebScraper:
         self.material = material
 
     def set_company(self, company):
-        if company != "homedepot" or company != "lowes":
+        if company != "homedepot" and company != "lowes":
             raise NotImplementedError
         else:
             self.company = company
@@ -74,12 +72,13 @@ class WebScraper:
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
         self.driver.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]").send_keys(zip_code)
         self.driver.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//button[position()=1]").click()
+        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, "//div[@data-component=\"StorePod\"]//button[position()=1]").is_displayed())
         self.driver.find_element(By.XPATH, "//div[@data-component=\"StorePod\"]//button[position()=1]").click()
-        time.sleep(3)
+        time.sleep(1)
 
     def set_store_number_homedepot(self):
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
-        # TODO Might be broken have to test.
+        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]"))
         self.store_number = self.driver.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]").text.split("#")[1]
 
     def get_products_homedepot(self):
@@ -114,10 +113,11 @@ class WebScraper:
         input_field.send_keys(zip_code)
         self.driver.find_element(By.XPATH, '//div[@class="inputContainer"]//button[position()=2]').click()
         self.driver.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]').click()
-        time.sleep(3)
+        time.sleep(1)
 
     def set_store_number_lowes(self):
         self.driver.find_element(By.ID, 'store-search-handler').click()
+        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, '//span[@class="storeNo"]'))
         self.store_number = self.driver.find_element(By.XPATH, '//span[@class="storeNo"]').text
 
     def get_products_lowes(self):
