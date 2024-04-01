@@ -21,7 +21,8 @@ def get_cached_materials():
     # Checks cache
     # gets first material returned. Will have to redo this part of the code later
     name = name.replace(" ", "")
-    store_number = db_zipcode_collection.find_one({"zip": zip_code})
+    # TODO need to also add company to zip code cache to make sure that the store number is being found for the correct company.
+    store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
         store_number = store_number.get("store_number")
         cache_returned = list(db_material_collection.find({"name": {'$regex': name}, "company": company, "store_number": store_number}))
@@ -46,8 +47,8 @@ def get_cached_materials():
 
     # Caches material
     if store_number is None:
-        db_zipcode_collection.insert_one({"zip": zip_code, "store_number": scraped_material.get("store_number")})
-
+        db_zipcode_collection.insert_one({"zip": zip_code, "company": company,
+                                          "store_number": scraped_material.get("store_number")})
     # TODO might need to change the way i am cleaning the name of the material if i implement a better search algorithm
     material_name = scraped_material.get("name")
     material_name = material_name.replace(" ", "")
