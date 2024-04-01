@@ -70,17 +70,22 @@ class WebScraper:
 
     def set_zipcode_homedepot(self, zip_code):
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
-        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]"))
-        self.driver.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]").send_keys(zip_code)
+        WebDriverWait(self.driver, self.timeout).until(
+            lambda x: x.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]"))
+        self.driver.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]").send_keys(
+            zip_code)
         self.driver.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//button[position()=1]").click()
-        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, "//div[@data-component=\"StorePod\"]//button[position()=1]").is_displayed())
+        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH,
+                                                                                "//div[@data-component=\"StorePod\"]//button[position()=1]").is_displayed())
         self.driver.find_element(By.XPATH, "//div[@data-component=\"StorePod\"]//button[position()=1]").click()
         time.sleep(1)
 
     def set_store_number_homedepot(self):
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
         time.sleep(2)
-        self.store_number = self.driver.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]").text.split("#")[1]
+        self.store_number = \
+        self.driver.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]").text.split("#")[
+            1]
 
     def get_products_homedepot(self):
         def find_product_price(product_price):
@@ -108,14 +113,17 @@ class WebScraper:
 
     def set_zipcode_lowes(self, zip_code):
         self.driver.find_element(By.ID, 'store-search-handler').click()
-        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, '//div[@class="inputContainer"]//input[position()=1]'))
+        WebDriverWait(self.driver, self.timeout).until(
+            lambda x: x.find_element(By.XPATH, '//div[@class="inputContainer"]//input[position()=1]'))
         input_field = self.driver.find_element(By.XPATH, "//div[@class=\"inputContainer\"]//input[position()=1]")
         input_field.send_keys(Keys.CONTROL, "a")
         input_field.send_keys(Keys.DELETE)
         input_field.send_keys(zip_code)
         self.driver.find_element(By.XPATH, '//div[@class="inputContainer"]//button[position()=2]').click()
-        WebDriverWait(self.driver, self.timeout).until(lambda x: x.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]').is_displayed())
-        if self.driver.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]//span[position()=1]').text != "My Store":
+        WebDriverWait(self.driver, self.timeout).until(
+            lambda x: x.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]').is_displayed())
+        if self.driver.find_element(By.XPATH,
+                                    '//div[@class="buttonsWrapper"]//button[position()=1]//span[position()=1]').text != "My Store":
             self.driver.find_element(By.XPATH, '//div[@class="buttonsWrapper"]//button[position()=1]').click()
             time.sleep(1)
         else:

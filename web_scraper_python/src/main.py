@@ -25,7 +25,16 @@ def get_cached_materials():
     store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
         store_number = store_number.get("store_number")
-        cache_returned = list(db_material_collection.find({"name": {'$regex': name}, "company": company, "store_number": store_number}))
+        mongo_filter = {
+            "$search": {
+                "autocomplete": {
+                    "query": name,
+                    "path": "name"
+                }
+            }
+        }
+        cache_returned = list(
+            db_material_collection.find(mongo_filter, {"company": company, "store_number": store_number}))
         if cache_returned.__len__() > 0:
             cache_returned = cache_returned[0]
             ttl = cache_returned.get("ttl")
