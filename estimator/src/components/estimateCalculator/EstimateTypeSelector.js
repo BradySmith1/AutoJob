@@ -21,15 +21,6 @@ const populateEstimateTypes = (schema) => {
  */
 async function getAutoImports(schema, setLoading, setEstimateData, data) {
     var billableArr = [];
-    // for(const stage of schema.form){
-    //     const response = await axios.get(("/api/library?autoImport=true&presetID=" + schema.presetID + "&stageID=" + stage.stageID));
-    //     console.log(response)
-    //     if(response.data.length > 0){
-    //         var billable = {}
-    //         billable[stage.canonicalName] = [...response.data];
-    //         billableArr.push({...billable});
-    //     }
-    // }
 
     var promises = [];
     for(const stage of schema.form){
@@ -39,6 +30,7 @@ async function getAutoImports(schema, setLoading, setEstimateData, data) {
                 if(response.data.length > 0){
                     var billable = {}
                     billable[stage.canonicalName] = [...response.data];
+
                     billableArr.push({...billable});
                 }
             })

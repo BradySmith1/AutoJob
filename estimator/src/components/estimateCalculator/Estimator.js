@@ -9,7 +9,7 @@
  */
 import './Estimator.css';
 import { Formik, Form } from 'formik';
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import * as Yup from "yup"
 import axios from 'axios';
 import Calculator from './subForms/Calculator.js';
@@ -152,6 +152,23 @@ function generateYupSchema(schema) {
     return arraySchema;
 }
 
+function synchSchema(stageSchema, data){
+    var dataStage = {...data};
+    stageSchema.fields.forEach((field) => {
+        if(field.name !== "Name" && field.name !== "Price" && field.name !== "Quantity"){
+            dataStage[stageSchema.canonicalName].forEach((dataField) => {
+                if(dataField.inputs === undefined){
+                    dataField.inputs = {};
+                }
+                if(dataField.inputs[field.name ===undefined]){
+                    dataField.inputs[field.name] = typeSwitch(field.unit);
+                }
+            });
+        }
+    });
+    return dataStage;
+}
+
 /**
  * This method changes the initial values if estimateInfo
  * has passed down pre-existing data in the form of drafts
@@ -163,12 +180,10 @@ function determineBillables(initialValues, data, schema) {
     var localValues = {...initialValues}
     var localData = {...data}
     schema.form.forEach((stage, index) => {
-        localData.form.forEach((dataStage, dataIndex) => {
-            console.log("In here!!!")
-            console.log(dataStage)
+        localData.form.forEach((tempStage) => {
+            var dataStage = {...tempStage}
             if(dataStage !== undefined && dataStage.hasOwnProperty(stage.canonicalName)){
-                console.log("In here now yippee!!!")
-                localValues.form[index] = dataStage;
+                localValues.form[index] = synchSchema(stage, dataStage);
             }
         })
     });
