@@ -1,6 +1,6 @@
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::model::estimate_model::JobEstimate;
-use crate::model::schema_model::Schema;
+use crate::model::schema_model::{FieldLayout, Schema, SchemeLayout};
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
 use actix_web::web::{get, Path, Query};
@@ -34,12 +34,14 @@ pub async fn update_schema(
             return HttpResponse::InternalServerError().body("Could not retrieve data from collection. Check if MongoDB is running")
         }
     };
-    let delete_ids = validate_library(old_data.clone(), new_data.clone());
+    let (delete_ids, delete_fields) = validate_library(old_data.clone(), new_data.clone());
     let material_db: MongoRepo<Billable> = MongoRepo::init("materialFeeLibrary", auth_token.userid
         .as_str())
         .await;
     material_db.delete_document(doc!{"stageID": {"$in": delete_ids}}).await.expect("Failed to \
     delete material's from library by stage IDs");
+    material_db.get_collection().update_many(doc!{}, doc!{"$unset": {"inputs": {"$in":
+        delete_fields}}}, None).await.expect("Failed to delete fields from material library");
     // if the stages are the same between the old and new schemas, then you need to check the
     // inputs of the stages and delete the ones that are not in the new schema.
     let update_result: UpdateResult = match db.update_document(query.into_inner(), new_data).await{
@@ -55,8 +57,9 @@ pub async fn update_schema(
     }
 }
 
-fn validate_library(old_data: Schema, new_data: Schema) -> Vec<String> {
+fn validate_library(old_data: Schema, new_data: Schema) -> (Vec<String>, Vec<String>) {
     let mut deleted_stages = vec![];
+    let mut kept_stages = vec![];
     old_data.form.iter().for_each(|old_stage| {
         let mut contains = false;
         new_data.form.iter().for_each(|new_stage| {
@@ -66,9 +69,30 @@ fn validate_library(old_data: Schema, new_data: Schema) -> Vec<String> {
         });
         if !contains {
             deleted_stages.push(old_stage.stageID.clone());
+        }else{
+            kept_stages.push(old_stage.clone());
         }
     });
-    deleted_stages
+    let mut delete_fields = vec![];
+    kept_stages.iter().for_each(|stage| {
+        new_data.form.iter().for_each(|new_stage|{
+            if new_stage.stageID.eq(&stage.stageID){
+                stage.fields.iter().for_each(|field|{
+                    let mut contains = false;
+                    new_stage.fields.iter().for_each(|new_field|{
+                        if new_field.name.eq(&field.name){
+                            contains = true;
+                        }
+                    });
+                    if !contains{
+                        delete_fields.push(field.name.clone());
+                    }
+                });
+            }
+        });
+    });
+
+    (deleted_stages, delete_fields)
 }
 
 #[post("/schema")]

@@ -189,6 +189,9 @@ impl<T: Model<T>> MongoRepo<T> {
     pub fn set_collection(&mut self, collection: Collection<T>) {
         self.col = collection;
     }
+    pub fn get_collection(&self) -> &Collection<T> {
+        &self.col
+    }
 
     pub fn set_database(&mut self, db: Database) {
         self.db = db;

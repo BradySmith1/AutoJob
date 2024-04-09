@@ -96,13 +96,13 @@ impl Model<Schema> for Schema {
 pub struct SchemeLayout {
     canonicalName: String,
     pub stageID: String,
-    fields: Vec<FieldLayout>,
+    pub fields: Vec<FieldLayout>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
-struct FieldLayout {
-    name: String,
+pub struct FieldLayout {
+    pub name: String,
     unit: String,
     showInOverview: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
