@@ -153,7 +153,7 @@ impl<T: Model<T>> MongoRepo<T> {
     /// This function may panic if there are errors in parsing the provided ID string or
     /// if there are issues with the MongoDB query.
     pub async fn delete_document(&self, filter: Document) -> Result<DeleteResult, String> {
-        let user_detail = match self.col.delete_one(filter, None).await {
+        let user_detail = match self.col.delete_many(filter, None).await {
             Ok(doc) => doc,
             Err(_) => return Err("Error deleting document".to_string()),
         };

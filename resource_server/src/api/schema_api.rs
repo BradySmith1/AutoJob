@@ -3,10 +3,11 @@ use crate::model::estimate_model::JobEstimate;
 use crate::model::schema_model::Schema;
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
-use actix_web::web::{Path, Query};
+use actix_web::web::{get, Path, Query};
 use actix_web::{delete, get, post, put, HttpResponse};
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
+use crate::model::billable_model::Billable;
 
 const COLLECTION: &str = "schemas";
 
@@ -26,8 +27,22 @@ pub async fn update_schema(
         query.remove("_id");
         query.insert("_id", obj_id);
     }
-    let data: Schema = serde_json::from_str(&new_schema).expect("Issue parsing object");
-    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+    let new_data: Schema = serde_json::from_str(&new_schema).expect("Issue parsing object");
+    let old_data: Schema = match get_data(&db, query.clone().into_inner()).await{
+        Ok(data) => data[0].clone(),
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Could not retrieve data from collection. Check if MongoDB is running")
+        }
+    };
+    let delete_ids = validate_library(old_data.clone(), new_data.clone());
+    let material_db: MongoRepo<Billable> = MongoRepo::init("materialFeeLibrary", auth_token.userid
+        .as_str())
+        .await;
+    material_db.delete_document(doc!{"stageID": {"$in": delete_ids}}).await.expect("Failed to \
+    delete material's from library by stage IDs");
+    // if the stages are the same between the old and new schemas, then you need to check the
+    // inputs of the stages and delete the ones that are not in the new schema.
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), new_data).await{
         Ok(update) => update,
         Err(err) => {
             return HttpResponse::InternalServerError().body(err.to_string());
@@ -38,6 +53,22 @@ pub async fn update_schema(
     }else{
         HttpResponse::InternalServerError().body("Could not update material")
     }
+}
+
+fn validate_library(old_data: Schema, new_data: Schema) -> Vec<String> {
+    let mut deleted_stages = vec![];
+    old_data.form.iter().for_each(|old_stage| {
+        let mut contains = false;
+        new_data.form.iter().for_each(|new_stage| {
+            if new_stage.stageID.eq(&old_stage.stageID) {
+                contains = true;
+            }
+        });
+        if !contains {
+            deleted_stages.push(old_stage.stageID.clone());
+        }
+    });
+    deleted_stages
 }
 
 #[post("/schema")]
@@ -74,5 +105,21 @@ pub async fn delete_schema(
     query: Query<Document>,
 ) -> HttpResponse {
     let db: MongoRepo<Schema> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
+    let data = match get_data(&db, query.clone().into_inner()).await{
+        Ok(data) => data,
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Could not retrieve data from collection. Check if MongoDB is running")
+        }
+    };
+    let data = match data.get(0){
+        Some(data) => data,
+        None => {
+            return HttpResponse::BadRequest().body("Data not found")
+        }
+    };
+    let query_lib = doc! {"presetID": data.presetID.clone()};
+    let db_library: MongoRepo<Billable> = MongoRepo::init("materialFeeLibrary", auth_token.userid
+        .as_str()).await;
+    delete_data(&db_library, query_lib).await;
     delete_data(&db, query.into_inner()).await
 }
