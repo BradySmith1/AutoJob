@@ -1,0 +1,17 @@
+{
+  "name": "emailer",
+  "version": "1.0.0",
+  "description": "emailer component",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "email dev"
+  },
+  "author": "Andrew and Brady",
+  "license": "ISC",
+  "dependencies": {
+    "@react-email/components": "0.0.16",
+    "react": "^18.2.0",
+    "react-email": "2.1.1"
+  }
+}
