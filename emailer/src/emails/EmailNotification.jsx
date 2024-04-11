@@ -1,7 +1,7 @@
 import { Button, Html } from "@react-email/components";
 import * as React from "react";
 
-export default function Email() {
+export default function EmailNotification() {
   return (
     <Html>
       <Button
@@ -13,4 +13,3 @@ export default function Email() {
     </Html>
   );
 }
-
