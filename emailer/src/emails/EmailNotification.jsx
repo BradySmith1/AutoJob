@@ -36,7 +36,7 @@ export default function EmailNotification(props) {
               Hello <strong>{props.estimateData.user.fName} {props.estimateData.user.lName}</strong>, Your estimate has been completed.
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
-              Your estimate total is: <strong>{grandTotal}</strong>
+              Your estimate total is: <strong>${grandTotal}</strong>
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
               To view the itemized bill, please see the attached PDF file.

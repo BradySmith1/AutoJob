@@ -30,8 +30,8 @@ export default function EmailNotification(props) {
             }), ", Your estimate has been completed."]
           }), /*#__PURE__*/_jsxs(Text, {
             className: "text-black text-[14px] leading-[24px]",
-            children: ["Your estimate total is: ", /*#__PURE__*/_jsx("strong", {
-              children: grandTotal
+            children: ["Your estimate total is: ", /*#__PURE__*/_jsxs("strong", {
+              children: ["$", grandTotal]
             })]
           }), /*#__PURE__*/_jsx(Text, {
             className: "text-black text-[14px] leading-[24px]",
