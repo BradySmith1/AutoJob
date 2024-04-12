@@ -5,6 +5,8 @@ import axios from 'axios';
 import Expandable from "../utilComponents/Expandable";
 import "./EstimateHistory.css";
 import { NotificationContext } from "../utilComponents/NotificationProvider";
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import BillPDFCompany from "./pdfs/BillPDFCompany";
 
 
 /**
@@ -108,6 +110,11 @@ function EstimateHistory(){
                                 </div>
                                 <Overview values={{form: current.form}} schema={current.schema} displayHeader={false}/>
                                 <div className="ButtonWrapper">
+                                    <PDFDownloadLink document={<BillPDFCompany estimateData={current} date={current.date.slice(0, 10)}/>} fileName="estimate.pdf">
+                                        <button className="button medium" style={{borderRadius: '25px !important', marginRight: '10px'}}>
+                                            Save PDF
+                                        </button>
+                                    </PDFDownloadLink>
                                     <button className="xButton" onClick={() => {
                                         var newEstimates = [...pastEstimates];
                                         const oldEstimates = [...pastEstimates];
