@@ -34,7 +34,7 @@ function displayOverviewFields(field, billable){
     if(field.name === "Name"){
         jsxElement = (<h3 className="fourth">{field.name}: {billable.name}</h3>);
     } else if(field.name === "Price"){
-        jsxElement = (<h3 className="fourth">{field.name}: {billable.price}</h3>);
+        jsxElement = (<h3 className="fourth">{field.name}: ${billable.price}</h3>);
     } else if(field.name === "Quantity"){
         jsxElement = (<h3 className="fourth">{field.name}: {billable.quantity}</h3>);
     } else{

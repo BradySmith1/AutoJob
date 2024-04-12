@@ -1,8 +1,8 @@
 import EmailNotification from './emails/EmailNotification.js';
-import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import ReactPDF from '@react-pdf/renderer';
 import BillPDF from './pdfs/BillPDF.js';
+import 'dotenv/config';
 import * as fs from 'fs';
 import { jsx as _jsx } from "react/jsx-runtime";
 const uid = function () {
@@ -10,42 +10,37 @@ const uid = function () {
 };
 const id = uid();
 const path = "/home/andrew/capstone/AutomaticJobEstimatorAndScheduler/emailer/build/temp_pdfs/";
-const RESEND_AUTH_KEY = process.env.RESEND_API_KEY;
+const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
+if (process.argv.length !== 3) {
+  console.error("ERROR: Invalid Command Line Args");
+  process.exit(1);
+}
+var data;
+try {
+  data = fs.readFileSync(process.argv[2], {
+    encoding: 'utf8',
+    flag: 'r'
+  });
+} catch (error) {
+  console.error("ERROR: Invalid File Path or Permission Denied");
+  process.exit(2);
+}
+const estimateData = JSON.parse(data);
+await ReactPDF.render( /*#__PURE__*/_jsx(BillPDF, {
+  estimateData: estimateData
+}), `${path}${id}.pdf`);
 
-// try {
-//   fs.writeFileSync(`${__dirname}/${id}.pdf`, content);
-//   // file written successfully
-// } catch (err) {
-//   console.error(err);
-// }
+//const resend = new Resend(apiKey);
 
-// fs.writeFile(`${__dirname}/${id}.pdf`, content, err => {
-//   if (err) {
-//     console.error(err);
-//   } else {
-//     ReactPDF.render(<BillPDF />, `./${__dirname}/${id}.pdf`);
-
-//     const resend = new Resend('re_BE3g2YQq_4QNhKhwwdWye4bpVczpYXU61');
-
-//     resend.emails.send({
-//       from: 'zaxitron298@gmail.com',
-//       to: 'andrewmonroe289@gmail.com',
-//       subject: 'Your Estimate Is Ready',
-//       react: <EmailNotification />,
-//     });
-//   }
-// });
-
-ReactPDF.render( /*#__PURE__*/_jsx(BillPDF, {}), `${path}${id}.pdf`);
-const fileBuffer = await fs.readFile(`${path}${id}.pdf`);
-
-//const resend = new Resend(RESEND_AUTH_KEY);
-
+const fileBuffer = fs.readFileSync(`${path}${id}.pdf`);
+const emailHtml = render( /*#__PURE__*/_jsx(EmailNotification, {
+  estimateData: estimateData
+}));
 const payload = {
-  from: 'zaxitron298@gmail.com',
-  to: 'andrewmonroe289@gmail.com',
+  from: 'AutoJob@eraofexpansion.net',
+  to: estimateData.user.email,
   subject: 'Your Estimate Is Ready',
-  react: /*#__PURE__*/_jsx(EmailNotification, {}),
+  html: emailHtml,
   attachments: [{
     filename: "estimate.pdf",
     content: fileBuffer
@@ -55,12 +50,12 @@ const requestOptions = {
   method: 'POST',
   headers: {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${RESEND_AUTH_KEY}`
+    "Authorization": `Bearer ${apiKey}`
   },
   body: JSON.stringify(payload)
 };
 fetch("https://api.resend.com/emails", requestOptions).then(response => response.text()).then(result => console.log(result)).catch(error => console.log('error', error));
-const html = render( /*#__PURE__*/_jsx(EmailNotification, {}), {
-  pretty: true
+fs.unlink(`${path}${id}.pdf`, err => {
+  if (err) throw err;
+  console.log(`${path}${id}.pdf was deleted`);
 });
-console.log(html);

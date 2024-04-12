@@ -49,7 +49,7 @@ function Customizer(){
          * @param {Number} index, index of the schema to change 
          */
         change: (values, index) => {
-            const oldSchema = [...schema]
+            const oldSchema = [...schema];
             var newSchema = [...schema];
             var newValues = {...values};
 

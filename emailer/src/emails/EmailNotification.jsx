@@ -1,15 +1,32 @@
-import { Button, Html } from "@react-email/components";
+import { Html, Heading } from "@react-email/components";
 import * as React from "react";
 
-export default function EmailNotification() {
+var grandTotal = 0;
+
+export default function EmailNotification(props) {
+
+  var total = 0;
+  props.estimateData.schema.form.forEach((stage, index) => {
+      for(var i = 0; i < props.estimateData.form[index][stage.canonicalName].length; i++){
+          console.log(props.estimateData.form[index][stage.canonicalName]);
+          total = total + (props.estimateData.form[index][stage.canonicalName][i].price * 
+              props.estimateData.form[index][stage.canonicalName][i].quantity);
+      }
+  })
+  grandTotal = total.toFixed(2);
+
   return (
     <Html>
-      <Button
-        href="https://example.com"
-        style={{ background: "#000", color: "#fff", padding: "12px 20px" }}
-      >
-        Click me
-      </Button>
+      <Heading as='h1'>
+        Hello, {props.estimateData.user.fName}, Your Estimate Is Ready.
+      </Heading>
+      <Heading as='h2'>
+        Your estimate total is: ${grandTotal}.
+      </Heading>
+      <Heading as='h2'>
+        View the attached PDF to see the itemized estimate.
+      </Heading>
+
     </Html>
   );
 }
