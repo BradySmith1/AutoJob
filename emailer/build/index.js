@@ -111,6 +111,7 @@ async function main() {
     process.exit(1);
   }
   const estimateData = getEstimateData(process.argv[2], process.argv[3]);
+  console.log(estimateData);
   sendEmail(estimateData);
 }
 main();
