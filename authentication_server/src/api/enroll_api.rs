@@ -43,8 +43,12 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
     };
     let user = db.get_documents_by_attribute(doc).await;
     match user {
-        Ok(_) => return HttpResponse::Conflict()
-            .body("User already exists in the database."),
+        Ok(vec) => {
+            if vec.len() > 0 {
+                return HttpResponse::Conflict()
+                    .body("User already exists in the database.")
+            }
+            },
         Err(_) => ()
     }
     let new_user: User = User{
