@@ -75,8 +75,8 @@ fn generate_id() -> String {
 #[allow(non_snake_case)]
 pub struct Schema {
     estimateType: String,
-    presetID: String,
-    form: Vec<SchemeLayout>,
+    pub presetID: String,
+    pub form: Vec<SchemeLayout>,
 }
 
 impl Default for Schema {
@@ -93,16 +93,16 @@ impl Model<Schema> for Schema {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
-struct SchemeLayout {
+pub struct SchemeLayout {
     canonicalName: String,
-    stageID: String,
-    fields: Vec<FieldLayout>,
+    pub stageID: String,
+    pub fields: Vec<FieldLayout>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
-struct FieldLayout {
-    name: String,
+pub struct FieldLayout {
+    pub name: String,
     unit: String,
     showInOverview: bool,
     #[serde(skip_serializing_if = "Option::is_none")]

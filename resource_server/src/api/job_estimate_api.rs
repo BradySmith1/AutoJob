@@ -6,6 +6,8 @@ use actix_web::{delete, get, post, put, web::Path, HttpResponse};
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use std::string::String;
+use mongodb::results::UpdateResult;
+use crate::model::billable_model::Billable;
 
 const COLLECTION: &str = "jobEstimates";
 
@@ -70,22 +72,34 @@ pub async fn get_estimate(auth_token: AuthenticationToken, query: Query<Document
 /// it returns an HTTP 200 OK response with the JSON representation of the updated jobEstimate's details. If the provided ID
 /// is empty or there's an error during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[put("/estimate/{id}")]
+#[put("/estimate")]
 pub async fn update_estimate(
     auth_token: AuthenticationToken,
-    path: Path<String>,
+    mut query: Query<Document>,
     new_user: String,
 ) -> HttpResponse {
     let db: MongoRepo<JobEstimate> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let id = path.into_inner();
-    if id.is_empty() {
+    if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
-    let mut data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
-    data.id = Some(ObjectId::parse_str(&id).unwrap());
-    let doc = doc! {"_id": ObjectId::parse_str(&id).unwrap()};
-    let update_result = db.update_document(doc, data).await;
-    push_update(update_result, &db, id).await
+    if query.contains_key("_id") {
+        let id = query.get("_id").unwrap().to_string().replace("\"", "");
+        let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
+        query.remove("_id");
+        query.insert("_id", obj_id);
+    }
+    let data: JobEstimate = serde_json::from_str(&new_user).expect("Issue parsing object");
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
+        }
+    };
+    return if update_result.modified_count > 0 {
+        HttpResponse::Ok().json("Material has been updated (ID is the same)")
+    }else{
+        HttpResponse::InternalServerError().body("Could not update material")
+    }
 }
 
 /// Delete jobEstimate details by their ID via a DELETE request.

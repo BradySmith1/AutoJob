@@ -47,36 +47,6 @@ pub async fn create_library_entry(
     post_data(&db, json).await
 }
 
-#[post("/library/input")]
-pub async fn create_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse {
-    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let data = query.into_inner();
-    let stage_id = data.get("stageID").unwrap().as_str().unwrap();
-    let preset_id = data.get("presetID").unwrap().as_str().unwrap();
-    let inputs = data.get("inputs").unwrap().as_document().unwrap();
-    let doc = doc! {"stageID": stage_id, "presetID": preset_id};
-    let result = db.get_documents_by_attribute(doc).await;
-    let mut billables = match result {
-        Ok(billable) => billable,
-        Err(_) => {
-            return HttpResponse::InternalServerError().body("Could not retrieve billable");
-        }
-    };
-    for mut billable in billables {
-        let mut input_map = billable.inputs.unwrap();
-        for (key, value) in inputs.iter() {
-            input_map.insert(key.clone(), Value::from(value.clone()));
-        }
-        billable.inputs = Some(input_map);
-        let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
-        let update_result = db.update_document(doc, billable).await;
-        if update_result.is_err(){
-            return HttpResponse::InternalServerError().body("Could not add inputs");
-        }
-    }
-    HttpResponse::Ok().body("Successfully added inputs")
-}
-
 fn check_auto_update(json: &mut Billable) -> HttpResponse {
     if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
         if json.company.is_none() {
@@ -135,26 +105,38 @@ pub async fn get_library_entry(
 /// updated materialLibrary entry's details. If the provided ID is empty or there's an error
 /// during the update process, it returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-#[put("/library/{id}")]
+#[put("/library")]
 pub async fn update_library_entry(
-    path: Path<String>,
+    mut query: Query<Document>,
     new_user: String,
     auth_token: AuthenticationToken,
 ) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let id = path.into_inner();
-    if id.is_empty() {
+    if query.is_empty() {
         return HttpResponse::BadRequest().body("invalid ID");
     };
+    if query.contains_key("_id") {
+        let id = query.get("_id").unwrap().to_string().replace("\"", "");
+        let obj_id = mongodb::bson::oid::ObjectId::parse_str(&id).unwrap();
+        query.remove("_id");
+        query.insert("_id", obj_id);
+    }
     let mut data: Billable = serde_json::from_str(&new_user).expect("Issue parsing object");
-    data.id = Some(ObjectId::parse_str(&id).unwrap());
     let response = check_auto_update(&mut data);
     if !response.status().is_success() {
         return response;
     }
-    let doc = doc! {"_id": id.to_string()};
-    let update_result: Result<UpdateResult, String> = db.update_document(doc, data).await;
-    push_update(update_result, &db, id).await
+    let update_result: UpdateResult = match db.update_document(query.into_inner(), data).await{
+        Ok(update) => update,
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(err.to_string());
+        }
+    };
+    return if update_result.modified_count > 0 {
+        HttpResponse::Ok().json("Material has been updated (ID is the same)")
+    }else{
+        HttpResponse::Ok().body("No changes made")
+    }
 }
 
 /// Delete materialLibrary entry details by their ID via a DELETE request.
@@ -177,36 +159,6 @@ pub async fn delete_library_entry(
 ) -> HttpResponse {
     let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
     delete_data(&db, query.into_inner()).await
-}
-
-#[delete("/library/input")]
-pub async fn delete_inputs(query: Query<Document>, auth_token: AuthenticationToken) -> HttpResponse{
-    let db: MongoRepo<Billable> = MongoRepo::init(COLLECTION, auth_token.userid.as_str()).await;
-    let data = query.into_inner();
-    let stage_id = data.get("stageID").unwrap().as_str().unwrap();
-    let preset_id = data.get("presetID").unwrap().as_str().unwrap();
-    let inputs = data.get("inputs").unwrap().as_document().unwrap();
-    let doc = doc! {"stageID": stage_id, "presetID": preset_id};
-    let result = db.get_documents_by_attribute(doc).await;
-    let mut billables = match result {
-        Ok(billable) => billable,
-        Err(_) => {
-            return HttpResponse::InternalServerError().body("Could not retrieve billable");
-        }
-    };
-    for mut billable in billables {
-        let mut input_map = billable.inputs.unwrap();
-        for (key, _) in inputs.iter() {
-            input_map.remove(key);
-        }
-        billable.inputs = Some(input_map);
-        let doc = doc! {"_id": ObjectId::parse_str(billable.id.unwrap().to_string()).unwrap()};
-        let update_result = db.update_document(doc, billable).await;
-        if update_result.is_err(){
-            return HttpResponse::InternalServerError().body("Could not delete inputs")
-        }
-    }
-    HttpResponse::Ok().body("Successfully deleted inputs")
 }
 
 /// Retrieve all materialLibrary entry details via a GET request.
