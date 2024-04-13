@@ -9,6 +9,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 const uri = "mongodb://localhost:27017";
 const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
 const findDocuments = function (db, id) {
+  var estimateData = {};
   const collection = db.collection('jobEstimates');
   collection.find({
     "_id": id
@@ -19,8 +20,9 @@ const findDocuments = function (db, id) {
     }
     console.log("Documents retrieved successfully");
     console.log(documents);
-    return documents;
+    estimateData = documents;
   });
+  return estimateData;
 };
 
 //Taken from Akhil Anand on Medium https://medium.com/@akhilanand.ak01/converting-streams-to-buffers-a-practical-guide-745fc2f77728
@@ -96,7 +98,7 @@ async function getEstimateData(id, uID) {
   try {
     await client.connect();
     const db = client.db(`${uID}`);
-    estimateData = findDocuments(db, id)[0];
+    estimateData = await findDocuments(db, id)[0];
   } catch (e) {
     console.error("MongoDB Error");
     process.exit(3);
