@@ -48,9 +48,9 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String) 
             .expect("Could not create email file");
         file.write_all(new_user.as_bytes())
             .expect("Could not write to email file");
-        let output = Command::new("npm")
-            .current_dir("../emailer")
-            .arg("run")
+        let output = Command::new("node")
+            .current_dir("../emailer/")
+            .arg("./build/index.js")
             .arg("/home/brady/schoolProjects/capstone/resource_server/email.txt")
             .output()
             .expect("Could not send email");
