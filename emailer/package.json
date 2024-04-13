@@ -8,7 +8,7 @@
     "test": "node ./public/main.js",
     "start": "webpack-dev-server .",
     "build": "babel --out-dir build ./src",
-    "send": "node build/index.js /home/andrew/capstone/AutomaticJobEstimatorAndScheduler/emailer/build/temp_jsons/temp.json",
+    "send": "node build/index.js /home/brady/autojob/emailer/build/temp_jsons/temp.json",
     "dev": "email dev"
   },
   "author": "",
