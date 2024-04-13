@@ -1,3 +1,5 @@
+use std::io::Write;
+use std::process::Command;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::utils::token_extractor::AuthenticationToken;
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
@@ -7,7 +9,7 @@ use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use std::string::String;
 use mongodb::results::UpdateResult;
-use crate::model::billable_model::Billable;
+use crate::model::model_trait::Model;
 
 const COLLECTION: &str = "jobEstimates";
 
@@ -36,6 +38,29 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String) 
                 .body("Incorrect JSON object format from HTTPRequest Post request.");
         }
     };
+    if json.status.eq("complete") {
+        //create a file reader
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(true)
+            .open("email.txt")
+            .expect("Could not create email file");
+        file.write_all(new_user.as_bytes())
+            .expect("Could not write to email file");
+        let output = Command::new("npm")
+            .current_dir("../emailer")
+            .arg("run")
+            .arg("/home/brady/schoolProjects/capstone/resource_server/email.txt")
+            .output()
+            .expect("Could not send email");
+        if output.status.success() {
+            println!("Email sent successfully");
+        } else {
+            println!("Email failed to send");
+        }
+        std::fs::remove_file("email.txt").expect("Could not remove email file");
+    }
     json.date = Some(chrono::Utc::now().to_rfc3339());
     post_data(&db, json).await
 }
