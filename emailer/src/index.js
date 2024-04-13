@@ -8,19 +8,11 @@ import { MongoClient } from 'mongodb';
 
 const uri = "mongodb://localhost:27017";
 const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
+const estimateCollection = 'jobEstimates'
 
-const findDocuments = function(db, id) {
-  var estimateData = {}
-  const collection = db.collection('jobEstimates');
-  collection.find({"_id": id}).toArray(function(err, documents) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log("Documents retrieved successfully");
-    console.log(documents);
-    estimateData = documents;
-  });
+async function findDocument(db, id, collection) {
+  const jobCollection = db.collection(collection);
+  const estimateData = await jobCollection.findOne({"_id": id});
   return estimateData;
 }
 
@@ -86,6 +78,7 @@ async function sendEmail(estimateData){
 }
 
 function readJsonFile(path){
+  console.log("Json");
   var data;
   try{
     data = fs.readFileSync(path, {encoding: 'utf8', flag: 'r'});
@@ -96,14 +89,15 @@ function readJsonFile(path){
   return(JSON.parse(data));
 }
 
-async function getEstimateData(id, uID){
+async function retrieveFromDatabase(id, uID){
+  console.log("Database");
   var estimateData = {};
   const client = new MongoClient(uri);
   try {
 
     await client.connect();
     const db = client.db(`${uID}`);
-    estimateData = await findDocuments(db, id)[0];
+    estimateData = await findDocument(db, id, estimateCollection);
   } catch (e) {
     console.error("MongoDB Error");
     process.exit(3);
@@ -114,13 +108,23 @@ async function getEstimateData(id, uID){
   return estimateData;
 }
 
+async function getEstimateData(argv){
+  var estimateData = {};
+  if(argv.length === 3){
+    estimateData = readJsonFile(argv[2]);
+  }else if(argv.length === 4){
+    estimateData = await retrieveFromDatabase(argv[2], argv[3]);
+  }
+  return estimateData
+}
+
 async function main(){
-  if(process.argv.length !== 4){
+  if(process.argv.length < 3 || process.argv.length > 4){
     console.error("ERROR: Invalid Command Line Args");
     process.exit(1);
   }
 
-  const estimateData = getEstimateData(process.argv[2], process.argv[3]);
+  const estimateData = await getEstimateData(process.argv);
   console.log(estimateData);
   sendEmail(estimateData);
 }
