@@ -2,7 +2,6 @@ use crate::model::model_trait::Model;
 use crate::repository::mongodb_repo::MongoRepo;
 use actix_web::HttpResponse;
 use mongodb::bson::{doc, Document};
-use mongodb::results::UpdateResult;
 
 /// A helper function used to create a new document in the database.
 ///

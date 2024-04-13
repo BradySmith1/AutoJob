@@ -41,7 +41,7 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
     let doc = doc! {
         "username": json.username.clone()
     };
-    let user = db.find_one(doc).await;
+    let user = db.get_documents_by_attribute(doc).await;
     match user {
         Ok(_) => return HttpResponse::Conflict()
             .body("User already exists in the database."),
