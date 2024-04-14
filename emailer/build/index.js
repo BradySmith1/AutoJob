@@ -14,7 +14,7 @@ async function findDocument(db, id, collection) {
   var estimateData;
   try {
     estimateData = await jobCollection.findOne({
-      "_id": ObjectId(id)
+      "_id": new ObjectId(id)
     });
   } catch (error) {
     console.error(error);
