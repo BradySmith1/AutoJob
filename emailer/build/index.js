@@ -11,9 +11,14 @@ const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
 const estimateCollection = 'jobEstimates';
 async function findDocument(db, id, collection) {
   const jobCollection = db.collection(collection);
-  const estimateData = await jobCollection.findOne({
-    "_id": ObjectId(id)
-  });
+  var estimateData;
+  try {
+    estimateData = await jobCollection.findOne({
+      "_id": ObjectId(id)
+    });
+  } catch (error) {
+    console.error(error);
+  }
   return estimateData;
 }
 

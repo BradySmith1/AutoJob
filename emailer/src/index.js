@@ -12,7 +12,12 @@ const estimateCollection = 'jobEstimates'
 
 async function findDocument(db, id, collection) {
   const jobCollection = db.collection(collection);
-  const estimateData = await jobCollection.findOne({"_id": ObjectId(id)});
+  var estimateData;
+  try{
+    estimateData = await jobCollection.findOne({"_id": ObjectId(id)});
+  } catch(error){
+    console.error(error);
+  }
   return estimateData;
 }
 
@@ -94,7 +99,6 @@ async function retrieveFromDatabase(id, uID){
   var estimateData = {};
   const client = new MongoClient(uri);
   try {
-
     await client.connect();
     const db = client.db(`${uID}`);
     estimateData = await findDocument(db, id, estimateCollection);
