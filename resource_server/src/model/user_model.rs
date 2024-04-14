@@ -22,7 +22,7 @@ use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 /// details: Any details the user wants the company to know about
 /// images: Any images the user wants the company to have. This is stored as references to the
 /// images in the files system
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct UserEstimate {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]

@@ -15,7 +15,7 @@ use std::collections::HashMap;
 /// materials: A list of MaterialFee structs that are materials, if there are any.
 /// fees: A list of MaterialFee structs that are fees, if there are any.
 /// status: The status of the job estimate. Either a draft of a completed estimate.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
 pub struct JobEstimate {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]

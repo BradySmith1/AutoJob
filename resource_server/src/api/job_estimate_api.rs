@@ -3,7 +3,7 @@ use std::process::Command;
 use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
 use crate::utils::token_extractor::AuthenticationToken;
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
-use actix_web::web::Query;
+use actix_web::web::{Query, resource};
 use actix_web::{delete, get, post, put, web::Path, HttpResponse};
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
@@ -38,31 +38,23 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String) 
                 .body("Incorrect JSON object format from HTTPRequest Post request.");
         }
     };
+    json.date = Some(chrono::Utc::now().to_rfc3339());
+    let result = match db.create_document(json.clone()).await{
+        Ok(user) => user,
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Could not add document to the jobEstimate collection. Check if MongoDB is running");
+        }
+    };
     if json.status.eq("complete") {
-        //create a file reader
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .append(true)
-            .open("email.txt")
-            .expect("Could not create email file");
-        file.write_all(new_user.as_bytes())
-            .expect("Could not write to email file");
-        let output = Command::new("node")
+        Command::new("node")
             .current_dir("../emailer/")
             .arg("./build/index.js")
-            .arg("/home/brady/schoolProjects/capstone/resource_server/email.txt")
+            .arg(result.inserted_id.to_string())
+            .arg(auth_token.userid.to_string())
             .output()
-            .expect("Could not send email");
-        if output.status.success() {
-            println!("Email sent successfully");
-        } else {
-            println!("Email failed to send");
-        }
-        std::fs::remove_file("email.txt").expect("Could not remove email file");
+            .expect("failed to execute process");
     }
-    json.date = Some(chrono::Utc::now().to_rfc3339());
-    post_data(&db, json).await
+    return HttpResponse::Ok().json(result);
 }
 
 /// Retrieve jobEstimate details by their ID via a GET request.
