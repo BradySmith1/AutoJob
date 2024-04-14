@@ -4,22 +4,21 @@ import ReactPDF from '@react-pdf/renderer';
 import BillPDF from './pdfs/BillPDF.js';
 import 'dotenv/config'
 import * as fs from 'fs'
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const uri = "mongodb://localhost:27017";
 const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
+const estimateCollection = 'jobEstimates'
 
-const findDocuments = function(db, id) {
-  const collection = db.collection('jobEstimates');
-  collection.find({"_id": id}).toArray(function(err, documents) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log("Documents retrieved successfully");
-    console.log(documents);
-    return documents;
-  });
+async function findDocument(db, id, collection) {
+  const jobCollection = db.collection(collection);
+  var estimateData;
+  try{
+    estimateData = await jobCollection.findOne({"_id": new ObjectId(id)});
+  } catch(error){
+    console.error(error);
+  }
+  return estimateData;
 }
 
 //Taken from Akhil Anand on Medium https://medium.com/@akhilanand.ak01/converting-streams-to-buffers-a-practical-guide-745fc2f77728
@@ -84,6 +83,7 @@ async function sendEmail(estimateData){
 }
 
 function readJsonFile(path){
+  console.log("Json");
   var data;
   try{
     data = fs.readFileSync(path, {encoding: 'utf8', flag: 'r'});
@@ -94,14 +94,14 @@ function readJsonFile(path){
   return(JSON.parse(data));
 }
 
-async function getEstimateData(id, uID){
+async function retrieveFromDatabase(id, uID){
+  console.log("Database");
   var estimateData = {};
   const client = new MongoClient(uri);
   try {
-
     await client.connect();
     const db = client.db(`${uID}`);
-    estimateData = findDocuments(db, id)[0];
+    estimateData = await findDocument(db, id, estimateCollection);
   } catch (e) {
     console.error("MongoDB Error");
     process.exit(3);
@@ -112,13 +112,24 @@ async function getEstimateData(id, uID){
   return estimateData;
 }
 
-async function main(){
-  if(process.argv.length !== 4){
+async function getEstimateData(argv){
+  if(argv.length < 3 || argv.length > 4){
     console.error("ERROR: Invalid Command Line Args");
     process.exit(1);
   }
+  var estimateData = {};
+  if(argv.length === 3){
+    estimateData = readJsonFile(argv[2]);
+  }else if(argv.length === 4){
+    estimateData = await retrieveFromDatabase(argv[2], argv[3]);
+  }
+  return estimateData
+}
 
-  const estimateData = getEstimateData(process.argv[2], process.argv[3]);
+async function main(){
+
+  const estimateData = await getEstimateData(process.argv);
+  console.log(estimateData);
   sendEmail(estimateData);
 }
 
