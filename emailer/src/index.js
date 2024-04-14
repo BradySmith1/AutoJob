@@ -4,7 +4,7 @@ import ReactPDF from '@react-pdf/renderer';
 import BillPDF from './pdfs/BillPDF.js';
 import 'dotenv/config'
 import * as fs from 'fs'
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const uri = "mongodb://localhost:27017";
 const apiKey = "re_JuU7fjp3_N7PywM8GkyoXWe4KVqjRKhex";
@@ -12,7 +12,7 @@ const estimateCollection = 'jobEstimates'
 
 async function findDocument(db, id, collection) {
   const jobCollection = db.collection(collection);
-  const estimateData = await jobCollection.findOne({"_id": id});
+  const estimateData = await jobCollection.findOne({"_id": ObjectId(id)});
   return estimateData;
 }
 
@@ -109,6 +109,10 @@ async function retrieveFromDatabase(id, uID){
 }
 
 async function getEstimateData(argv){
+  if(argv.length < 3 || argv.length > 4){
+    console.error("ERROR: Invalid Command Line Args");
+    process.exit(1);
+  }
   var estimateData = {};
   if(argv.length === 3){
     estimateData = readJsonFile(argv[2]);
@@ -119,10 +123,6 @@ async function getEstimateData(argv){
 }
 
 async function main(){
-  if(process.argv.length < 3 || process.argv.length > 4){
-    console.error("ERROR: Invalid Command Line Args");
-    process.exit(1);
-  }
 
   const estimateData = await getEstimateData(process.argv);
   console.log(estimateData);
