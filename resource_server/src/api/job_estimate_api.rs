@@ -46,13 +46,14 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String) 
         }
     };
     if json.status.eq("complete") {
-        Command::new("node")
-            .current_dir("../emailer/")
+        let token = auth_token.userid.to_string() + "DB";
+        let output = Command::new("node")
+            .current_dir("/home/brady/autojob/emailer")
             .arg("./build/index.js")
-            .arg(result.inserted_id.to_string())
-            .arg(auth_token.userid.to_string())
+            .arg(result.inserted_id.as_object_id().unwrap().to_hex().to_string())
+            .arg(token)
             .output()
-            .expect("failed to execute process");
+            .unwrap();
     }
     return HttpResponse::Ok().json(result);
 }
