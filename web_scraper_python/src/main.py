@@ -1,10 +1,9 @@
-import json
-
 import selenium.common.exceptions
 from flask import *
 import pymongo
 from datetime import datetime, timedelta
 import scraper
+from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 
@@ -25,16 +24,12 @@ def get_cached_materials():
     store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
         store_number = store_number.get("store_number")
-        mongo_filter = {
-            "$search": {
-                "autocomplete": {
-                    "query": name,
-                    "path": "name"
-                }
-            }
-        }
-        cache_returned = list(
-            db_material_collection.find(mongo_filter, {"company": company, "store_number": store_number}))
+        # implement fuzz ratio. Should grab all materials with a ratio of 80 or higher or scrape it.
+        list_of_materials = db_material_collection.find({"company": company, "store_number": store_number})
+        cache_returned = []
+        for material in list_of_materials:
+            if fuzz.ratio(material.get("name"), name) >= 80:
+                cache_returned.append(material)
         if cache_returned.__len__() > 0:
             cache_returned = cache_returned[0]
             ttl = cache_returned.get("ttl")
