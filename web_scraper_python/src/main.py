@@ -7,6 +7,9 @@ from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 
+# Ratio for searching algorithm
+RATIO = 10
+
 
 @app.route('/cache', methods=['GET'])
 def get_cached_materials():
@@ -24,19 +27,21 @@ def get_cached_materials():
     store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
         store_number = store_number.get("store_number")
-        # implement fuzz ratio. Should grab all materials with a ratio of 80 or higher or scrape it.
+        # implement fuzz ratio. Should grab all materials with a ratio of 10 or higher or scrape it.
         list_of_materials = db_material_collection.find({"company": company, "store_number": store_number})
         cache_returned = []
         for material in list_of_materials:
-            if fuzz.ratio(material.get("name"), name) >= 80:
+            ratio = fuzz.ratio(material.get("name"), name)
+            if ratio >= 10:
                 cache_returned.append(material)
         if cache_returned.__len__() > 0:
             cache_returned = cache_returned[0]
             ttl = cache_returned.get("ttl")
-            if datetime.utcnow() >= ttl:
+            if datetime.utcnow().timestamp() >= ttl:
                 db_material_collection.delete_one({"name": name, "company": company})
             else:
-                return cache_returned
+                return {"name": cache_returned.get("name"), "price": cache_returned.get("price"),
+                        "store_number": cache_returned.get("store_number"), "company": company}
 
     # Scrapes website
     scraper_instance.set_company(company)
