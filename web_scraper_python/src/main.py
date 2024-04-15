@@ -8,7 +8,7 @@ from fuzzywuzzy import fuzz
 app = Flask(__name__)
 
 # Ratio for searching algorithm
-RATIO = 10
+RATIO = 15
 
 
 @app.route('/cache', methods=['GET'])
@@ -22,7 +22,7 @@ def get_cached_materials():
 
     # Checks cache
     # gets first material returned. Will have to redo this part of the code later
-    name = name.replace(" ", "")
+    name_copy = name.replace(" ", "")
     # TODO need to also add company to zip code cache to make sure that the store number is being found for the correct company.
     store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
@@ -31,14 +31,14 @@ def get_cached_materials():
         list_of_materials = db_material_collection.find({"company": company, "store_number": store_number})
         cache_returned = []
         for material in list_of_materials:
-            ratio = fuzz.ratio(material.get("name"), name)
-            if ratio >= 10:
+            ratio = fuzz.ratio(material.get("name"), name_copy)
+            if ratio >= RATIO:
                 cache_returned.append(material)
         if cache_returned.__len__() > 0:
             cache_returned = cache_returned[0]
             ttl = cache_returned.get("ttl")
             if datetime.utcnow().timestamp() >= ttl:
-                db_material_collection.delete_one({"name": name, "company": company})
+                db_material_collection.delete_one({"name": cache_returned.get("name"), "company": company})
             else:
                 return {"name": cache_returned.get("name"), "price": cache_returned.get("price"),
                         "store_number": cache_returned.get("store_number"), "company": company}
