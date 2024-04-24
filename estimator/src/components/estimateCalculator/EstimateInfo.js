@@ -13,7 +13,7 @@
 
 import "./EstimateInfo.css";
 import axios from 'axios';
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Select from 'react-select';
 import ImageCarousel from "./ImageCarousel";
 import billableList from "../JSONs/billableList.json";
@@ -22,6 +22,7 @@ import Message from "../utilComponents/Message.js";
 import dropDownData from "../JSONs/dropDown.json";
 import { AuthContext } from "../authentication/AuthContextProvider.js";
 import EstimateTypeSelector from "./EstimateTypeSelector.js";
+import { NotificationContext } from "../utilComponents/NotificationProvider.js";
 
 //Default estimate data
 const DEFAULT_ESTIMATE_DATA = { 
@@ -51,25 +52,6 @@ async function packUsers() {
         userArr.push({ user: entry });
     }
     return userArr;
-}
-
-/**
- * Get all of the materials that are marked for auto import
- * from the database.
- * 
- * @returns autoImports, promise of the auto import JSON.
- */
-async function getAutoImports() {
-    var autoImports = {};
-    for (const key of Object.keys(billableList)) {
-        //Get the auto imports
-        const response = await axios.get("/api/library?autoImport=true&description=" + key);
-        if (response.data.length > 0) {
-            //Add that array of billables to the user object
-            autoImports[billableList[key]] = response.data;
-        }
-    }
-    return autoImports;
 }
 
 /**
@@ -140,6 +122,7 @@ var userDropDown = {};
 function EstimateInfo() {
 
     const {jwt} = useContext(AuthContext);
+    const {addMessage} = useContext(NotificationContext);
 
     axios.defaults.headers.common = {
         "Authorization": jwt
@@ -156,7 +139,6 @@ function EstimateInfo() {
     //Use state for a network error
     const [networkError, setNetworkError] = useState(false);
 
-    //This function runs when the page is first loaded
     useEffect(() => {
         //Get all the customer data
         packUsers().then((data) => {
@@ -251,6 +233,38 @@ function EstimateInfo() {
                 ?
                 <>
                     <div className="customerInfo">
+                        <span className="DeleteWrapper">
+                        <button className="xButton" onClick={() => {
+                            console.log(currentCustomerData.user._id.$oid)
+                            if(currentCustomerData._id === undefined){
+                                axios.delete('/api/user?_id=' + currentCustomerData.user._id.$oid).then((response) => {
+                                    var users = [...dropDown.users]
+                                    users.splice(dropDown.users.map(e => e.user._id.$oid).indexOf(currentCustomerData.user._id.$oid), 1)
+                                    console.log(users)
+                                    setCurrentCustomerData(DEFAULT_ESTIMATE_DATA)
+                                    userDropDown = populateDropDown(users);
+                                    setDropDown(dropDown => ({ ...dropDown, users: users, draftsLoading: false }))
+                                    console.log(response)
+                                }).catch(() => {
+                                    addMessage("Network Error, could not remove estimate", 5000)
+                                })
+                            }else{
+                                axios.delete('/api/estimate?_id=' + currentCustomerData._id.$oid).then((response) => {
+                                    var drafts = [...dropDown.drafts]
+                                    drafts.splice(dropDown.drafts.map(e => e._id.$oid).indexOf(currentCustomerData._id.$oid), 1)
+                                    console.log(drafts)
+                                    setCurrentCustomerData(DEFAULT_ESTIMATE_DATA)
+                                    draftDropDown = populateDropDown(drafts);
+                                    setDropDown(dropDown => ({ ...dropDown, drafts: drafts, draftsLoading: false }))
+                                    console.log(response)
+                                }).catch(() => {
+                                    addMessage("Network Error, could not remove estimate", 5000)
+                                })
+                            }
+                        }}>
+                            Delete This Estimate
+                        </button>
+                        </span>
                         <div className="infoContainer">
                             <div className="infoElement">
                                 <h2 className="infoHeading">Contact</h2>
