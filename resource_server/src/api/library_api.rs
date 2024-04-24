@@ -179,6 +179,7 @@ pub async fn get_all_library_entries(auth_token: AuthenticationToken) -> HttpRes
     get_all_data(&db).await
 }
 
+/*
 /// This is the function that runs on a timer in the main function that checks the current
 /// MaterialLibrary for if there are products needing to be auto updated.
 ///
@@ -260,4 +261,4 @@ pub async fn check_libraries() {
             chrono::Utc::now().to_string()
         );
     }
-}
+}*/
