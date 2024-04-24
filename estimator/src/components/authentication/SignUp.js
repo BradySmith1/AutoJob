@@ -74,7 +74,7 @@ function SignUp(props){
             </div>
             <form id="logIn" onSubmit={formik.handleSubmit}>
                 <div className="headerAndInput">
-                    <h2>Username</h2>
+                    <h2>Email</h2>
                     <input 
                         className="authInput"
                         type="text"
@@ -82,6 +82,7 @@ function SignUp(props){
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.username}
+                        placeholder="example@email.com"
                     />
                     {formik.touched.username && formik.errors.username ? <p className="Error">{formik.errors.username}</p> : null}
                 </div>

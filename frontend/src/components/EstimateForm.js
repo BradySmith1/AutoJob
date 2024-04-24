@@ -19,7 +19,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import axios from 'axios';
 
 //Regular expression for a phone number
-const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+const phoneRegExp = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
 /**
  * This function returns the estimate form in a JSX object
@@ -139,6 +139,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.fName}
+                        placeholder='John'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.fName && formik.errors.fName ? <p className="Error">{formik.errors.fName}</p> : null}
@@ -154,6 +155,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.lName}
+                        placeholder='Doe'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.lName && formik.errors.lName ? <p className="Error">{formik.errors.lName}</p> : null}
@@ -173,6 +175,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.email}
+                        placeholder='example@email.com'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.email && formik.errors.email ? <p className="Error">{formik.errors.email}</p> : null}
@@ -188,6 +191,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.phoneNumber}
+                        placeholder='(123) 456 7890'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.phoneNumber && formik.errors.phoneNumber ? <p className="Error">{formik.errors.phoneNumber}</p> : null}
@@ -205,6 +209,7 @@ function EstimateForm() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.strAddr}
+                    placeholder='123 Lane Street'
                 />
                 {/*If there are unment form requirements and this input has been touched, display error message */}
                 {formik.touched.strAddr && formik.errors.strAddr ? <p className="Error">{formik.errors.strAddr}</p> : null}
@@ -222,6 +227,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.city}
+                        placeholder='New York'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.city && formik.errors.city ? <p className="Error">{formik.errors.city}</p> : null}
@@ -237,6 +243,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.state}
+                        placeholder='New York'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.state && formik.errors.state ? <p className="Error">{formik.errors.state}</p> : null}
@@ -252,6 +259,7 @@ function EstimateForm() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.zip}
+                        placeholder='12345'
                     />
                     {/*If there are unment form requirements and this input has been touched, display error message */}
                     {formik.touched.zip && formik.errors.zip ? <p className="Error">{formik.errors.zip}</p> : null}
