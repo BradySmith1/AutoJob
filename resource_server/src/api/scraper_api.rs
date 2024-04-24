@@ -28,7 +28,11 @@ pub async fn manual_web_scrape(query: Query<HashMap<String, String>>,
         Some(company) => company,
         None => return HttpResponse::BadRequest().body("Invalid company"),
     };
-    let scraper_data = match get_scraper_data(name.to_string(), company.to_string()).await{
+    let zip = match map.get("zip"){
+        Some(company) => company,
+        None => return HttpResponse::BadRequest().body("Invalid zip code (query uses zip as key)")
+    };
+    let scraper_data = match get_scraper_data(name.to_string(), company.to_string(), zip.to_string()).await{
         Ok(scrape) => scrape,
         Err(err) => {
             if err.eq("no products found") {
@@ -55,7 +59,7 @@ pub async fn manual_web_scrape(query: Query<HashMap<String, String>>,
 /// If the provided material is empty or there's an error during the retrieval process, it
 /// returns an HTTP 400 Bad Request response with
 /// an error message or an HTTP 500 Internal Server Error response with an error message.
-pub async fn get_scraper_data(name: String, company: String) -> Result<ScraperData, String> {
+pub async fn get_scraper_data(name: String, company: String, zip: String) -> Result<ScraperData, String> {
     let url = std::env::var("WEB_CACHE_URL").unwrap();
     let client = reqwest::Client::new();  //this is used when not using a self-signed cert
     // let client = reqwest::Client::builder()
@@ -63,7 +67,7 @@ pub async fn get_scraper_data(name: String, company: String) -> Result<ScraperDa
     //     .build()
     //     .unwrap();
     let res = client.get(&url);
-    let res = res.query(&[("name", name), ("company", company)]);
+    let res = res.query(&[("name", name), ("company", company), ("zip", zip)]);
     let res = res.timeout(std::time::Duration::from_secs(15));
     let response = match res.send().await{
         Ok(response) => response,
@@ -91,5 +95,6 @@ pub async fn get_scraper_data(name: String, company: String) -> Result<ScraperDa
 pub struct ScraperData {
     pub name: String,
     pub price: f32,
-    pub company: String
+    pub company: String,
+    pub store_number: String
 }
