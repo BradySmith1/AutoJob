@@ -3,10 +3,53 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 100px;
     padding-bottom: 100px;
 }
 
 .link{
     margin: 50px;
+}
+
+.LinkWrapper{
+    display: flex;
+    border-radius: 20px;
+    align-items: center;
+    overflow: hidden;
+}
+
+.Link{
+    color: white;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    background-color: #191D23;
+    padding-left: 15px;
+    padding-right: 40px;
+}
+
+.Copy{
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0055FF;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+}
+
+.Copy:hover{
+    background-color: #00A3FF;
+    transition-duration: 200ms;
+}
+
+.copyImg{
+    width: 30px;
+    height: 30px;
+}
+
+.LinkContainer{
+    margin-bottom: 30px;
+    margin-top: 30px;
 }

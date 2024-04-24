@@ -62,69 +62,12 @@ function Customizer(){
                 }
             })
 
-
-            // const keptStages = oldSchema[index].form.filter((stage) => {
-            //     var contains = false;
-            //     newValues.form.forEach((newStage) => {
-            //         if(stage.stageID === newStage.stageID){
-            //             contains = true;
-            //         }
-            //     });
-            //     return contains;
-            // });
-
-            // var deleteInputs = []
-            // keptStages.forEach((stage) => {
-            //     var deleteArr = [];
-            //     newValues.form.forEach((newStage) => {
-            //         if(stage.stageID === newStage.stageID){
-            //             const deletedFields = stage.fields.filter((field) => {
-            //                 var contains = false;
-            //                 newStage.fields.forEach((newField) => {
-            //                     if(field.name === newField.name){
-            //                         contains = true;
-            //                     }
-            //                 });
-            //                 return !contains;
-            //             });
-            //             deletedFields.forEach((field) => {
-            //                 deleteArr.push(field.name);
-            //             });
-            //         }
-            //     });
-            //     if(deleteArr.length > 0){
-            //         deleteInputs.push({pID: oldSchema[index].presetID, sID: stage.stageID, delete: deleteArr});
-            //     }
-            // });
-
-            const deletedStages = oldSchema[index].form.filter((stage) => {
-                var contains = false;
-                newValues.form.forEach((newStage) => {
-                    if(stage.stageID === newStage.stageID){
-                        contains = true;
-                    }
-                });
-                return !contains;
-            });
-
-            const deletedIds = deletedStages.map((stage) => {
-                return stage.stageID;
-            });
-
             newSchema[index] = newValues; 
             setSchema(newSchema);
             axios.put('/api/schema?presetID=' + schema[index].presetID, newValues)
             .then((response) => {
                 console.log(response)
-                deletedIds.forEach(id => {
-                    axios.delete(`/api/library?presetID=${values.presetID}&stageID=${id}`).then((response) => {
-                        console.log(response);
-                    }).catch((error)=>{
-                        if(error.response.status === 404){
-                            console.log("No billables of that ID found.")
-                        }
-                    });
-                })
+                addMessage("Schema Saved", 3000);
             }).catch((error) => {
                 console.log(error)
                 setSchema(oldSchema);
@@ -155,17 +98,11 @@ function Customizer(){
                 const oldSchema = [...schema]
                 copySchema.splice(index, 1);
                 setSchema(copySchema);
-                axios.delete('/api/schema?estimateType=' + schema[index].estimateType).then((response) => {
+                axios.delete('/api/schema?presetID=' + schema[index].presetID).then((response) => {
                     console.log(response);
-                    axios.delete('/api/library?presetID=' + oldSchema[index].presetID).then((response) => {
-                        console.log(response);
-                    }).catch((error)=>{
-                        if(error.response.status === 404){
-                            console.log("No billables of that ID found.")
-                        }
-                    });
                 }).catch(() => {
                     setSchema(oldSchema);
+                    addMessage("A network error has occured, could not delete preset.", 5000);
                 });
             }
         },
@@ -187,6 +124,7 @@ function Customizer(){
                 console.log(response);
             }).catch(() => {
                 setSchema(oldSchema)
+                addMessage("A network error has occured, could not create preset.", 5000);
             });
         }
     }
@@ -206,14 +144,6 @@ function Customizer(){
                     <div className="AddPreset"></div>
                     <h3>Add Preset</h3>
                 </div>
-            </div>
-            <div className='TitleBar'>
-                <button className="SavePresetsButton" onClick={() => {
-                    addMessage("This is message " + count, 3000);
-                    count = count + 1;
-                }}>
-                    save
-                </button>
             </div>
         </div>
     );

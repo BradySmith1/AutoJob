@@ -61,18 +61,36 @@ function EstimatePreset(props) {
             <div className="Fields">
                 <b>Stages: </b>{fieldString}
             </div>
-            <img src={edit} className="EditImg ImgEdit" onClick={() => {
-                setDisplay(true);
-            }}/>
+            <span className="ImgEdit">
+                <a
+                        data-tooltip-id="menu-tooltip"
+                        data-tooltip-content="Customize"
+                        data-tooltip-place="bottom"
+                        className="Tooltip"
+                >
+                    <img src={edit} className="EditImg" onClick={() => {
+                        setDisplay(true);
+                    }}/>
+                </a>
+            </span>
             {/* <img src={Left} className="EditImg ImgLeft" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index - 1);
             }}/>
             <img src={Right} className="EditImg ImgRight" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index + 1);
             }}/> */}
-            <img src={Close} className="EditImg ImgX" onClick={() => {
-                props.schemaUtils.remove(props.index);
-            }}/>
+            <span className="ImgEdit left">
+                <a
+                        data-tooltip-id="menu-tooltip"
+                        data-tooltip-content="Remove"
+                        data-tooltip-place="bottom"
+                        className="Tooltip"
+                >
+                    <img src={Close} className="EditImg ImgX" onClick={() => {
+                        props.schemaUtils.remove(props.index);
+                    }}/>
+                </a>
+            </span>
             {display ? (
                 <Window setDisplay={setDisplay}>
                     <div className="WindowContainer">

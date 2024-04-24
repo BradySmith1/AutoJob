@@ -9,17 +9,43 @@
  * the user to change their email or password.
  */
 
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 import { AuthContext } from "../authentication/AuthContextProvider"
+import copy from "../../assets/copy_white.png"
 import "./Account.css"
 
 function Account(){
     //Context used to set the jwt token
     const {jwt, setJwt, user} = useContext(AuthContext);
+    const [copied, setCopied] = useState(false);
 
     return(
         <div className="AccountWrapper">
-            <h2 className="link">localhost:3000/{user.id}</h2>
+            <div className='TitleBar'>
+                <h1>Account</h1>
+            </div>
+            <div className="LinkContainer">
+                <h3 style={{marginBottom: "5px", marginLeft: "5px"}}>Esimate Form Link:</h3>
+                <div className="LinkWrapper">
+                    <div className="Link">
+                        localhost:3000/{user.id}
+                    </div>
+                    <a
+                            data-tooltip-id="menu-tooltip"
+                            data-tooltip-content={copied ? "Copied" : "Copy to Clipboard"}
+                            data-tooltip-place="bottom"
+                            className="Tooltip"
+                            onMouseLeave={() => {setCopied(false)}}
+                    >
+                    <div className="Copy" onClick={() => {
+                        setCopied(true);
+                        navigator.clipboard.writeText(`localhost:3000/${user.id}`);
+                    }}>
+                        <img className="copyImg" src={copy} />
+                    </div>
+                    </a>
+                </div>
+            </div>
             <button className="button" onClick={() => {
                 //reset the jwt
                 setJwt(0);

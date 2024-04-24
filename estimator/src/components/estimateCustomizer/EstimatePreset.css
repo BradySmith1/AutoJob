@@ -31,13 +31,15 @@
     right: 10px;
 }
 
+.left{
+    right: auto !important;
+    left: 10px !important;
+}
+
 .ImgX{
-    position: absolute;
     height: 35px !important;
     width: 35px !important;
     padding: 7.5px;
-    bottom: 10px;
-    left: 10px;
 }
 
 .ImgLeft{
