@@ -15,6 +15,9 @@ import React, { useState, useRef, useEffect, useId, useContext } from "react";
 import { AuthContext } from "../../authentication/AuthContextProvider";
 import './Billable.css';
 import axios from 'axios';
+import expandDown from '../../../assets/expandDown.png';
+import check from "../../../assets/Check.png";
+import { NotificationContext } from "../../utilComponents/NotificationProvider";
 
 /**
  * Function to determine the background color of the tick box
@@ -84,20 +87,18 @@ function Billable(props){
         "Authorization": jwt
     }
 
-    console.log(props.billable.data.autoImport)
-
     //ID for this billable
     const billableID = useId();
     //ID for the auto import tick box
     const importID = useId();
-    //ID for the price scanning tick box
-    const scanID = useId();
     //Display for the more options menu
     const [display, setDisplay] = useState(false);
     //Ref for the click alerter
     const wrapperRef = useRef(null);
+    const {addMessage} = useContext(NotificationContext);
     //Call the click alerter 
     useOutsideAlerter(wrapperRef, setDisplay);
+
 
     /**
      * This useEffect is bound to display, and sets the background color
@@ -105,8 +106,7 @@ function Billable(props){
      */
     useEffect(() => {
         if(display){
-            determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport); 
-            determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate); 
+            determineBackgroundColor(document.getElementById(importID), props.billable.data.autoImport);
         }
     }, [display])
 
@@ -169,26 +169,51 @@ function Billable(props){
                     :
                     (null)
                 }
-                <button
-                    type="button"
-                    className="btn openOptions"
-                    onClick={() => {
-                        //Open the more options menu on click
-                        setDisplay(!display);
-                        //Determine position for the menu options
-                        var offsets = document.getElementById(props.index).getBoundingClientRect();
-                        var menuOffset = offsets.right;
-                        var thisBillable = document.getElementById(billableID);
-                        if(window.innerWidth < 1176){
-                            thisBillable.style.left = menuOffset - 260 + "px";
-                        }else{
-                            thisBillable.style.left = menuOffset + "px";
-                        }
-                        thisBillable.style.top = (offsets.top - 115) + "px";
-                    }}
-                >
-                    ...
-                </button>
+                <div className="extraOptionsWrapper">
+                    {props.billable.data.autoUpdate === 'true' ? (
+                        <a
+                            data-tooltip-id="menu-tooltip"
+                            data-tooltip-content="Turn off auto price updates"
+                            data-tooltip-place="top"
+                        >
+                            <img src={check} className="CheckMark" onClick={() => {
+                                var newBillable = {...props.billable};
+                                newBillable.data.autoUpdate = "false";
+                                props.modifyLibrary(props.index, newBillable.data);
+                                axios.put('/api/library?_id=' + newBillable.data._id.$oid, newBillable.data).then((respone) => {
+                                    console.log(respone);
+                                }).catch((error) => {
+                                    console.log(error);
+                                    console.log(error.message)
+                                    addMessage("Network error, could not update price.", 5000);
+                                    var oldBillable = {...newBillable};
+                                    oldBillable.data.autoUpdate = 'true';
+                                    props.modifyLibrary(props.index, oldBillable.data);
+                                })
+                            }}/>
+                        </a>
+                    ) : (null)}
+                    <button
+                        type="button"
+                        className="btn openOptions"
+                        onClick={() => {
+                            //Open the more options menu on click
+                            setDisplay(!display);
+                            //Determine position for the menu options
+                            var offsets = document.getElementById(props.index).getBoundingClientRect();
+                            var menuOffset = offsets.right;
+                            var thisBillable = document.getElementById(billableID);
+                            if(window.innerWidth < 1176){
+                                thisBillable.style.left = menuOffset - 260 + "px";
+                            }else{
+                                thisBillable.style.left = menuOffset + "px";
+                            }
+                            thisBillable.style.top = (offsets.top - 115) + "px";
+                        }}
+                    >
+                        ...
+                    </button>
+                </div>
             </div>
             <div className="fixedWrapper" id={billableID}>
                 {display ? 
@@ -216,27 +241,17 @@ function Billable(props){
                             <div
                                 className="optionsButton tickBox middle"
                                 onClick={() => {
-                                    props.billable.data.autoUpdate = toggle(props.billable.data.autoUpdate);
-                                    props.billable.data.company = "homedepot";
-                                    determineBackgroundColor(document.getElementById(scanID), props.billable.data.autoUpdate)
-                                    putToDb(props.billable.data._id.$oid, props.billable.data);
-                                    if(props.billable.data.autoUpdate === "true"){
-                                        axios.get('/api/scrape?company=homedepot&name=' + props.billable.data.name).then((response) => {
-                                            var billableCopy = {...props.billable.data};
-                                            console.log(response.data);
-                                            if(response.data.price !== undefined){
-                                                billableCopy.price = response.data.price;
-                                                putToDb(props.billable.data._id.$oid, billableCopy);
-                                            }
-                                            props.modifyLibrary(props.index, billableCopy);
-                                        })
-                                    }
+                                    setDisplay(false)
+                                    props.setScanBillable({billable: props.billable, index: props.index});
+                                    props.displayControls.changeDisplay('scanner', true);
                                 }}
                             >
                                 Price Scan
-                                <div className="boxTick" id={scanID}>
+                                <span className="boxTickWrapper">
+                                    <img src={expandDown} className="sideArrow"/>
+                                    
+                                </span>
 
-                                </div>
                             </div>
                             <div
                                     className="optionsButton remove"
@@ -244,6 +259,7 @@ function Billable(props){
                                         //Here we are removing this element from the library
                                         //when the x button is clicked
                                         props.removeFromLibrary(props.index);
+                                        props.displayControls.clearDisplays();
                                         setDisplay(false);
                                     }}
                                 >

@@ -64,6 +64,11 @@
     margin-left: 20px;
 }
 
+.extraOptionsWrapper{
+    display: flex;
+    align-items: center;
+}
+
 .add{
     height: 30px;
     width: 200px !important;
@@ -126,4 +131,20 @@
     background-color: #adadad;
     height: 15px;
     width: 15px;
+}
+
+.boxTickWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sideArrow{
+    width: 25px;
+    height: 15px;
+    -webkit-transform:rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
 }

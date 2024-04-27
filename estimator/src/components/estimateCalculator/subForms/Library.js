@@ -14,6 +14,7 @@ import Billable from "./Billable";
 import billableList from "../../JSONs/billableList.json";
 import Message from "../../utilComponents/Message.js";
 import { AuthContext } from "../../authentication/AuthContextProvider.js";
+import Scanner from "./Scanner.js";
 
 /**
  * This function compares everything in the estimate form to the
@@ -91,7 +92,6 @@ function Library(props){
     const [searchStr, setSearchStr] = useState("");
     //Use state to determine whether or not to display the add
     //billabel popup form
-    const [display, setDisplay] = useState(false);
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
 
@@ -101,6 +101,27 @@ function Library(props){
     const [removeError, setRemoveError] = useState(false);
     //error for add
     const [addError, setAddError] = useState(false);
+    const [scanBillable, setScanBillable] = useState({billable: null, index: 0});
+
+    const [displays, setDisplays] = useState({addToLibrary: false, scraper: false});
+
+    const displayControls = {
+        clearDisplays: () =>{
+            var newDisplays = {}
+            for(const key of Object.keys(displays)){
+                newDisplays[key] = false;
+            }
+            setDisplays(() => newDisplays)
+        },
+        changeDisplay: (type, bool) => {
+            var newDisplays = {...displays}
+            for(const key of Object.keys(displays)){
+                newDisplays[key] = false;
+            }
+            newDisplays[type] = bool;
+            setDisplays(() => newDisplays);
+        }
+    }
 
     /**
      * Function for handling search
@@ -252,6 +273,8 @@ function Library(props){
                                         modifyLibrary={modifyLibrary}
                                         index={index}
                                         key={index}
+                                        displayControls={displayControls}
+                                        setScanBillable={setScanBillable}
                                     />) 
                                     : 
                                     (<Billable 
@@ -260,6 +283,8 @@ function Library(props){
                                         modifyLibrary={modifyLibrary}
                                         index={index}
                                         key={index}
+                                        displayControls={displayControls}
+                                        setScanBillable={setScanBillable}
                                     />)
                                 )
                             )
@@ -270,8 +295,8 @@ function Library(props){
                         className="btn add"
                         onClick={() => {
                             //When this button is clicked, display the
-                            //add to library from
-                            setDisplay(true);
+                            //add to library form
+                            displayControls.changeDisplay('addToLibrary', true);
                         }}    
                     >
                         Add to {library.name}
@@ -305,12 +330,19 @@ function Library(props){
                 null}
             </div>
             {/**If display has been set to true, display the add to library form */}
-            {display ? 
+            {displays.addToLibrary ? 
                 <AddToLibrary 
                     addToLibrary={addToLibrary}
                     selectedLib={props.selectedLib}
-                    setDisplay={setDisplay}
+                    displayControls={displayControls}
             /> : null}
+            {displays.scanner ? 
+                <Scanner 
+                    displayControls={displayControls} 
+                    scanBillable={scanBillable}
+                    modifyLibrary={modifyLibrary}
+                />
+                : null}
         </div>
     );
 }

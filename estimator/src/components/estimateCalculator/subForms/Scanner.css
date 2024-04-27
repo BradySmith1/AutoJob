@@ -1,0 +1,17 @@
+.CompanySelect{
+    display: flex;
+    justify-content: center;
+    border-radius: 15px;
+    overflow: hidden;
+    width: auto;
+}
+
+.seperate{
+    border-right: solid 2px white !important;
+}
+
+.CheckMark{
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+}

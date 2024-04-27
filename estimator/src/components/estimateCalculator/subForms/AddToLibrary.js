@@ -123,7 +123,7 @@ function AddToLibrary(props){
     return(
         <div className="Back">
             <div className="formContainer">
-                <h2>Add a new {props.selectedLib.name}</h2>
+                <h2>Add to {props.selectedLib.name}</h2>
                 <div id="libraryForm">
                     {/**Input field for the name of the billable and error messages */}
                     <div className="boxAndLable">
@@ -187,7 +187,8 @@ function AddToLibrary(props){
                     className="btn exit" 
                     onClick={() => {
                         //On click, stop displaying this component
-                        props.setDisplay(false);
+                        props.displayControls.clearDisplays();
+                        // props.setDisplay(false);
                     }}>
                     Close
                 </button>
