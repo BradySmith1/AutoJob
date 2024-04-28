@@ -39,8 +39,9 @@ pub struct Billable {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ttl: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub company: Option<String>, //will need to change this to the store or region later down the
-                                 // line.
+    pub company: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub zip: Option<String>
 }
 
 impl Model<Billable> for Billable {

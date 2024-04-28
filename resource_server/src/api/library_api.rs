@@ -48,8 +48,8 @@ pub async fn create_library_entry(
 }
 
 fn check_auto_update(json: &mut Billable) -> HttpResponse {
-    if json.autoUpdate.eq("true") && json.autoUpdate.clone().eq("true") {
-        if json.company.is_none() {
+    if json.autoUpdate.eq("true") {
+        if json.company.is_none() || json.zip.is_none(){
             return HttpResponse::BadRequest().body(
                 "auto_update field is true but no company was \
             provided",
