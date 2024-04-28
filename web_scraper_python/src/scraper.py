@@ -35,12 +35,13 @@ class WebScraper:
         self.options.add_argument('sec-fetch-site=same-origin')
         self.options.add_argument('sec-fetch-user=?1')
         self.options.add_argument('upgrade-insecure-requests=1')
+        self.options.add_argument("--start-maximized")
         self.options.add_argument(
             'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36')
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
-        # self.options.add_argument("--headless=new")
+        self.options.add_argument("--headless=new")
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_page(self, url, zip_code):
