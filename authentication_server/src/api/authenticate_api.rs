@@ -28,6 +28,7 @@ struct AuthResponse {
     user_id: String,
 }
 
+/// Represents a send token. Holds the JWT token in the form of a string.
 #[derive(Debug, Serialize, Deserialize)]
 struct SendToken{
     jwt_token: String
@@ -220,6 +221,17 @@ String) ->
         .json(AuthResponse{ jwt_token, username, user_id})
 }
 
+/// This function sends the JWT token to the backend for verification.
+///
+/// # Parameters
+///
+/// jwt : A string representing the JWT token.
+///
+/// # Returns
+///
+/// A Result object containing the response from the backend. If the token is successfully sent to the
+/// backend, it returns an Ok response with the response from the backend. If there's an error during the
+/// sending process, it returns an Err response with an error message.
 async fn send_jwt(jwt: String) -> Result<Response, String> {
     let url = std::env::var("TOKEN_URL").unwrap();
     let client = reqwest::Client::builder()
