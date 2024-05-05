@@ -1,3 +1,12 @@
+/**
+ * @version 1, March 17th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This method wraps the estimator component and passes it all the data
+ * it needs.
+ */
+
 import React, { useContext, useState, useMemo } from "react";
 import Select from 'react-select';
 import { SchemaContext } from "../estimateCustomizer/SchemaContextProvider";
@@ -5,6 +14,11 @@ import Estimator from "./Estimator";
 import "./EstimateTypeSelector.css";
 import axios from 'axios';
 
+/**
+ * This method populates the preset selector dropdown.
+ * @param {*} schema 
+ * @returns 
+ */
 const populateEstimateTypes = (schema) => {
     var dropDownData = [];
     schema.forEach(element => {
@@ -20,8 +34,10 @@ const populateEstimateTypes = (schema) => {
  * @returns autoImports, promise of the auto import JSON.
  */
 async function getAutoImports(schema, setLoading, setEstimateData, data) {
+    //Array of billables
     var billableArr = [];
 
+    //Retrieve all auto imports
     var promises = [];
     for(const stage of schema.form){
         promises.push(
@@ -37,6 +53,9 @@ async function getAutoImports(schema, setLoading, setEstimateData, data) {
         );
     }
 
+    /*
+     *Wait for all promises to resolve
+     */
     Promise.all(promises).then(() => {
         console.log(billableArr)
         setLoading(false);
@@ -44,14 +63,30 @@ async function getAutoImports(schema, setLoading, setEstimateData, data) {
     });
 }
 
+/**
+ * This function returns the JSX for the estimate type selector
+ * 
+ * @param {Object} props, values passed down from EstimateInfo
+ * @returns {JSXElement} EstimateTypeSelector
+ */
 function EstimateTypeSelector(props){
 
+    //Pull in the schema context
     const {schema} = useContext(SchemaContext);
+    //Selected schema
     const [selectedType, setSelectedType] = useState(props.schema);
+    //Current estimate data
     const [estimateData, setEstimateData] = useState(props.data);
+    //Loading boolean for auto import request
     const [loading, setLoading] = useState(false);
+    //Drop down array data
     const dropDownData = useMemo(() => populateEstimateTypes(schema), [schema]);
     
+    /**
+     * This function handles the change of the selected preset.
+     * 
+     * @param {Object} selectedOption, the newly selected preset
+     */
     const handleChange = (selectedOption) => {
         setLoading(true);
         setSelectedType(selectedOption.value);

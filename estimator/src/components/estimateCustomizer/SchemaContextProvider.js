@@ -14,9 +14,16 @@ import { AuthContext } from '../authentication/AuthContextProvider';
 //Initialize the auth context
 export const SchemaContext = createContext(defaultSchema);
 
+/**
+ * This method provides the schema context to it's
+ * children components
+ * 
+ * @param {JSXElement} children
+ * @returns {JSXElement} schemaContextProvider
+ */
 const SchemaContextProvider = ({ children }) => {
 
-    //Pull in jwt
+    //Pull in JWT
     const {jwt} = useContext(AuthContext);
 
     //JWT header
@@ -38,8 +45,6 @@ const SchemaContextProvider = ({ children }) => {
             setLoading(false);
         });
     }, []);
-
-    //state for the java web toke
 
     //return a provider for auth context wrapped around
     //any children

@@ -10,19 +10,18 @@ import Editable from "../utilComponents/Editable";
 import lightEdit from "../../assets/LightEdit.png";
 import defaultSchema from "../JSONs/defaultEstimate.json"
 
-//Taken from pbelaustegui on github.com
-//https://github.com/jquense/yup/issues/345
+/**
+ * This method ensures that names of stages in the customizer
+ * are unique.
+ * 
+ * Taken from pbelaustegui on github.com
+ * https://github.com/jquense/yup/issues/345
+ */
 Yup.addMethod(Yup.array, 'unique', function (message, mapper= a=>a) {
     return this.test('unique', message, function (list) {
         return list.length  === new Set(list.map(mapper)).size;
     });
 });
-
-// Yup.addMethod(Yup.string, 'doesNotMatch', function (message) {
-//     return this.test('doesNotMatch', message, function () {
-        
-//     });
-// })
 
 //Yup schema
 const validationSchema = Yup.object().shape({
@@ -45,23 +44,32 @@ const validationSchema = Yup.object().shape({
     })).unique("Duplicate names", a=>a.canonicalName)
 });
 
-//Default stage
+//Default stage taken from default schema JSON
 const defaultStage = {...defaultSchema.form[0]};
+//Default name for a stage
 defaultStage.canonicalName = "Default";
 
-//Submit function
+/**
+ * The submit function of the estimate customizer
+ * 
+ * @param {Object} values, values from the Formik Form
+ * @param {Object} props, the schema being modified
+ */
 const submit = (values, props) => {
     props.setSchema(values, props.index);
 }
 
 /**
- * This function maps over stages and displays them in the modal window
- * @param {Object} props 
+ * This function maps over stages in the current schema passed from the chosen
+ * preset and displays them in the modal window.
+ * 
+ * @param {Object} props, values passed from preset
  * @returns JSX element
  */
 function Preset(props){
     return(
         <div className="PresetWrapper">
+            {/*Form settings*/}
             <Formik
                 initialValues={{...props.preset}}
                 onSubmit={(values) => {
@@ -71,6 +79,7 @@ function Preset(props){
             >
                 {({values}) => (
                 <Form>
+                    {/*Preset name inpute field */}
                     <Editable path={lightEdit}>
                         <Field className="EstimateTypeTitle NoInputStyle" id="estimateType" name="estimateType" />
                     </Editable>
@@ -78,10 +87,12 @@ function Preset(props){
                     <FieldArray name="form">
                         {({remove, push, move}) => (
                             <div className="InnerFieldArray">
+                                {/*Map over the stages of the form*/}
                                 {values.form.length > 0 && values.form.map((value, index) => (
                                     <Fields path={`form[${index}].fields`} formValues={values} index={index} remove={remove} move={move}/>
                                 ))}
                                 <div className="AddButtonWrapper">
+                                    {/*Add a stage button*/}
                                     <button
                                         type="button"
                                         className="button medium"

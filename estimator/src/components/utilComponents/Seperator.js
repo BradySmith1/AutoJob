@@ -1,5 +1,18 @@
+/**
+ * @version 1, March 17th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This component is simply a customizeable seperator bar
+ */
 import React, { useEffect } from "react";
 
+/**
+ * Function to set the styles of the seperator
+ * @param {Object} props, prop styles 
+ * @param {Object} barStyle, default bar style object
+ * @returns 
+ */
 const setStyles = (props, barStyle) => {
     var newStyles = {...barStyle};
     for(const [key] of Object.entries(barStyle)){
@@ -10,6 +23,12 @@ const setStyles = (props, barStyle) => {
     return newStyles;
 }
 
+/**
+ * This function returns the JSX of this component
+ * 
+ * @param {Obejct} props, prop style object 
+ * @returns {JSXElement} Seperator
+ */
 function Seperator(props){
 
     var barStyle = {

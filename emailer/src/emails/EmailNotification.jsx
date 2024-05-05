@@ -1,3 +1,11 @@
+/**
+ * @version 1, April 14th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This file is the email HTML template componant
+ * using react-email.
+ */
 import {
   Body,
   Container,
@@ -9,11 +17,18 @@ import {
 import { Tailwind } from "@react-email/tailwind";
 import * as React from "react";
 
+//Grand total value
 var grandTotal = 0;
 
+/**
+ * This functio returns the JSX element for the email html
+ * @param {Object} props, props passed down from the email script
+ * @returns {JSXElement} EmailNotification
+ */
 export default function EmailNotification(props) {
-
+  //Total variable
   var total = 0;
+  //Calculate grand total
   props.estimateData.schema.form.forEach((stage, index) => {
       for(var i = 0; i < props.estimateData.form[index][stage.canonicalName].length; i++){
           console.log(props.estimateData.form[index][stage.canonicalName]);
@@ -21,6 +36,7 @@ export default function EmailNotification(props) {
               props.estimateData.form[index][stage.canonicalName][i].quantity);
       }
   })
+  //Round grand total
   grandTotal = total.toFixed(2);
 
   return (

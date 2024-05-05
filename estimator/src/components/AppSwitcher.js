@@ -19,6 +19,11 @@ import Lib from "../assets/library.png"
 import "./AppSwitcher.css";
 import SchemaContextProvider from "./estimateCustomizer/SchemaContextProvider";
 
+/**
+ * This function returns the JSX element for this component
+ * 
+ * @returns {JSXElement}, AppSwitcher
+ */
 function AppSwitcher(){
     //Current page
     const [page, setPage] = useState(0);

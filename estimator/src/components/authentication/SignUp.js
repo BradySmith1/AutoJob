@@ -20,12 +20,14 @@ function SignUp(props){
 
     //Set up formik
     const formik = useFormik({
+        //Initial values for the signup input fields
         initialValues: {
             username: "",
             password: "",
             confirmPassword: "",
         },
 
+        //Validation schema for signup input fields
         validationSchema: Yup.object({
             username: Yup.string()
                 .email("Must be an email address.")
@@ -38,6 +40,12 @@ function SignUp(props){
                 .required("Required"),
         }),
 
+        /**
+         * Submit function for the signup form.
+         * 
+         * @param {Object} values, values from the form.
+         * @param {Function} resetForm, resets the form to initial values.
+         */
         onSubmit: async (values, { resetForm }) => {
             //refresh auth errors
             setAuthError("");
@@ -73,6 +81,7 @@ function SignUp(props){
                 <h1>Sign Up</h1>
             </div>
             <form id="logIn" onSubmit={formik.handleSubmit}>
+                {/*Email input field*/}
                 <div className="headerAndInput">
                     <h2>Email</h2>
                     <input 
@@ -86,6 +95,7 @@ function SignUp(props){
                     />
                     {formik.touched.username && formik.errors.username ? <p className="Error">{formik.errors.username}</p> : null}
                 </div>
+                {/*Password input field*/}
                 <div className="headerAndInput">
                     <h2>Password</h2>
                     <input 
@@ -98,6 +108,7 @@ function SignUp(props){
                     />
                     {formik.touched.password && formik.errors.password ? <p className="Error">{formik.errors.password}</p> : null}
                 </div>
+                {/*Confirm password input field*/}
                 <div className="headerAndInput">
                     <h2>Confirm Password</h2>
                     <input 
@@ -111,6 +122,7 @@ function SignUp(props){
                     {formik.touched.confirmPassword && formik.errors.confirmPassword ? <p className="Error">{formik.errors.confirmPassword}</p> : null}
                 </div>
                 <p className="Error">{authError}</p>
+                {/*Submit button*/}
                 <input
                     className="btn logInBtn"
                     type="submit"
@@ -118,6 +130,7 @@ function SignUp(props){
                 />
             </form>
             <h3>Already Have an Account?</h3>
+            {/*Switch to log in button*/}
             <button onClick={() => {
                     //Show the log in page
                     props.setLoggedIn(true);

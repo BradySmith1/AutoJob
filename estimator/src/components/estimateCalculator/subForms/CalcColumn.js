@@ -17,6 +17,7 @@ function CalcColumn(props){
     return(
         <div className='col'>
             <div className='label' >{props.schema.name}</div>
+                {/*Input for a field*/}
                 <Field
                     name={props.path}
                     placeholder=""

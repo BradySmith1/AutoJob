@@ -1,8 +1,18 @@
+/**
+ * @version 1, April 14th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This file is the pdf template componant
+ * using react-pdf.
+ */
 import React, { useMemo } from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
+//Get the current date
 const date = new Date();
 
+//Get the day month and year
 const day = date.getDate();
 const month = date.getMonth() + 1;
 const year = date.getFullYear();
@@ -66,6 +76,13 @@ const styles = StyleSheet.create({
   }
 });
 
+/**
+ * This function gets the total from an array
+ * of billables.
+ * 
+ * @param {Array} arr, array of billables 
+ * @returns {number} rounded total
+ */
 function getTotal(arr){
   var total = 0;
   //Loop through billables
@@ -76,6 +93,12 @@ function getTotal(arr){
   return total.toFixed(2);
 }
 
+/**
+ * This function creates a JSX element for a field
+ * @param {Object} field, field schema 
+ * @param {Object} billable, billable data 
+ * @returns {JSXElement} jsxElement
+ */
 function displayOverviewFields(field, billable){
   var jsxElement = (null);
   if(field.name === "Name"){
@@ -90,11 +113,21 @@ function displayOverviewFields(field, billable){
   return jsxElement;
 }
 
+//Grand total variable
 var grandTotal = 0;
 
-// Create Document Component
+/**
+ * This function returns the jsx element for this
+ * pdf component.
+ * 
+ * @param {Object} props, estimate data passed down from the emailer script 
+ * @returns {JSXElement} BillPDF
+ */
 const BillPDF = (props) => {
   
+  /**
+   * This memoiezed function calculates the grand total of the estimate
+   */
   useMemo(() => {
     var total = 0;
     props.estimateData.schema.form.forEach((stage, index) => {
@@ -105,7 +138,7 @@ const BillPDF = (props) => {
         }
     })
     grandTotal = total.toFixed(2);
-}, []);
+  }, []);
 
   return (
     <Document>

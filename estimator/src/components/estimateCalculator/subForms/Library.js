@@ -90,22 +90,24 @@ function Library(props){
     const [library, setLibrary] = useState([]);
     //Use state for the search string
     const [searchStr, setSearchStr] = useState("");
-    //Use state to determine whether or not to display the add
-    //billabel popup form
     //Use state to determine if we have recieved the data we need from the server
     const [loading, setLoading] = useState(true);
-
     //error for get request
     const [getError, setGetError] = useState(false);
     //error for remove
     const [removeError, setRemoveError] = useState(false);
     //error for add
     const [addError, setAddError] = useState(false);
+    //Current billable that is being price scanned
     const [scanBillable, setScanBillable] = useState({billable: null, index: 0});
-
+    //Display controller
     const [displays, setDisplays] = useState({addToLibrary: false, scraper: false});
 
+    //Object with methods to control the current displayed popup
     const displayControls = {
+        /**
+         * This method clears any component being displayed
+         */
         clearDisplays: () =>{
             var newDisplays = {}
             for(const key of Object.keys(displays)){
@@ -113,6 +115,11 @@ function Library(props){
             }
             setDisplays(() => newDisplays)
         },
+        /**
+         * This method changes what component is being displayed
+         * @param {string} type, the type of component being displayed 
+         * @param {boolean} bool, the display state of the new component
+         */
         changeDisplay: (type, bool) => {
             var newDisplays = {...displays}
             for(const key of Object.keys(displays)){

@@ -24,11 +24,13 @@ function LogIn(props){
 
     //Set up formik
     const formik = useFormik({
+        //Initial values for the login input fields
         initialValues: {
             username: "",
             password: ""
         },
 
+        //Validation schema for login input fields
         validationSchema: Yup.object({
             username: Yup.string()
                 .email("Must be an email address.")
@@ -38,6 +40,12 @@ function LogIn(props){
                 .required("Required"),
         }),
 
+        /**
+         * Submit function for the login form.
+         * 
+         * @param {Object} values, values from the form.
+         * @param {Function} resetForm, resets the form to initial values.
+         */
         onSubmit: (values, { resetForm }) => {
             //Refresh any errors
             setAuthError("");
@@ -72,6 +80,7 @@ function LogIn(props){
                 <h1>Log In</h1>
             </div>
             <form id="logIn" onSubmit={formik.handleSubmit}>
+                {/*Username input field*/}
                 <div className="headerAndInput">
                     <h2>Email</h2>
                     <input 
@@ -85,6 +94,7 @@ function LogIn(props){
                     />
                     {formik.touched.username && formik.errors.username ? <p className="Error">{formik.errors.username}</p> : null}
                 </div>
+                {/*Password input field*/}
                 <div className="headerAndInput">
                     <h2>Password</h2>
                     <input 
@@ -97,6 +107,7 @@ function LogIn(props){
                     />
                     {formik.touched.password && formik.errors.password ? <p className="Error">{formik.errors.password}</p> : null}
                 </div>
+                {/*Submit button*/}
                 <input
                     className="btn logInBtn"
                     type="submit"
@@ -105,6 +116,7 @@ function LogIn(props){
                 <p className="Error">{authError}</p>
             </form>
             <h3>Don't have an account?</h3>
+            {/*Sign up button*/}
             <button 
                 onClick={() => {
                     //On click, swap to sign up page

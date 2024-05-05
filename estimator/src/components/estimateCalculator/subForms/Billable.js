@@ -81,8 +81,10 @@ function useOutsideAlerter(ref, setDisplay) {
    */
 function Billable(props){
 
-    const {jwt, setJwt} = useContext(AuthContext);
+    //Pull in jwt from AuthContext
+    const {jwt} = useContext(AuthContext);
 
+    //Set JWT headers for axios
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
@@ -95,6 +97,7 @@ function Billable(props){
     const [display, setDisplay] = useState(false);
     //Ref for the click alerter
     const wrapperRef = useRef(null);
+    //Pull in addMessage function from notification context
     const {addMessage} = useContext(NotificationContext);
     //Call the click alerter 
     useOutsideAlerter(wrapperRef, setDisplay);
@@ -146,6 +149,7 @@ function Billable(props){
                 {props.insertBillable !== undefined ? 
                     ((!props.billable.imported ? 
                         (
+                            //Import button
                             <button
                                 type="button"
                                 className="btn"
@@ -176,23 +180,26 @@ function Billable(props){
                             data-tooltip-content="Turn off auto price updates"
                             data-tooltip-place="top"
                         >
+                            {/*Checkmark button*/}
                             <img src={check} className="CheckMark" onClick={() => {
                                 var newBillable = {...props.billable};
                                 newBillable.data.autoUpdate = "false";
                                 props.modifyLibrary(props.index, newBillable.data);
+
                                 axios.put('/api/library?_id=' + newBillable.data._id.$oid, newBillable.data).then((respone) => {
                                     console.log(respone);
+
                                 }).catch((error) => {
-                                    console.log(error);
-                                    console.log(error.message)
                                     addMessage("Network error, could not update price.", 5000);
                                     var oldBillable = {...newBillable};
                                     oldBillable.data.autoUpdate = 'true';
                                     props.modifyLibrary(props.index, oldBillable.data);
+
                                 })
                             }}/>
                         </a>
                     ) : (null)}
+                    {/*More options button*/}
                     <button
                         type="button"
                         className="btn openOptions"
@@ -203,6 +210,9 @@ function Billable(props){
                             var offsets = document.getElementById(props.index).getBoundingClientRect();
                             var menuOffset = offsets.right;
                             var thisBillable = document.getElementById(billableID);
+                            //Very specific numbers to set the menu to the right place on screen
+                            //Only God knows why these numbers work now
+                            //Rewrite this if you have time
                             if(window.innerWidth < 1176){
                                 thisBillable.style.left = menuOffset - 260 + "px";
                             }else{
@@ -219,6 +229,7 @@ function Billable(props){
                 {display ? 
                     (
                         <div className="optionsMenu">
+                            {/*Auto import button*/}
                             <div
                                 className="optionsButton tickBox"
                                 onClick={() => {
@@ -238,6 +249,7 @@ function Billable(props){
 
                                 </div>
                             </div>
+                            {/*Price scan button */}
                             <div
                                 className="optionsButton tickBox middle"
                                 onClick={() => {
@@ -253,16 +265,17 @@ function Billable(props){
                                 </span>
 
                             </div>
+                            {/*Remove button*/}
                             <div
-                                    className="optionsButton remove"
-                                    onClick={() => {
-                                        //Here we are removing this element from the library
-                                        //when the x button is clicked
-                                        props.removeFromLibrary(props.index);
-                                        props.displayControls.clearDisplays();
-                                        setDisplay(false);
-                                    }}
-                                >
+                                className="optionsButton remove"
+                                onClick={() => {
+                                    //Here we are removing this element from the library
+                                    //when the x button is clicked
+                                    props.removeFromLibrary(props.index);
+                                    props.displayControls.clearDisplays();
+                                    setDisplay(false);
+                                }}
+                            >
                                     Remove from Library
                             </div>
                         </div>

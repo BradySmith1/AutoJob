@@ -14,9 +14,17 @@ import { AuthContext } from "../authentication/AuthContextProvider"
 import copy from "../../assets/copy_white.png"
 import "./Account.css"
 
+/**
+ * This function is the account page which lets the 
+ * user log out and tells the user the url of the
+ * customer estimate form.
+ * 
+ * @returns {JSXElement} Account
+ */
 function Account(){
     //Context used to set the jwt token
     const {jwt, setJwt, user} = useContext(AuthContext);
+    //State to keep track of if the link has been copied
     const [copied, setCopied] = useState(false);
 
     return(
@@ -37,6 +45,7 @@ function Account(){
                             className="Tooltip"
                             onMouseLeave={() => {setCopied(false)}}
                     >
+                    {/*Copy button*/}
                     <div className="Copy" onClick={() => {
                         setCopied(true);
                         navigator.clipboard.writeText(`localhost:3000/${user.id}`);

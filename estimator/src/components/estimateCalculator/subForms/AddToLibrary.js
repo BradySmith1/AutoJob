@@ -12,6 +12,13 @@ import './AddToLibrary.css';
 import { useFormik } from 'formik';
 import * as Yup from "yup"
 
+/**
+ * This method will determine the default value
+ * for inputs based on the unit given in the schema.
+ * 
+ * @param {string} unit
+ * @returns {string | Number} defaultValue
+ */
 function typeSwitch(unit){
     var defaultValue;
     switch(unit){
@@ -25,6 +32,14 @@ function typeSwitch(unit){
     return defaultValue;
 }
 
+/**
+ * This method generates the default fields for the
+ * initial values of a stage based off of the schema.
+ * 
+ * @param {Object} stage, stage schema
+ * @returns {Object[]} blankeFields, the initial values 
+ *                                   object of the stage
+ */
 function generateFields(selectedLib){
     var blankFields = {
         name: "",
@@ -47,6 +62,14 @@ function generateFields(selectedLib){
     return blankFields;
 }
 
+/**
+ * This function returns the correct type of
+ * validation schema for a field based of the
+ * unit field in the schema.
+ * 
+ * @param {string} unit 
+ * @returns {Yup.string() | Yup.number()} defaultValye
+ */
 function schemaSwitch(unit){
     var defaultValue;
     switch(unit){
@@ -63,8 +86,17 @@ function schemaSwitch(unit){
     return defaultValue;
 }
 
+/**
+ * This function genereates the valdiation schema for a stage
+ * of the estimate calculator from the preset
+ * schema.
+ * 
+ * @param {Object} stage, stage schema
+ * @returns {Object} object containing yup constraints
+ */
 function generateFieldSchema(stage){
     var blankSchema = {};
+    //Loop through fields of stage schema
     stage.fields.forEach((stage) => {
         if(stage.name !== "Name" && stage.name !== "Price" && stage.name !== "Quantity"){
             blankSchema[stage.name] = schemaSwitch(stage.unit);

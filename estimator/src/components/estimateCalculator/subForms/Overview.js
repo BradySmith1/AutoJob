@@ -10,7 +10,6 @@
 
 import React, {useState, useEffect} from "react";
 import './Overview.css';
-import billableList from '../../JSONs/billableList.json';
 
 /**
  * This function gets the totals of billables to
@@ -29,6 +28,14 @@ function getTotal(arr){
     return total.toFixed(2);
 }
 
+/**
+ * This funcntion decides how to display each field in the
+ * billable in the overview page.
+ * 
+ * @param {Object} field, field from data object 
+ * @param {Object} billable, billable data 
+ * @returns {JSXElement} jsxElement
+ */
 function displayOverviewFields(field, billable){
     var jsxElement = (null);
     if(field.name === "Name"){
@@ -56,9 +63,8 @@ function displayOverviewFields(field, billable){
  */
 function Overview(props){
 
-    console.log(props.schema)
-    console.log(props.values)
-
+   
+    //State for the grand total
     const [grandTotal, setGrandTotal] = useState(0);
 
     //On first render, get the grand total;

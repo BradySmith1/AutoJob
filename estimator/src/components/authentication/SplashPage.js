@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+/**
+ * @version 1, March 17th, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * This file is the splash page which displays information about the project
+ * and has buttons to either log in or sign up.
+ */
+import React from 'react';
 import "./SplashPage.css"
 import money from "../../assets/money.png"
 import time from "../../assets/clock.png"
 import effort from "../../assets/weakness.png"
 
+/**
+ * This function returns the JSX for the splash page.
+ * 
+ * @param {Object} props, values passed down from Authenticator
+ * 
+ * @returns {JSXElement} SplashPage
+ */
 function SplashPage(props){
 
     return(
@@ -13,6 +28,7 @@ function SplashPage(props){
                     <div className='IntroContentTitle'>
                         <h1 className='Title'>Auto Job</h1>
                         <h2>Create Estimates From Anywhere</h2>
+                        {/*Get started button (sign up)*/}
                         <button className='GetStartedButton' onClick={() => {
                             props.setLoggingIn(false);
                             props.toggleLogIn(true);
@@ -20,6 +36,7 @@ function SplashPage(props){
                             Get Started &gt;
                         </button>
                     </div>
+                    {/*Login button*/}
                     <div className='IntroContent'>
                         <div className='IntroOverlay'>
 

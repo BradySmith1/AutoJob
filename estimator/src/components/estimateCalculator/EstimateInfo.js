@@ -121,9 +121,12 @@ var userDropDown = {};
  */
 function EstimateInfo() {
 
+    //pull in jwt context
     const {jwt} = useContext(AuthContext);
+    //Pull in add message function from notification context
     const {addMessage} = useContext(NotificationContext);
 
+    //Set jwt in axios headers
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
@@ -234,9 +237,13 @@ function EstimateInfo() {
                 <>
                     <div className="customerInfo">
                         <span className="DeleteWrapper">
+                        {/*Delete Estimate Button*/}
                         <button className="xButton" onClick={() => {
                             console.log(currentCustomerData.user._id.$oid)
                             if(currentCustomerData._id === undefined){
+                                /**
+                                 * This response function will reset the drop downs when deleteing a new estimate
+                                 */
                                 axios.delete('/api/user?_id=' + currentCustomerData.user._id.$oid).then((response) => {
                                     var users = [...dropDown.users]
                                     users.splice(dropDown.users.map(e => e.user._id.$oid).indexOf(currentCustomerData.user._id.$oid), 1)
@@ -249,6 +256,9 @@ function EstimateInfo() {
                                     addMessage("Network Error, could not remove estimate", 5000)
                                 })
                             }else{
+                                /**
+                                 * This response function will reset the drop downs when deleteing a draft
+                                 */
                                 axios.delete('/api/estimate?_id=' + currentCustomerData._id.$oid).then((response) => {
                                     var drafts = [...dropDown.drafts]
                                     drafts.splice(dropDown.drafts.map(e => e._id.$oid).indexOf(currentCustomerData._id.$oid), 1)

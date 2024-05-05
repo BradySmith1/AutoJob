@@ -1,10 +1,26 @@
+/**
+ * @version 1, April 1st, 2024
+ * @author Andrew Monroe 
+ * @author Brady Smith
+ * 
+ * his component wraps children components in a 
+ * collapsable/expandable component.
+ */
 import React from "react";
 import { useState } from "react";
 import "./Expandable.css";
 import expandUp from "../../assets/expandUp.png"
 import expandDown from "../../assets/expandDown.png"
 
+/**
+ * This function returns the jsx element of the
+ * expandable component
+ * 
+ * @param {Object} props, values passed down from parent 
+ * @returns {JSXElement} Expandable
+ */
 function Expandable( props ){
+    //State for if the children are expanded or not
     const [expanded, setExpanded] = useState(false);
 
     return(

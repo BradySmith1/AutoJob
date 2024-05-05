@@ -35,6 +35,13 @@ function determineErrors(errors, schema) {
     return bool;
 }
 
+/**
+ * This method will determine the default value
+ * for inputs based on the unit given in the schema.
+ * 
+ * @param {string} unit
+ * @returns {string | Number} defaultValue
+ */
 function typeSwitch(unit){
     var defaultValue;
     switch(unit){
@@ -48,13 +55,24 @@ function typeSwitch(unit){
     return defaultValue;
 }
 
+/**
+ * This method generates the default fields for the
+ * initial values of a stage based off of the schema.
+ * 
+ * @param {Object} stage, stage schema
+ * @returns {Object[]} blankeFields, the initial values 
+ *                                   object of the stage
+ */
 function generateFields(stage){
+    //Some biolierplate fields
     var blankFields = {
         description: stage.canonicalName,
         autoImport: "false",
         autoUpdate: "false"
     }
+    //Bool to keep track of if this object contains the quantity field
     var containsQuantity = false;
+    //Loop through fields of the stage schema
     stage.fields.forEach((field) => {
         if(field.name === "Name"){
             blankFields.name = typeSwitch(field.unit);
@@ -70,6 +88,7 @@ function generateFields(stage){
             blankFields.inputs[field.name] = typeSwitch(field.unit);
         }
     })
+    //If no quantity field, set quantity to 1
     if(!containsQuantity){
         blankFields.quantity = 1;
     }
@@ -84,6 +103,7 @@ function generateFields(stage){
 function generateInitialValues(schema) {
     var initialValues = {form: []};
 
+    //Loop through stages of the schema
     schema.form.forEach((stage) => {
         var newStage = {};
         newStage[stage.canonicalName] = generateFields(stage);
@@ -92,6 +112,14 @@ function generateInitialValues(schema) {
     return initialValues;
 }
 
+/**
+ * This function returns the correct type of
+ * validation schema for a field based of the
+ * unit field in the schema.
+ * 
+ * @param {string} unit 
+ * @returns {Yup.string() | Yup.number()} defaultValye
+ */
 function schemaSwitch(unit){
     var defaultValue;
     switch(unit){
@@ -108,8 +136,17 @@ function schemaSwitch(unit){
     return defaultValue;
 }
 
+/**
+ * This function genereates the valdiation schema for a stage
+ * of the estimate calculator from the preset
+ * schema.
+ * 
+ * @param {Object} stage, stage schema
+ * @returns {Object} object containing yup constraints
+ */
 function generateFieldSchema(stage){
     var blankSchema = {};
+    //Loop through fields of stage schema
     stage.fields.forEach((stage) => {
         if(stage.name !== "Name" && stage.name !== "Price" && stage.name !== "Quantity"){
             blankSchema[stage.name] = schemaSwitch(stage.unit);
@@ -135,27 +172,39 @@ function generateFieldSchema(stage){
 
 /**
  * Automatically generates a Yup validation schema based off the
- * billableList schema
- * @returns formValidation
+ * billableList schema.
+ * 
+ * @returns {Yup.object()} formValidation
  */
 function generateYupSchema(schema) {
 
     var blankSchema = { };
+    //Loop through the stage schemas
     schema.form.forEach((stage) => {
         blankSchema[stage.canonicalName] = Yup.array(Yup.object().shape(
             generateFieldSchema(stage)
         ));
     });
+
     var arraySchema = Yup.object().shape({
         form: Yup.array(Yup.object().shape(blankSchema))
     });
     return arraySchema;
 }
 
+/**
+ * This method synchs the auto imports to the current schema so that
+ * any inputs added to the schema but not the billable will be initialized
+ * @param {Object} stageSchema 
+ * @param {Object} data 
+ * @returns {Object} dataStage, synched stage
+ */
 function synchSchema(stageSchema, data){
     var dataStage = {...data};
+    //Loop through fields of the schema
     stageSchema.fields.forEach((field) => {
         if(field.name !== "Name" && field.name !== "Price" && field.name !== "Quantity"){
+            //Loop through the fields of the stage
             dataStage[stageSchema.canonicalName].forEach((dataField) => {
                 if(dataField.inputs === undefined){
                     dataField.inputs = {};
@@ -173,13 +222,16 @@ function synchSchema(stageSchema, data){
  * This method changes the initial values if estimateInfo
  * has passed down pre-existing data in the form of drafts
  * or auto imports.
+ * 
  * @param {JSON} initialValues the values of the form
  * @param {JSON} data estimate data passed down from estimate info
  */
 function determineBillables(initialValues, data, schema) {
     var localValues = {...initialValues}
     var localData = {...data}
+    //Loop through the stages of the schema
     schema.form.forEach((stage, index) => {
+        //Loop through the stages of the data
         localData.form.forEach((tempStage) => {
             var dataStage = {...tempStage}
             if(dataStage !== undefined && dataStage.hasOwnProperty(stage.canonicalName)){
@@ -189,14 +241,6 @@ function determineBillables(initialValues, data, schema) {
     });
     console.log(localValues)
     return localValues;
-
-    // for (const key of Object.keys(initialValues)) {
-    //     if (data.hasOwnProperty(key)) {
-    //         initialValues[key] = data[key];
-    //     } else {
-    //         initialValues[key] = billableSchema;
-    //     }
-    // }
 }
 
 /**
@@ -209,8 +253,10 @@ function determineBillables(initialValues, data, schema) {
  */
 function Estimator(props) {
 
+    //Pull in JWT from auth context
     const {jwt} = useContext(AuthContext);
 
+    //Set JWT header in axios
     axios.defaults.headers.common = {
         "Authorization": jwt
     }
@@ -223,19 +269,16 @@ function Estimator(props) {
 
     //Nav index for keeping track of what stage of the form the user is on
     const [navIndex, setNavIndex] = useState(0);
+    //Boolean for if the estimate has been saved as a draft
     const [saved, setSaved] = useState(false);
+    //Error for if submission doesn't work
     const [postError, setPostError] = useState(false);
-    // const [formValues, setFormValues] = useState(initialValues);
 
-    // useMemo(() => {
-    //     setFormValues(determineBillables(initialValues, props.data, props.schema))
-    //     console.log(formValues)
-    // }, []);
 
     /**
      * Helper function to reload the page on submit
      * or save on draft
-     * @param {*} status the status of the estimate
+     * @param {string} status the status of the estimate
      */
     const handleSubmission = (status) => {
         if (status === "complete") {
@@ -257,8 +300,6 @@ function Estimator(props) {
         if(props.data._id !== undefined){
             estimateData._id = props.data._id;
         }
-
-        console.log(estimateData);
 
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
@@ -296,6 +337,7 @@ function Estimator(props) {
                 <div className='formNav'>
                     {/**Map over billable list schema to determine form navigation buttons */}
                     {props.schema.form.map((stage, index) => (
+                        //Stage button
                         <button className='button' key={stage.canonicalName + index}
                             onClick={() => { setNavIndex(index) }}>
                             {stage.canonicalName}

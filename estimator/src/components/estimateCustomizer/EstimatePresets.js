@@ -12,8 +12,8 @@ import edit from "../../assets/edit.png";
 import Close from "../../assets/Close.png"
 import Window from "../utilComponents/Window";
 import Preset from "./Preset";
-import Left from "../../assets/Up.png"
-import Right from "../../assets/Down.png"
+// import Left from "../../assets/Up.png"
+// import Right from "../../assets/Down.png"
 
 //Character length of the string containing the stages
 const fieldsLength = 97;
@@ -68,17 +68,24 @@ function EstimatePreset(props) {
                         data-tooltip-place="bottom"
                         className="Tooltip"
                 >
+                    {/*Edit Preset button*/}
                     <img src={edit} className="EditImg" onClick={() => {
                         setDisplay(true);
                     }}/>
                 </a>
             </span>
+
+            {/*These buttons allow for the estimate presets to be swapped around, but
+               they are commented out as we never got around to adding synch functionality
+               for this on the backend.*/}
+
             {/* <img src={Left} className="EditImg ImgLeft" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index - 1);
             }}/>
             <img src={Right} className="EditImg ImgRight" onClick={() => {
                 props.schemaUtils.swap(props.index, props.index + 1);
             }}/> */}
+
             <span className="ImgEdit left">
                 <a
                         data-tooltip-id="menu-tooltip"
@@ -86,12 +93,14 @@ function EstimatePreset(props) {
                         data-tooltip-place="bottom"
                         className="Tooltip"
                 >
+                    {/*Remove preset button*/}
                     <img src={Close} className="EditImg ImgX" onClick={() => {
                         props.schemaUtils.remove(props.index);
                     }}/>
                 </a>
             </span>
             {display ? (
+                //Modal window containing form for a preset
                 <Window setDisplay={setDisplay}>
                     <div className="WindowContainer">
                         <Preset preset={props.estimate} setSchema={props.schemaUtils.change} index={props.index}/>

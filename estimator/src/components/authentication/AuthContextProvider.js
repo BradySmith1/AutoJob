@@ -17,6 +17,13 @@ export const AuthContext = createContext({
     setUser: () => {}
 });
 
+/**
+ * The provider for the AutheContext that contains the jwt and
+ * user information. Visible to entire application.
+ * 
+ * @param {JSXElement} children, child components
+ * @returns {JSXElement} AuthContextProvider
+ */
 const AuthContextProvider = ({ children }) => {
     //state for the java web token
     const [jwt, setJwt] = useState("0");

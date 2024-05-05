@@ -14,7 +14,16 @@ import Library from './Library';
 import billableList from '../../JSONs/billableList.json';
 import CalcColumn from './CalcColumn';
 
-
+/**
+ * Function to display an formik input field
+ * basded on given name
+ * 
+ * @param {Object} field, schema field 
+ * @param {number} schemaIndex 
+ * @param {Object} props, values passed down from Estimator
+ * @param {number} billableIndex, index of billable in schema 
+ * @returns 
+ */
 function displayCalcColumn(field, schemaIndex, props, billableIndex){
     var jsxObject = (null);
     if(field.name === "Name"){
@@ -45,8 +54,7 @@ function Calculator(props){
 
     //Use state used to keep track of if the material libaray should be displayed or not.
     const [display, setDisplay] = useState(false);
-    //Formik name, derrived from the props.name, used to name input fields
-
+    //Memoeized function to generate the default billable
     const [defaultBillable] = useMemo((() => props.generateFields(props.schema)), [props.schema])
 
     // console.log(props.path)
@@ -64,6 +72,7 @@ function Calculator(props){
                     {props.values.length > 0 &&
                     props.values.map((value, billableIndex) => (
                         <div className="row" key={index}>
+                            {/*Display a row of fields */}
                             <div className='fieldsContainer'>
                                 {props.schema.fields.map((field, schemaIndex) => (
                                     displayCalcColumn(field, schemaIndex, props, billableIndex)
@@ -101,6 +110,7 @@ function Calculator(props){
                     ))}
                     {/*In this on click fuction, we are pushing a new empty billable to the array*/}
                     <div className='AddImportWrapper'>
+                        {/*Add button*/}
                         <button
                             type="button"
                             className="button medium"
@@ -108,7 +118,8 @@ function Calculator(props){
                         >
                             + Add to {props.schema.canonicalName}
                         </button>
-                        {/**In this click function, we are setting display to true so that we can display the material library */}
+                        {/**In this click function, we are setting display to true so that we can display the material library*/}
+                        {/*Import button*/}
                         <button
                             type="button"
                             className="button medium"

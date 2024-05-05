@@ -17,14 +17,22 @@ import { AuthContext } from "../authentication/AuthContextProvider";
 import { NotificationContext } from "../utilComponents/NotificationProvider";
 import { Buffer } from "../utilComponents/Buffer";
 
-var count = 0;
+//Create an id buffer used to add id's to new preset schemas
 var idBuffer = new Buffer(10, '/api/generate_id/20', (data) => {return data});
 
+/**
+ * This function is the root component of the customizer page of
+ * the application. It lists estimate presets that can then be modified,
+ * added to, or deleted from.
+ * 
+ * @returns {JSXElement} Customizer
+ */
 function Customizer(){
     //const [schema, setSchema] = useState(schemaJSON);
     const {schema, setSchema} = useContext(SchemaContext);
     const {addMessage} = useContext(NotificationContext);
 
+    //Grab 30 id's to use.
     useMemo(() => {
         axios.get('/api/generate_id/30').then((response) => {
             console.log(response.data);
@@ -43,7 +51,7 @@ function Customizer(){
     //An object containing helper functions for the schema
     const schemaUtils = {
         /**
-         * Change, or modify a schema
+         * Change, or modify a schema.
          * 
          * @param {Object} values, new values for the schema 
          * @param {Number} index, index of the schema to change 
@@ -52,8 +60,6 @@ function Customizer(){
             const oldSchema = [...schema];
             var newSchema = [...schema];
             var newValues = {...values};
-
-            console.log(oldSchema[index]);
 
             //Add new id's
             newValues.form.forEach((stage) => {
@@ -74,7 +80,8 @@ function Customizer(){
             });
         },
         /**
-         * swap two schemas in the array
+         * swap two schemas in the array of 
+         * preset schemas.
          * 
          * @param {Number} fromIndex 
          * @param {Number} toIndex 
@@ -88,15 +95,17 @@ function Customizer(){
             }
         },
         /**
-         * Remove a schema from the array
+         * Remove a schema from the array of
+         * preset schemas
          * 
          * @param {Number} index 
          */
         remove: (index) => {
+            //If the schema is not empty and remove index is in bounds
             if((schema.length > 1) && (index >= 0 && index < schema.length)){
                 var copySchema = [...schema];
-                const oldSchema = [...schema]
-                copySchema.splice(index, 1);
+                const oldSchema = [...schema];
+                copySchema.splice(index, 1);       
                 setSchema(copySchema);
                 axios.delete('/api/schema?presetID=' + schema[index].presetID).then((response) => {
                     console.log(response);
@@ -107,7 +116,9 @@ function Customizer(){
             }
         },
         /**
-         * Add a schema to the array
+         * Add a schema to the array of preset
+         * schemas.
+         * 
          * @param {Object} element, the new schema to add 
          */
         push: (element) => {
@@ -135,9 +146,11 @@ function Customizer(){
                 <h1>Estimate Presets</h1>
             </div>
             <div className="PresetsWrapper">
+                {/*Map over preset schemas*/}
                 {schema.map((estimate, index) => {
                     return(<EstimatePreset id={index + estimate.estimateType} estimate={estimate} schemaUtils={schemaUtils} index={index}/>);
                 })}
+                {/*Add estimate button*/}
                 <div className="AddEstimatePreset" onClick={() => {
                     schemaUtils.push({...defaultEstimate});
                 }}>

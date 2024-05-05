@@ -15,8 +15,15 @@ import { AuthContext } from "./AuthContextProvider";
 import { getCookie } from "../utilComponents/Functions";
 import SplashPage from "./SplashPage";
 
+/**
+ * This function returns the JSX element for this component
+ * @param {Object} props 
+ * @returns {JSXElement} Authenticator.
+ */
 function Authenticator(props){
 
+    //Bool to show the login/signup page or show the
+    //Splash page
     const [showLogIn, setShowLogin] = useState(false);
 
     //Is the user logging in or signing up
@@ -47,7 +54,9 @@ function Authenticator(props){
 
     return(
         <div className="AuthWrapper">
+            {/*Show login/signup page or splash page*/}
             {showLogIn ?
+                {/*Show login page or signup page*/}
                 (loggedIn ? 
                         (<LogIn 
                             authenticate={props.authenticate}
