@@ -64,18 +64,20 @@ function Scanner(props){
     //State value for the stage of the price search
     const [searching, setSearching] = useState('none');
     //State for the selected company
-    const [company, setCompany] = useState('homedepot');
+    const [company, setCompany] = useState((props.scanBillable.billable.data.company !== undefined ? (props.scanBillable.billable.data.company) : ('homedepot')));
     //addMessage function from notification context
     const {addMessage} = useContext(NotificationContext);
     //State for error message
     const [error, setError] = useState('');
     //State to hold the found item
     const [foundItem, setFoundItem] = useState({});
+    //Current zip
+    const [zip, setZip] = useState(0);
 
     const formik = useFormik({
         //Declare initial values for the form
         initialValues: {
-            zip: "",
+            zip: (props.scanBillable.billable.data.zip !== undefined ? (props.scanBillable.billable.data.zip) : ("")),
             name: props.scanBillable.billable.data.name
         },
 
@@ -105,6 +107,7 @@ function Scanner(props){
                 }
                 console.log(response.data)
                 setFoundText(response.data.name, response.data.price.toFixed(2), response.data.store_number);
+                setZip(values.zip);
                 setFoundItem(response.data);
                 setSearching('found');
                 
@@ -240,6 +243,8 @@ function Scanner(props){
                                         var newBillable = {...props.scanBillable};
                                         console.log(newBillable.billable.data.autoUpdate);
                                         newBillable.billable.data.autoUpdate = "true";
+                                        newBillable.billable.data.company = company;
+                                        newBillable.billable.data.zip = String(zip);
                                         props.modifyLibrary(props.scanBillable.index, newBillable.billable.data);
 
                                         axios.put('/api/library?_id=' + newBillable.billable.data._id.$oid, newBillable.billable.data).then((respone) => {

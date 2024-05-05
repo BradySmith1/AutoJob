@@ -56,7 +56,7 @@ function Authenticator(props){
         <div className="AuthWrapper">
             {/*Show login/signup page or splash page*/}
             {showLogIn ?
-                {/*Show login page or signup page*/}
+                /*Show login page or signup page*/
                 (loggedIn ? 
                         (<LogIn 
                             authenticate={props.authenticate}

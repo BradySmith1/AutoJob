@@ -304,7 +304,7 @@ function Estimator(props) {
         //If this has an id, we know it's a draft
         if (estimateData.hasOwnProperty("_id")) {
             //Put it to the database
-            axios.put('/api/estimate?_id=' + estimateData._id.$oid, estimateData, { timeout: 3000 }).then(() => {
+            axios.put('/api/estimate?_id=' + estimateData._id.$oid, estimateData, { timeout: 12000 }).then(() => {
                 //If complete, reload window
                 handleSubmission(status);
             }).catch((error) => {
@@ -317,7 +317,7 @@ function Estimator(props) {
                 props.setData({...props.data, _id: {$oid: response.data.insertedId.$oid}});
                 //If the status is complete, delete from user estimates and
                 //refresh the page
-                axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 3000 }).then(() => {
+                axios.delete(`/api/user?_id=${estimateData.user._id.$oid}`, { timeout: 12000 }).then(() => {
                     handleSubmission(status);
                 }).catch((error) => {
                     console.log(error.message);
