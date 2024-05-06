@@ -10,7 +10,7 @@
 import "./ImageCarousel.css"
 import React, { useState } from "react";
 
-const URLHEADER = "userimage?reference=";
+const URLHEADER = "/api/userimage?reference=";
 
 /**
  * This function returns the jsx component containing
@@ -26,6 +26,8 @@ function ImageCarousel(props){
     const [imgIndex, setImgIndex] = useState(0);
     //state for displaying the carousel
     const [display, setDisplay] = useState(false);
+
+    console.log(props.images)
 
     return(
         <div className="carouselContainer">
