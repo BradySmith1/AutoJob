@@ -1,9 +1,8 @@
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
-use crate::model::estimate_model::JobEstimate;
-use crate::model::schema_model::{FieldLayout, Schema, SchemeLayout};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data};
+use crate::model::schema_model::{Schema};
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
-use actix_web::web::{get, Path, Query};
+use actix_web::web::{Query};
 use actix_web::{delete, get, post, put, HttpResponse};
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;

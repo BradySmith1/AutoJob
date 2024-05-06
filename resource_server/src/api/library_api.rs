@@ -1,15 +1,12 @@
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data};
 use crate::model::billable_model::Billable;
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::utils::token_extractor::AuthenticationToken;
 use actix_web::web::Query;
-use actix_web::{delete, get, post, put, web::Path, HttpResponse};
-use mongodb::bson::oid::ObjectId;
+use actix_web::{delete, get, post, put, HttpResponse};
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
-use mongodb::Client;
 use std::string::String;
-use serde_json::Value;
 
 const COLLECTION: &str = "materialFeeLibrary";
 

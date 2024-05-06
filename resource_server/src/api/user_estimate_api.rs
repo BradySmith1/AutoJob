@@ -11,14 +11,12 @@ use actix_web::body::MessageBody;
 use actix_web::web::Query;
 use actix_web::{
     delete, get, post, put,
-    web::{Json, Path},
     Error, HttpRequest, HttpResponse, Responder,
 };
-use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
+use mongodb::bson::oid::ObjectId;
 use mongodb::results::UpdateResult;
 use serde_json::{json, Value};
-use crate::model::estimate_model::JobEstimate;
 
 const COLLECTION: &str = "userEstimates";
 
@@ -88,7 +86,7 @@ pub async fn create_user(
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
-    let doc = doc! {"_id": id.to_string()};
+    let doc = doc! {"_id": ObjectId::parse_str(id).unwrap()};
     let response = match db.update_document(doc, json_user).await{
         Ok(update) => update,
         Err(err) => {

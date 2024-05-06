@@ -1,15 +1,12 @@
-use std::io::Write;
 use std::process::Command;
-use crate::api::api_helper::{delete_data, get_all_data, get_data, post_data, push_update};
+use crate::api::api_helper::{delete_data, get_all_data, get_data};
 use crate::utils::token_extractor::AuthenticationToken;
 use crate::{model::estimate_model::JobEstimate, repository::mongodb_repo::MongoRepo};
-use actix_web::web::{Query, resource};
-use actix_web::{delete, get, post, put, web::Path, HttpResponse};
-use mongodb::bson::oid::ObjectId;
+use actix_web::web::{Query};
+use actix_web::{delete, get, post, put, HttpResponse};
 use mongodb::bson::{doc, Document};
 use std::string::String;
 use mongodb::results::UpdateResult;
-use crate::model::model_trait::Model;
 
 const COLLECTION: &str = "jobEstimates";
 
@@ -47,7 +44,7 @@ pub async fn create_estimate(auth_token: AuthenticationToken, new_user: String) 
     };
     if json.status.eq("complete") {
         let token = auth_token.userid.to_string() + "DB";
-        let output = Command::new("node")
+        let _ = Command::new("node")
             .current_dir("/home/brady/autojob/emailer")
             .arg("./build/index.js")
             .arg(result.inserted_id.as_object_id().unwrap().to_hex().to_string())

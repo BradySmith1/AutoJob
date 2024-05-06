@@ -1,6 +1,5 @@
 use actix_web::{HttpRequest, HttpResponse, post};
 use actix_web::cookie::{Cookie, SameSite};
-use actix_web::dev::ResourcePath;
 use crate::model::login_model::LoginRequest;
 use actix_web::web::Data;
 use mongodb::bson::doc;
