@@ -14,6 +14,7 @@ import SignUp from "./SignUp";
 import { AuthContext } from "./AuthContextProvider";
 import { getCookie } from "../utilComponents/Functions";
 import SplashPage from "./SplashPage";
+import { getCookie } from "../utilComponents/Functions";
 
 /**
  * This function returns the JSX element for this component
@@ -45,6 +46,7 @@ function Authenticator(props){
                 setUser({id: result.data.user_id});
                 props.authenticate(true);
             }).catch((error) => {
+                document.cookie = "AutoJobRefresh=;expires=" + new Date(0).toUTCString();
                 console.log(error);
             });
         } else if(jwt != 0){
