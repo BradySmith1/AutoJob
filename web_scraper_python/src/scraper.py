@@ -9,15 +9,22 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class WebScraper:
-    driver = None
-    company = None
-    material = None
-    store_number = None
-    options = webdriver.ChromeOptions()
-    page = None
-    timeout = 5
+    """
+    WebScraper class that is used to scrape the website for the material that was searched for.
+    """
+    driver = None  # Selenium webdriver
+    company = None  # Company to search for
+    material = None  # Material to search for
+    store_number = None  # Store number that is found from a zip code
+    options = webdriver.ChromeOptions()  # Options for the webdriver
+    page = None  # Source code that is returned.
+    timeout = 5  # Timeout for the webdriver
 
     def __init__(self, company=None):
+        """
+        Constructor for the WebScraper class. Initializes a bunch of arguments that are used to mimic a real web browser.
+        :param company: Company to search for
+        """
         self.company = company
         self.options.add_argument('authority=www.lowes.com')
         self.options.add_argument(
@@ -35,16 +42,24 @@ class WebScraper:
         self.options.add_argument('sec-fetch-site=same-origin')
         self.options.add_argument('sec-fetch-user=?1')
         self.options.add_argument('upgrade-insecure-requests=1')
+        self.options.add_argument("--start-maximized")
         self.options.add_argument(
             'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36')
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
-        # self.options.add_argument("--headless=new")
+        self.options.add_argument("--headless=new")
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_page(self, url, zip_code):
+        """
+        Gets the page source code from the website.
+        :param url: The url to scrape
+        :param zip_code: The zip code to search for
+        :return:
+        """
         self.driver.get(url)
+        # Depending on if the zip code is None or not, the scraper will search for the zip code.
         if zip_code is not None:
             if self.company == "lowes":
                 self.set_zipcode_lowes(zip_code)
@@ -60,15 +75,27 @@ class WebScraper:
         return page_parsed
 
     def set_material(self, material):
+        """
+        Sets the material to search for.
+        :param material: material to search for
+        """
         self.material = material
 
     def set_company(self, company):
+        """
+        Sets the company to search for.
+        :param company: Company to search for
+        """
         if company != "homedepot" and company != "lowes":
             raise NotImplementedError
         else:
             self.company = company
 
     def set_zipcode_homedepot(self, zip_code):
+        """
+        Sets the zip code for the homedepot website.
+        :param zip_code: Zip code to search for
+        """
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
         WebDriverWait(self.driver, self.timeout).until(
             lambda x: x.find_element(By.XPATH, "//div[@data-component=\"SearchInput\"]//input[position()=1]"))
@@ -81,13 +108,20 @@ class WebScraper:
         time.sleep(1)
 
     def set_store_number_homedepot(self):
+        """
+        Sets the store number for the homedepot website.
+        """
         self.driver.find_element(By.XPATH, "//button[@data-testid=\"my-store-button\"]").click()
         time.sleep(2)
         self.store_number = \
-        self.driver.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]").text.split("#")[
-            1]
+            self.driver.find_element(By.XPATH, "//h4[@data-testid=\"store-pod-name\"]//span[position()=2]").text.split(
+                "#")[
+                1]
 
     def get_products_homedepot(self):
+        """
+        Gets the products from the homedepot website.
+        """
         def find_product_price(product_price):
             temp = []
             try:
@@ -98,6 +132,11 @@ class WebScraper:
             return float(' '.join([str(elem) for elem in temp])[1:].replace(" ", "").replace("\t", ""))
 
         def find_product_details(product_details):
+            """
+            Finds the product details from the product.
+            :param product_details: The product details that are being searched through.
+            :return: The product details
+            """
             return product_details.find('span').string
 
         products = []
@@ -112,6 +151,10 @@ class WebScraper:
         return products
 
     def set_zipcode_lowes(self, zip_code):
+        """
+        Sets the zip code for the lowes website.
+        :param zip_code: The zip code to search for
+        """
         self.driver.find_element(By.ID, 'store-search-handler').click()
         WebDriverWait(self.driver, self.timeout).until(
             lambda x: x.find_element(By.XPATH, '//div[@class="inputContainer"]//input[position()=1]'))
@@ -131,12 +174,19 @@ class WebScraper:
             time.sleep(1)
 
     def set_store_number_lowes(self):
+        """
+        Sets the store number for the lowes website.
+        """
         self.driver.find_element(By.ID, 'store-search-handler').click()
         time.sleep(2)
         self.driver.find_element(By.XPATH, '//div[@class="detailsBtnWrapper"]//*[local-name() = \'svg\']').click()
         self.store_number = self.driver.find_element(By.XPATH, '//span[@class="storeNo"]').text.split("#")[1]
 
     def get_products_lowes(self):
+        """
+        Gets the products from the lowes website.
+        :return: The products that were found on the website.
+        """
         def find_product_price(product):
             temp = []
             for product_pieces in product.find_all():

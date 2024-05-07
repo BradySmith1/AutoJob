@@ -14,6 +14,7 @@ use actix_web::{
     Error, HttpRequest, HttpResponse, Responder,
 };
 use mongodb::bson::{doc, Document};
+use mongodb::bson::oid::ObjectId;
 use mongodb::results::UpdateResult;
 use serde_json::{json, Value};
 
@@ -85,7 +86,7 @@ pub async fn create_user(
     let mut user_value: Value = serde_json::from_str(user).unwrap();
     user_value["images"] = Value::from(references);
     let json_user = serde_json::from_value(user_value).unwrap();
-    let doc = doc! {"_id": id.to_string()};
+    let doc = doc! {"_id": ObjectId::parse_str(id).unwrap()};
     let response = match db.update_document(doc, json_user).await{
         Ok(update) => update,
         Err(err) => {
@@ -117,9 +118,9 @@ async fn save_files(form: UserEstimateUploadForm, id: &str) -> Result<Vec<Value>
     for f in form.files {
         let path = format!("{}{}", image_path, id);
         std::fs::create_dir_all(&path).expect("Could not create directories");
-        let path = format!("{}{}/{}", image_path, id, f.file_name.clone().unwrap());
+        let path = format!("{}{}/{}", image_path, id, f.file_name.clone().unwrap().replace(" ", "_"));
         f.file.persist(&path).unwrap();
-        let path = format!("{}/{}", id, f.file_name.unwrap());
+        let path = format!("{}/{}", id, f.file_name.unwrap().replace(" ", "_"));
         image_vec.push(json!({"reference": &path}));
     }
 

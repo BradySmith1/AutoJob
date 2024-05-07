@@ -8,11 +8,17 @@ from fuzzywuzzy import fuzz
 app = Flask(__name__)
 
 # Ratio for searching algorithm
-RATIO = 15
+RATIO = 25
 
 
 @app.route('/cache', methods=['GET'])
 def get_cached_materials():
+    """
+    First looks into the cache for the material. If it is not found, it will resort to scraping the website.
+
+    :return:
+    returns the material found in the cache or scraped from the website Or an error if there are any when scraping.
+    """
     name = request.args.get('name')
     name = name.replace("+", " ").replace("_", " ")
     company = request.args.get('company')
@@ -22,8 +28,6 @@ def get_cached_materials():
 
     # Checks cache
     # gets first material returned. Will have to redo this part of the code later
-    name_copy = name.replace(" ", "")
-    # TODO need to also add company to zip code cache to make sure that the store number is being found for the correct company.
     store_number = db_zipcode_collection.find_one({"zip": zip_code, "company": company})
     if store_number is not None:
         store_number = store_number.get("store_number")
@@ -31,11 +35,11 @@ def get_cached_materials():
         list_of_materials = db_material_collection.find({"company": company, "store_number": store_number})
         cache_returned = []
         for material in list_of_materials:
-            ratio = fuzz.ratio(material.get("name"), name_copy)
+            ratio = fuzz.ratio(material.get("name"), name)
             if ratio >= RATIO:
                 cache_returned.append(material)
         if cache_returned.__len__() > 0:
-            cache_returned = cache_returned[0]
+            cache_returned = cache_returned[0] # depending if we want more materials than one to be returned.
             ttl = cache_returned.get("ttl")
             if datetime.utcnow().timestamp() >= ttl:
                 db_material_collection.delete_one({"name": cache_returned.get("name"), "company": company})
@@ -58,7 +62,6 @@ def get_cached_materials():
     if store_number is None:
         db_zipcode_collection.insert_one({"zip": zip_code, "company": company,
                                           "store_number": scraped_material.get("store_number")})
-    # TODO might need to change the way i am cleaning the name of the material if i implement a better search algorithm
     material_name = scraped_material.get("name")
     material_name = material_name.replace(" ", "")
 
@@ -73,6 +76,13 @@ def get_cached_materials():
 
 
 def scrape_and_cache(name, company, zip_code):
+    """
+    Scrapes the website and returns all the products that were found on the website.
+    :param name: Name of the material that was searched for
+    :param company: Name of the company to search the material on
+    :param zip_code: Zip Code where to search.
+    :return:
+    """
     url_arg = build_url(company, name)
     scraper_instance.set_material(name)
     scraper_instance.get_page(url_arg, zip_code)
@@ -86,13 +96,19 @@ def scrape_and_cache(name, company, zip_code):
 
 
 def build_url(company_name, item_name):
+    """
+    Builds the url for the website to scrape.
+    :param company_name: Company name to search the item on
+    :param item_name: Item name to search for
+    :return:
+    """
     if company_name == "homedepot":
         url_arg = "https://www.homedepot.com/s/" + item_name
     else:
         url_arg = "https://www.lowes.com/search?searchTerm=" + item_name
     return url_arg
 
-
+# Entrance to the program, sets up global variables to be used in the program.
 if __name__ == "__main__":
     scraper_instance = scraper.WebScraper()
     client = pymongo.MongoClient("mongodb://localhost:27017/")
