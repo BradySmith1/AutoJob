@@ -27,6 +27,7 @@ use mongodb::bson::doc;
 /// an error message.
 #[post("/user/enroll")]
 pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpResponse{
+    // Parse the JSON object from the HTTP request to a login request
     let json: LoginRequest = match serde_json::from_str(&new_user){
         Ok(parsed_json) => parsed_json,
         Err(_) => {
@@ -35,12 +36,14 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
                 .body("Incorrect JSON object format from HTTPRequest Post request.")
         }
     };
+    // Salt and hash the password
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(json.password.as_bytes(), &salt).unwrap().to_string();
     let doc = doc! {
         "username": json.username.clone()
     };
+    // Check if the username already exists in the database
     let user = db.get_documents_by_attribute(doc).await;
     match user {
         Ok(vec) => {
@@ -51,12 +54,16 @@ pub async fn enroll_user(db: Data<MongoRepo<User>>, new_user: String) -> HttpRes
             },
         Err(_) => ()
     }
+
+    // Create a new user object
     let new_user: User = User{
         id: None,
         username: json.username,
         hashed_password: password_hash,
         date_created: chrono::Utc::now().to_string()
     };
+
+    // Add the new user to the database
     let returned_user = db.create_document(new_user).await;
     match returned_user {
         Ok(user) => return HttpResponse::Ok().json(user),
