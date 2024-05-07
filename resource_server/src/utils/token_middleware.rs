@@ -4,7 +4,7 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::http::header::HeaderValue;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    web, Error as ActixWebError, Error, FromRequest, HttpRequest, HttpResponse,
+    web, Error as ActixWebError, Error, HttpRequest,
 };
 use chrono::Utc;
 use futures_util::future::LocalBoxFuture;
@@ -14,7 +14,6 @@ use jsonwebtoken::{
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use std::future::{ready, Ready};
-use tokio::runtime::Runtime;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AuthenticationBody {

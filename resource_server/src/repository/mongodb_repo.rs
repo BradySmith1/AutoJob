@@ -5,7 +5,6 @@ use mongodb::event::cmap::ConnectionCheckoutFailedReason;
 use mongodb::event::cmap::ConnectionCheckoutFailedReason::ConnectionError;
 use mongodb::{
     bson,
-    bson::{doc, oid::ObjectId},
     options::ClientOptions,
     results::InsertOneResult,
     Client, Collection, Database,
@@ -19,7 +18,6 @@ use serde_json::json;
 
 /// A struct representing a MongoDB repository for user estimates.
 pub struct MongoRepo<T> {
-    db: Database,
     col: Collection<T>,
 }
 
@@ -62,7 +60,7 @@ impl<T: Model<T>> MongoRepo<T> {
         };
         let db: Database = client.database(&*(db_name.to_owned() + "DB"));
         let col: Collection<T> = db.collection(collection_name);
-        MongoRepo { db, col }
+        MongoRepo { col }
     }
 
     /// This function creates a new user estimate in the userEstimate collection.
@@ -186,14 +184,8 @@ impl<T: Model<T>> MongoRepo<T> {
         Ok(users)
     }
 
-    pub fn set_collection(&mut self, collection: Collection<T>) {
-        self.col = collection;
-    }
     pub fn get_collection(&self) -> &Collection<T> {
         &self.col
     }
 
-    pub fn set_database(&mut self, db: Database) {
-        self.db = db;
-    }
 }

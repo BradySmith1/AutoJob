@@ -3,7 +3,6 @@ use mongodb::bson::oid::ObjectId;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use std::collections::HashMap;
-use std::fmt::Display;
 
 /// Represents a material or fee. This will be used to represent a material or in the materials
 /// array.

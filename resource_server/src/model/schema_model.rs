@@ -1,5 +1,4 @@
 use crate::model::model_trait::Model;
-use mongodb::bson::oid::ObjectId;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 use serde_derive::{Deserialize, Serialize};

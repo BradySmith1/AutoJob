@@ -11,14 +11,11 @@ use actix_web::body::MessageBody;
 use actix_web::web::Query;
 use actix_web::{
     delete, get, post, put,
-    web::{Json, Path},
     Error, HttpRequest, HttpResponse, Responder,
 };
-use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
 use mongodb::results::UpdateResult;
 use serde_json::{json, Value};
-use crate::model::estimate_model::JobEstimate;
 
 const COLLECTION: &str = "userEstimates";
 
