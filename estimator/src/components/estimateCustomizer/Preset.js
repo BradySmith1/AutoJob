@@ -1,6 +1,6 @@
 import React from "react";
 import Seperator from "../utilComponents/Seperator";
-import { Formik, Field, Form, FieldArray } from "formik";
+import { Formik, Field, Form, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Fields from "./Fields";
 import "./Preset.css";
@@ -80,13 +80,18 @@ function Preset(props) {
         {({ values }) => (
           <Form>
             {/*Preset name inpute field */}
-            <Editable path={lightEdit}>
-              <Field
-                className="EstimateTypeTitle NoInputStyle"
-                id="estimateType"
-                name="estimateType"
-              />
-            </Editable>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Editable path={lightEdit}>
+                <Field
+                  className="EstimateTypeTitle NoInputStyle"
+                  id="estimateType"
+                  name="estimateType"
+                />
+              </Editable>
+              <div className="errors" style={{ marginLeft: "0px" }}>
+                <ErrorMessage name={`estimateType`} component="div" />
+              </div>
+            </div>
             <Seperator borderColor="white" />
             <FieldArray name="form">
               {({ remove, push, move }) => (

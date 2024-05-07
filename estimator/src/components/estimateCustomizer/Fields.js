@@ -18,6 +18,7 @@ import lightEdit from "../../assets/LightEdit.png";
 import Locked from "../../assets/Locked.png";
 import defaultSchema from "../JSONs/defaultEstimate.json";
 import "react-tooltip/dist/react-tooltip.css";
+import { ErrorMessage } from "formik";
 
 //Units that can be selected from the unit drop down
 const units = [
@@ -39,12 +40,20 @@ function Fields(props) {
   return (
     <div className="FieldsWrapper">
       {/*Stage name changer*/}
-      <Editable path={lightEdit}>
-        <Field
-          className="CanonicalNameTitle NoInputStyle Black"
-          name={`form[${props.index}].canonicalName`}
-        />
-      </Editable>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Editable path={lightEdit}>
+          <Field
+            className="CanonicalNameTitle NoInputStyle Black"
+            name={`form[${props.index}].canonicalName`}
+          />
+        </Editable>
+        <div className="errors" style={{ marginLeft: "0px" }}>
+          <ErrorMessage
+            name={`form[${props.index}].canonicalName`}
+            component="div"
+          />
+        </div>
+      </div>
       <Seperator borderColor="white" />
       <FieldArray name={props.path}>
         {({ remove, push }) => (
@@ -58,12 +67,20 @@ function Fields(props) {
                     {/**Display input fields */}
 
                     {/*Name input field */}
-                    <Editable path={lightEdit}>
-                      <Field
-                        className="Name NoInputStyle Black"
-                        name={`form[${props.index}].fields[${index}].name`}
-                      />
-                    </Editable>
+                    <div>
+                      <Editable path={lightEdit}>
+                        <Field
+                          className="Name NoInputStyle Black"
+                          name={`form[${props.index}].fields[${index}].name`}
+                        />
+                      </Editable>
+                      <div className="errors">
+                        <ErrorMessage
+                          name={`form[${props.index}].fields[${index}].name`}
+                          component="div"
+                        />
+                      </div>
+                    </div>
                     {/*Drop down */}
                     <Field
                       className="Unit"
