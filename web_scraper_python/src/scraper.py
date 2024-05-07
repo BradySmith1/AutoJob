@@ -1,6 +1,5 @@
 import time
 
-import selenium.common.exceptions
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver import Keys
@@ -22,8 +21,8 @@ class WebScraper:
 
     def __init__(self, company=None):
         """
-        Constructor for the WebScraper class. Initializes a bunch of arguments that are used to mimic a real web browser.
-        :param company: Company to search for
+        Constructor for the WebScraper class. Initializes a bunch of arguments that are used to mimic a real web
+        browser. :param company: Company to search for
         """
         self.company = company
         self.options.add_argument('authority=www.lowes.com')
@@ -188,6 +187,11 @@ class WebScraper:
         :return: The products that were found on the website.
         """
         def find_product_price(product):
+            """
+            Finds the product price from the product.
+            :param product: The product that is being searched through.
+            :return: The product price
+            """
             temp = []
             for product_pieces in product.find_all():
                 if product_pieces.string is not None:
@@ -205,6 +209,11 @@ class WebScraper:
                 return price_per_foot * length_of_board
 
         def format_variable_price_details(product_details):
+            """
+            Formats the product details for the variable price.
+            :param product_details: The product details that are being searched through.
+            :return: The formatted product details
+            """
             temp_index = product_details.find('in', product_details.find('in') + 1) + 2
             product_details = product_details[:temp_index] + " x " + self.material.split('x')[
                 2] + "-ft " + product_details[temp_index + len(self.material.split('x')[2]):]
