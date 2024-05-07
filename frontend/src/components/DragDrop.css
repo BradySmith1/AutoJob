@@ -1,52 +1,52 @@
 .dropZone {
-    height: 300px;
-    width: 100%;
-    background-color: #191D23;
+  height: 300px;
+  width: 100%;
+  background-color: #191d23;
 
-    color: white;
-    font-size: 30px;
+  color: white;
+  font-size: 30px;
 
-    border-style: dashed;
-    border-color: #0055FF;
-    border-radius: 5px;
-    border-width: 1px;
-    cursor: pointer;
+  border-style: dashed;
+  border-color: #0055ff;
+  border-radius: 5px;
+  border-width: 1px;
+  cursor: pointer;
 }
 
 .imageContainer {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .thumbnail {
-    position: relative;
-    margin-top: 10px;
+  position: relative;
+  margin-top: 10px;
 }
 
-.img{
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
-    margin: 10px;
+.img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin: 10px;
 }
 
-.removeBtn{
-    position: absolute;
-    top: 0;
-    right: 0;
+.removeBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
-.imageErrors{
-    margin-top: 20px;
+.imageErrors {
+  margin-top: 20px;
 }
 
-.errorMessage{
-    padding: 0px !important;
-    margin-bottom: 5px !important;
-    margin-top: 0px !important;
-    color: red;
+.errorMessage {
+  padding: 0px !important;
+  margin-bottom: 5px !important;
+  margin-top: 0px !important;
+  color: red;
 }

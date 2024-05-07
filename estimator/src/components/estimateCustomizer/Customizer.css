@@ -1,40 +1,53 @@
-.PresetsWrapper{
-    display: flex;
-    padding-left: 100px;
-    padding-right: 100px;
-    flex-wrap: wrap;
+.PresetsWrapper {
+  display: flex;
+  padding-left: 100px;
+  padding-right: 100px;
+  flex-wrap: wrap;
 }
 
-.AddEstimatePreset{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border: 10px;
-    border-style: solid;
-    border-color: #191D23;
-    width: 280px;
-    height: 180px;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 15px;
-    transition-duration: 100ms;
+.AddEstimatePreset {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 10px;
+  border-style: solid;
+  border-color: #191d23;
+  width: 280px;
+  height: 180px;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 15px;
+  transition-duration: 100ms;
 }
 
 .AddEstimatePreset:hover {
-    cursor: pointer;
-    border-color: #0055FF;
+  cursor: pointer;
+  border-color: #0055ff;
 }
 
-.AddEstimatePreset:hover .AddPreset{
-    cursor: pointer;
-    background-color: #0055FF;
+.AddEstimatePreset:hover .AddPreset {
+  cursor: pointer;
+  background-color: #0055ff;
 }
 
-.AddPreset{
-    height: 75px;
-    width: 75px;
-    clip-path: polygon(35% 0%,65% 0%,65% 35%,100% 35%,100% 60%,65% 60%,65% 100%,35% 100%,35% 60%,0% 60%,0% 35%,35% 35%);
-    background-color: #191D23;
-    transition-duration: 100ms;
+.AddPreset {
+  height: 75px;
+  width: 75px;
+  clip-path: polygon(
+    35% 0%,
+    65% 0%,
+    65% 35%,
+    100% 35%,
+    100% 60%,
+    65% 60%,
+    65% 100%,
+    35% 100%,
+    35% 60%,
+    0% 60%,
+    0% 35%,
+    35% 35%
+  );
+  background-color: #191d23;
+  transition-duration: 100ms;
 }

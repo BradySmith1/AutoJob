@@ -1,134 +1,134 @@
-body{
-    padding-bottom: 100px;
+body {
+  padding-bottom: 100px;
 }
 
-h2{
-   color: white; 
-   padding: none;
-   margin: 0px;
-   font-size: 30px;
+h2 {
+  color: white;
+  padding: none;
+  margin: 0px;
+  font-size: 30px;
 }
 
-.estimateInfo{
-    width: 100%;
-    text-align: left;
+.estimateInfo {
+  width: 100%;
+  text-align: left;
 }
 
-.dropDown{
-    text-align: center;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 40px;
+.dropDown {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.fixedBtn{
-    position: fixed;
-    top: 20px;
-    right: 20px;
+.fixedBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
 }
 
-.selectWrapper{
-    width: 40%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.selectWrapper {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-#selectTitle{
-    width: 80%;
+#selectTitle {
+  width: 80%;
 }
 
-.select{
-    width: 80%;
-    margin-top: 30px;
+.select {
+  width: 80%;
+  margin-top: 30px;
 }
 
-.customerInfo{
-    padding-left: 10%;
-    padding-right: 10%;
+.customerInfo {
+  padding-left: 10%;
+  padding-right: 10%;
 }
 
-.infoContainer{
-    margin-top: 60px;
-    display: flex;
-    justify-content: space-between;
+.infoContainer {
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.infoElement{
-    width: 45%;
-    border-left-style: solid;
-    border-left-color: #0055FF;
-    border-width: 5px;
-    background-color: #191D23;
-    border-radius: 10px;
-    height: 200px;
-    padding-left: 10px;
+.infoElement {
+  width: 45%;
+  border-left-style: solid;
+  border-left-color: #0055ff;
+  border-width: 5px;
+  background-color: #191d23;
+  border-radius: 10px;
+  height: 200px;
+  padding-left: 10px;
 }
 
-.info{
-    color: white;
-    font-size: 20px;
+.info {
+  color: white;
+  font-size: 20px;
 }
 
-.button{
-    margin-left: 10px;
-    background-color: #0055FF;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 100px;
-    border-style: none;
-    transition-duration: 200ms;
-    border-width: 1.5px;
+.button {
+  margin-left: 10px;
+  background-color: #0055ff;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 100px;
+  border-style: none;
+  transition-duration: 200ms;
+  border-width: 1.5px;
 }
 
-.button:hover{
-    background-color: #00A3FF;
+.button:hover {
+  background-color: #00a3ff;
 }
 
-.large{
-    width: auto !important;
-    height: 50px !important;
-    font-size: 30 !important; 
-    border-radius: 10px;
+.large {
+  width: auto !important;
+  height: 50px !important;
+  font-size: 30 !important;
+  border-radius: 10px;
 }
 
-.DeleteWrapper{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 50px;
+.DeleteWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
 }
 
-.medium{
-    width: auto !important;
-    height: 30px !important;
-    font-size: 20px !important; 
-    border-radius: 10px;
+.medium {
+  width: auto !important;
+  height: 30px !important;
+  font-size: 20px !important;
+  border-radius: 10px;
 }
 
 @media (max-width: 920px) {
-    .dropDown{
-        flex-direction: column;
-    }
+  .dropDown {
+    flex-direction: column;
+  }
 
-    .selectWrapper{
-        width: 100%;
-        margin-bottom: 20px;
-    }
+  .selectWrapper {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 
-    .infoContainer{
-        flex-direction: column;
-        margin-top: 0px;
-    }
+  .infoContainer {
+    flex-direction: column;
+    margin-top: 0px;
+  }
 
-    .infoElement{
-        width: 100%;
-        margin-bottom: 40px;
-    }
+  .infoElement {
+    width: 100%;
+    margin-bottom: 40px;
+  }
 }

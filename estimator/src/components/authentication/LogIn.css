@@ -1,53 +1,53 @@
-#logIn{
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    width: 300px;
+#logIn {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  width: 300px;
 }
 
-.Error{
-    color: red;
-    margin-top: 5px;
-    margin-bottom: 5px;
+.Error {
+  color: red;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
-.LoginWrapper{
-    width: 300px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.LoginWrapper {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.authInput{
-    width: 100%;
-    background-color: #191D23;
-    border-style: solid;
-    border-color: #0055FF;
-    border-radius: 5px;
-    border-width: 1px;
-    caret-color: white;
-    color: white;
-    font-size: 18px;
+.authInput {
+  width: 100%;
+  background-color: #191d23;
+  border-style: solid;
+  border-color: #0055ff;
+  border-radius: 5px;
+  border-width: 1px;
+  caret-color: white;
+  color: white;
+  font-size: 18px;
 }
 
-.btn{
-    background-color: #0055FF;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 100px;
-    border-style: solid;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    border-width: 1.5px;
-    border-color: black;
+.btn {
+  background-color: #0055ff;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 100px;
+  border-style: solid;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  border-width: 1.5px;
+  border-color: black;
 }
 
-.logInBtn{
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
+.logInBtn {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
 }

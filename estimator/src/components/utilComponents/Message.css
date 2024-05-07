@@ -1,11 +1,11 @@
-.messageContainer{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
+.messageContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-.message{
-    text-align: center;
-    width: 100% !important;
+.message {
+  text-align: center;
+  width: 100% !important;
 }

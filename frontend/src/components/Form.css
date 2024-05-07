@@ -1,106 +1,106 @@
 h2 {
-    margin: 0px;
-    text-align: left;
-    color: white;
-    margin-bottom: 3px;
+  margin: 0px;
+  text-align: left;
+  color: white;
+  margin-bottom: 3px;
 }
 
 .multiBoxWrapper {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .inputAndLabel {
-    width: 100%;
-    margin-bottom: 10px;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .half {
-    width: 48% !important;
+  width: 48% !important;
 }
 
 .third {
-    width: 31% !important;
+  width: 31% !important;
 }
 
 .Error {
-    width: 100%;
-    color: red;
-    text-align: left;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-left: 5px;
+  width: 100%;
+  color: red;
+  text-align: left;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 5px;
 }
 
 .inputBox {
-    width: 100%;
-    background-color: #191D23;
-    border-style: solid;
-    border-color: #0055FF;
-    border-radius: 5px;
-    border-width: 1px;
-    caret-color: white;
-    color: white;
-    font-size: 18px;
+  width: 100%;
+  background-color: #191d23;
+  border-style: solid;
+  border-color: #0055ff;
+  border-radius: 5px;
+  border-width: 1px;
+  caret-color: white;
+  color: white;
+  font-size: 18px;
 }
 
 .singleLineInput {
-    height: 30px;
+  height: 30px;
 }
 
 .multiLineInput {
-    height: 200px;
+  height: 200px;
 }
 
 .seperator {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .captcha {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 #submitButton {
-    background-color: #0055FF;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 60px;
-    width: 150px;
-    border-color: transparent;
-    border-style: solid;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    margin-bottom: 200px;
+  background-color: #0055ff;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 60px;
+  width: 150px;
+  border-color: transparent;
+  border-style: solid;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  margin-bottom: 200px;
 }
 
 #submitButton:hover {
-    background-color: #00A3FF;
+  background-color: #00a3ff;
 }
 
 #estimateForm {
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 20px;
-    padding: 10px;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 20px;
+  padding: 10px;
 }
 
 .errorWrapper {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    align-items: center;
-    color: white;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  color: white;
 }
 
 @media (max-width: 1200px) {
-    #estimateForm {
-        width: 80%;
-    }
+  #estimateForm {
+    width: 80%;
+  }
 }

@@ -1,37 +1,37 @@
-.Switcher{
-    display: flex;
+.Switcher {
+  display: flex;
 }
 
-.MainMenu{
-   height: 100vh;
-   width: 80px;
-   background-color: #191D23; 
-   position: sticky;
-   top: 0;
+.MainMenu {
+  height: 100vh;
+  width: 80px;
+  background-color: #191d23;
+  position: sticky;
+  top: 0;
 }
 
-.MainMenuButton{
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition-duration: 100ms;
+.MainMenuButton {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition-duration: 100ms;
 }
 
-.MainMenuButton:hover{
-    cursor: pointer;
-    background-color: #303741;
+.MainMenuButton:hover {
+  cursor: pointer;
+  background-color: #303741;
 }
 
-.PageWrapper{
-    width: 100%;
-    height: auto;
-    overflow-y: auto;
+.PageWrapper {
+  width: 100%;
+  height: auto;
+  overflow-y: auto;
 }
 
-.MenuImage{
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
+.MenuImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
 }

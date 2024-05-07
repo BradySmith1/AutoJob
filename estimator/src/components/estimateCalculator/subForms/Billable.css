@@ -1,150 +1,150 @@
-.billableWrapper{
-    display: flex;
-    justify-content:space-between;
-    align-items: center;
-    background-color: #191D23;
-    border-radius: 10px;
-    padding: 10px;
-    margin-top: 0px;
-    margin-bottom: 20px;
-    margin-left: 10px;
-    margin-right: 10px;;
-    position: relative;
+.billableWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #191d23;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 0px;
+  margin-bottom: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+  position: relative;
 }
 
-.section{
-    text-align: left;
-    margin-right: 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    font-size: 18px;
+.section {
+  text-align: left;
+  margin-right: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 18px;
 }
 
-.inputsWrapper{
-    display: flex;
-    flex-wrap: wrap;
+.inputsWrapper {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.buttonSection{
-    width: 40%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+.buttonSection {
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-.mockBtn{
-    background-color: #0A5C36;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 100px;
-    border-style: solid;
-    border-radius: 25px;
-    border-width: 1.5px;
-    border-color: black;
+.mockBtn {
+  background-color: #0a5c36;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 100px;
+  border-style: solid;
+  border-radius: 25px;
+  border-width: 1.5px;
+  border-color: black;
 }
 
-.btn{
-    background-color: #0055FF;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 100px;
-    border-style: solid;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    border-width: 1.5px;
-    border-color: black;
+.btn {
+  background-color: #0055ff;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 100px;
+  border-style: solid;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  border-width: 1.5px;
+  border-color: black;
 }
 
-.openOptions{
-    width: 40px !important;
-    margin-left: 20px;
+.openOptions {
+  width: 40px !important;
+  margin-left: 20px;
 }
 
-.extraOptionsWrapper{
-    display: flex;
-    align-items: center;
+.extraOptionsWrapper {
+  display: flex;
+  align-items: center;
 }
 
-.add{
-    height: 30px;
-    width: 200px !important;
+.add {
+  height: 30px;
+  width: 200px !important;
 }
 
-.btn:hover{
-    background-color: #00A3FF;
+.btn:hover {
+  background-color: #00a3ff;
 }
 
-.fixedWrapper{
-    position: fixed;
-    z-index: 99999;
+.fixedWrapper {
+  position: fixed;
+  z-index: 99999;
 }
 
-.optionsMenu{
-    width: 200px;
-    height: 275px;
-    background-color: #2B303A;
-    border-style: solid;
-    border-radius: 5px;
-    border-width: 2px;
-    border-color:#0055FF;
+.optionsMenu {
+  width: 200px;
+  height: 275px;
+  background-color: #2b303a;
+  border-style: solid;
+  border-radius: 5px;
+  border-width: 2px;
+  border-color: #0055ff;
 }
 
-.optionsButton{
-    width: 90%;
-    height: 33%;
-    cursor: pointer;
-    background-color: transparent;
-    color: white;
-    display: flex;
-    padding-left: 10px;
-    padding-right: 10px;
-    transition: 200ms;
+.optionsButton {
+  width: 90%;
+  height: 33%;
+  cursor: pointer;
+  background-color: transparent;
+  color: white;
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: 200ms;
 }
 
-.optionsButton:hover{
-    background-color: #adadad;
+.optionsButton:hover {
+  background-color: #adadad;
 }
 
-.remove{
-    justify-content: center;
-    align-items: center;
+.remove {
+  justify-content: center;
+  align-items: center;
 }
 
-.tickBox{
-    justify-content: space-between;
-    align-items: center;
+.tickBox {
+  justify-content: space-between;
+  align-items: center;
 }
 
-.middle{
-    border-top: 2px solid #0055FF;
-    border-bottom: 2px solid #0055FF;
+.middle {
+  border-top: 2px solid #0055ff;
+  border-bottom: 2px solid #0055ff;
 }
 
-.boxTick{
-    border-width: 5px;
-    border-style: solid;
-    border-color: #191D23;
-    background-color: #adadad;
-    height: 15px;
-    width: 15px;
+.boxTick {
+  border-width: 5px;
+  border-style: solid;
+  border-color: #191d23;
+  background-color: #adadad;
+  height: 15px;
+  width: 15px;
 }
 
-.boxTickWrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.boxTickWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.sideArrow{
-    width: 25px;
-    height: 15px;
-    -webkit-transform:rotate(-90deg);
-    -moz-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
-    transform: rotate(-90deg);
+.sideArrow {
+  width: 25px;
+  height: 15px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  transform: rotate(-90deg);
 }

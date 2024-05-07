@@ -1,25 +1,25 @@
-.stageWrapper{
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    width: 80%;
+.stageWrapper {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 80%;
 }
 
-.StageLibrary{
-    background-color: #191D23;
-    width: 400px;
-    margin: 10px;
-    padding: 20px;
-    border-radius: 10px;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.StageLibrary {
+  background-color: #191d23;
+  width: 400px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.libButton{
-    bottom: 15px;
-    right: 15px;
+.libButton {
+  bottom: 15px;
+  right: 15px;
 }

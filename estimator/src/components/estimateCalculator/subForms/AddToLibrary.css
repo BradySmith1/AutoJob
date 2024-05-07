@@ -1,47 +1,47 @@
-.submitBtn{
-    margin-top: 30px;
+.submitBtn {
+  margin-top: 30px;
 }
 
-.boxAndLable{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+.boxAndLable {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.formContainer{
-    background-color: #2B303A;
-    padding: 20px;
-    width: 350px;
-    border-radius: 10px;
-    margin-left: 50px;
-    position: relative;
-    text-align: center;
+.formContainer {
+  background-color: #2b303a;
+  padding: 20px;
+  width: 350px;
+  border-radius: 10px;
+  margin-left: 50px;
+  position: relative;
+  text-align: center;
 }
 
-.exit{
-    position: absolute;
-    bottom: -45px;
-    left: 145px;
+.exit {
+  position: absolute;
+  bottom: -45px;
+  left: 145px;
 }
 
-.error{
-    margin: none;
-    padding: none;
-    text-align: left;
-    color: red;
-    width: 90%;
-    margin-left: 10%;
+.error {
+  margin: none;
+  padding: none;
+  text-align: left;
+  color: red;
+  width: 90%;
+  margin-left: 10%;
 }
 
-.customBox{
-    margin-right: 0px !important;
-    width: 100% !important;
+.customBox {
+  margin-right: 0px !important;
+  width: 100% !important;
 }
 
 @media (max-width: 1235px) {
-    .formContainer{
-        margin-left: 0px;
-        margin-top: 80px;
-    }
+  .formContainer {
+    margin-left: 0px;
+    margin-top: 80px;
+  }
 }

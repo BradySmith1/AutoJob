@@ -1,19 +1,12 @@
 /**
  * @version 1, April 14th, 2024
- * @author Andrew Monroe 
+ * @author Andrew Monroe
  * @author Brady Smith
- * 
+ *
  * This file is the email HTML template componant
  * using react-email.
  */
-import {
-  Body,
-  Container,
-  Head,
-  Hr,
-  Html,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Head, Hr, Html, Text } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import * as React from "react";
 
@@ -30,12 +23,18 @@ export default function EmailNotification(props) {
   var total = 0;
   //Calculate grand total
   props.estimateData.schema.form.forEach((stage, index) => {
-      for(var i = 0; i < props.estimateData.form[index][stage.canonicalName].length; i++){
-          console.log(props.estimateData.form[index][stage.canonicalName]);
-          total = total + (props.estimateData.form[index][stage.canonicalName][i].price * 
-              props.estimateData.form[index][stage.canonicalName][i].quantity);
-      }
-  })
+    for (
+      var i = 0;
+      i < props.estimateData.form[index][stage.canonicalName].length;
+      i++
+    ) {
+      console.log(props.estimateData.form[index][stage.canonicalName]);
+      total =
+        total +
+        props.estimateData.form[index][stage.canonicalName][i].price *
+          props.estimateData.form[index][stage.canonicalName][i].quantity;
+    }
+  });
   //Round grand total
   grandTotal = total.toFixed(2);
 
@@ -49,22 +48,28 @@ export default function EmailNotification(props) {
               <strong>Your Estimate is Ready</strong>
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
-              Hello <strong>{props.estimateData.user.fName} {props.estimateData.user.lName}</strong>, Your estimate has been completed.
+              Hello{" "}
+              <strong>
+                {props.estimateData.user.fName} {props.estimateData.user.lName}
+              </strong>
+              , Your estimate has been completed.
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
               Your estimate total is: <strong>${grandTotal}</strong>
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
               To view the itemized bill, please see the attached PDF file.
-              Please contact the company to notify them on wether you will accept
-              or deny this estimate.
+              Please contact the company to notify them on wether you will
+              accept or deny this estimate.
             </Text>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This estimate was intended for{" "}
-              <span className="text-black">{props.estimateData.user.fName} {props.estimateData.user.lName}</span>. This email is an automated
-              message from AutoJob. If you
-              were not expecting this message, you can ignore this email.
+              <span className="text-black">
+                {props.estimateData.user.fName} {props.estimateData.user.lName}
+              </span>
+              . This email is an automated message from AutoJob. If you were not
+              expecting this message, you can ignore this email.
             </Text>
           </Container>
         </Body>
