@@ -1,75 +1,73 @@
-.carouselContainer{
-    margin-top: 50px;
-    padding-left: 10%;
-    padding-right: 10%;
+.carouselContainer {
+  margin-top: 50px;
+  padding-left: 10%;
+  padding-right: 10%;
 }
 
-.images{
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-top: 50px;
-    flex-wrap: wrap;
+.images {
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 50px;
+  flex-wrap: wrap;
 }
 
-.image{
-    width: 250px;
-    height: 250px;
-    margin-left: 2.5%;
-    margin-right: 2.5%;
-    margin-bottom: 5%;
-    font-size: 30px;
-    color: white;
-    border-radius: 10px;
-    object-fit: cover;
-    cursor: pointer;
+.image {
+  width: 250px;
+  height: 250px;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+  margin-bottom: 5%;
+  font-size: 30px;
+  color: white;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
 }
 
-.fullScreen{
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    bottom: 0;
-    right:0;
-    background-color: rgba(0, 0, 0, .8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    z-index: 99;
+.fullScreen {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 99;
 }
 
-.imgNav{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.imgNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.placeHolderDiv{
-    margin: 20px;
-    height: 20px;
-    width: 20px;
+.placeHolderDiv {
+  margin: 20px;
+  height: 20px;
+  width: 20px;
 }
 
-.navBtn{
-    margin: 20px;
-    height: 30px;
-    width: 40px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.navBtn {
+  margin: 20px;
+  height: 30px;
+  width: 40px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.fullScreenImg{
-    max-height: 70vh;
-    max-width: 70vw;
-    object-fit: contain;
+.fullScreenImg {
+  max-height: 70vh;
+  max-width: 70vw;
+  object-fit: contain;
 }
 
-.btn:hover{
-    background-color: #00A3FF;
+.btn:hover {
+  background-color: #00a3ff;
 }
-
-

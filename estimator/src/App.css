@@ -1,10 +1,10 @@
-h1{
+h1 {
   font-size: 50px;
   text-align: center;
 }
 
-body{
-  background-color: #2B303A;
+body {
+  background-color: #2b303a;
   overflow-x: hidden;
   padding-bottom: 0px !important;
 }
@@ -20,5 +20,3 @@ body{
   width: 100vw;
   height: 100vh;
 }
-
-

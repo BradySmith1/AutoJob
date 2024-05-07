@@ -1,119 +1,119 @@
-h3{
-    margin: none;
+h3 {
+  margin: none;
 }
 
-.libNav{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+.libNav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.pageContainer{
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    bottom: 0;
-    right:0;
-    background-color: rgba(0, 0, 0, .8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 99;
+.pageContainer {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
 }
 
-.contentContainer{
-    color: white;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 9999;
-    width: 750px;
-    height: 60vh;
-    background-color: #2B303A;
-    overflow-y: auto;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
+.contentContainer {
+  color: white;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 9999;
+  width: 750px;
+  height: 60vh;
+  background-color: #2b303a;
+  overflow-y: auto;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
 }
 
-.overflowWrapper{
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.overflowWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.materialContainer{
-    display: flex;
-    justify-content: space-evenly;
+.materialContainer {
+  display: flex;
+  justify-content: space-evenly;
 }
 
-.materialHeaders{
-    display: flex;
-    justify-content: space-evenly;
-    padding-bottom: 20px;
+.materialHeaders {
+  display: flex;
+  justify-content: space-evenly;
+  padding-bottom: 20px;
 }
 
-.search{
-    margin-bottom: 20px;
-    margin-top: 10px;
+.search {
+  margin-bottom: 20px;
+  margin-top: 10px;
 }
 
-.btn{
-    background-color: #0055FF;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 100px;
-    border-style: solid;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    border-width: 1.5px;
-    border-color: black;
+.btn {
+  background-color: #0055ff;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 100px;
+  border-style: solid;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  border-width: 1.5px;
+  border-color: black;
 }
 
-.add{
-    height: 30px;
-    width: 200px !important;
+.add {
+  height: 30px;
+  width: 200px !important;
 }
 
-.closeBtn{
-    left: 43%;
-    position: absolute;
-    bottom: -40px;
+.closeBtn {
+  left: 43%;
+  position: absolute;
+  bottom: -40px;
 }
 
-.btn:hover{
-    background-color: #00A3FF;
+.btn:hover {
+  background-color: #00a3ff;
 }
 
-.removeButton{
-    background-color: #d61f2c;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: 60px;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    border-style: none;
-    margin-left: 10px;
+.removeButton {
+  background-color: #d61f2c;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: 60px;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  border-style: none;
+  margin-left: 10px;
 }
 
-.removeButton:hover{
-    background-color: #d63741;
+.removeButton:hover {
+  background-color: #d63741;
 }
 
 @media (max-width: 1235px) {
-    .contentContainer{
-        width: 80vw;
-        max-width: 750px;
-        margin-top: 20px;
-    }
+  .contentContainer {
+    width: 80vw;
+    max-width: 750px;
+    margin-top: 20px;
+  }
 
-    .pageContainer{
-        flex-direction: column;
-        justify-content: flex-start;
-        overflow-y: scroll;
-    }
+  .pageContainer {
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: scroll;
+  }
 }

@@ -1,47 +1,47 @@
-h3{
-    color: white;
-    margin: none;
-    padding: none;
+h3 {
+  color: white;
+  margin: none;
+  padding: none;
 }
 
-.fourth{
-    width: 25%;
+.fourth {
+  width: 25%;
 }
 
-.overviewWrapper{
-    text-align: left;
-    margin-left: 13%;
-    margin-right: 13%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 2%;
-    background-color: #191D23;
-    border-radius: 10px;
+.overviewWrapper {
+  text-align: left;
+  margin-left: 13%;
+  margin-right: 13%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 2%;
+  background-color: #191d23;
+  border-radius: 10px;
 }
 
-.infoWrapper{
-    text-align: left;
-    margin-bottom: 40px;
+.infoWrapper {
+  text-align: left;
+  margin-bottom: 40px;
 }
 
-.headerWrapper{
-    display: flex;
-    justify-content: space-between;
+.headerWrapper {
+  display: flex;
+  justify-content: space-between;
 }
 
-.contentWrapper{
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    width: 80%;
+.contentWrapper {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
 }
 
-.divide{
-    width: 100%;
-    height: 3px;
-    background-color: white;
+.divide {
+  width: 100%;
+  height: 3px;
+  background-color: white;
 }
 
-.grandTotal{
-    margin-top: 30px;
+.grandTotal {
+  margin-top: 30px;
 }

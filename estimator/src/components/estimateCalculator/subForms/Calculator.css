@@ -1,144 +1,144 @@
-.wrapper{
-    margin-bottom: 30px;
+.wrapper {
+  margin-bottom: 30px;
 }
 
-.row{
-    display: flex;
-    justify-content: center;
-    width: 80%;
+.row {
+  display: flex;
+  justify-content: center;
+  width: 80%;
 }
 
-.col{
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 10px;
+.col {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
 }
 
-.fieldsContainer{
-    display: flex;
-    max-width: 60%;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+.fieldsContainer {
+  display: flex;
+  max-width: 60%;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.label{
-    text-align: left;
-    color: white;
-    font-size: 18px;
-    width: 100%;
+.label {
+  text-align: left;
+  color: white;
+  font-size: 18px;
+  width: 100%;
 }
 
-.totalLabel{
-    text-align: left;
-    width: 100%;
-    color: white;
-    font-size: 18px;
+.totalLabel {
+  text-align: left;
+  width: 100%;
+  color: white;
+  font-size: 18px;
 }
 
-.totalContainer{
-    height: 30px;
-    margin-right: 20px;
+.totalContainer {
+  height: 30px;
+  margin-right: 20px;
 }
 
-.total{
-    background-color: #191D23;
-    border-radius: 10px;
-    color: white;
-    font-size: 18px;
-    width: 120px;
-    height: 30px;
+.total {
+  background-color: #191d23;
+  border-radius: 10px;
+  color: white;
+  font-size: 18px;
+  width: 120px;
+  height: 30px;
 }
 
 .inputBox {
-    background-color: #191D23;
-    border-style: solid;
-    border-color: #0055FF;
-    border-radius: 5px;
-    border-width: 1px;
-    caret-color: white;
-    color: white;
-    font-size: 18px;
-    width: 150px;
-    margin-right: 20px;
-    height: 30px;
+  background-color: #191d23;
+  border-style: solid;
+  border-color: #0055ff;
+  border-radius: 5px;
+  border-width: 1px;
+  caret-color: white;
+  color: white;
+  font-size: 18px;
+  width: 150px;
+  margin-right: 20px;
+  height: 30px;
 }
 
-.xButton{
-    background-color: #d61f2c;
-    cursor: pointer;
-    color: white;
-    font-size: 20px;
-    height: 30px;
-    width: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-    min-width: 35px;
-    border-radius: 25px;
-    transition-duration: 200ms;
-    border-style: none;
+.xButton {
+  background-color: #d61f2c;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+  height: 30px;
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 35px;
+  border-radius: 25px;
+  transition-duration: 200ms;
+  border-style: none;
 }
 
-.xButton:hover{
-    background-color: #d63741;
+.xButton:hover {
+  background-color: #d63741;
 }
 
-.errors{
-    margin: none;
-    padding: none;
-    height: 10px;
-    text-align: left;
-    color: red;
-    width: 90%;
-    margin-left: 10%;
+.errors {
+  margin: none;
+  padding: none;
+  height: 10px;
+  text-align: left;
+  color: red;
+  width: 90%;
+  margin-left: 10%;
 }
 
-.AddImportWrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.AddImportWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (max-width: 920px) {
-    .row{
-        flex-direction: column;
-    }
+  .row {
+    flex-direction: column;
+  }
 
-    .col{
-        width: 100%;
-        margin-top: 5px;
-        margin-bottom: 5px;
-    }
+  .col {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
 
-    .totalContainer{
-        width: 100%;
-    }
+  .totalContainer {
+    width: 100%;
+  }
 
-    .errors{
-        width: 100%;
-        margin: 0px;
-    }
+  .errors {
+    width: 100%;
+    margin: 0px;
+  }
 
-    .fieldsContainer{
-        max-width: 100%;
-    }
+  .fieldsContainer {
+    max-width: 100%;
+  }
 
-    .inputBox{
-        width: 100%;
-        margin: 0px;
-    }
+  .inputBox {
+    width: 100%;
+    margin: 0px;
+  }
 
-    .totalCol{
-        padding-left: 10%;
-        justify-content: flex-start;
-        align-items: flex-start;
-    }
+  .totalCol {
+    padding-left: 10%;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
 
-    .xButton{
-        margin-top: 0px;
-        margin-bottom: 10px;
-    }
+  .xButton {
+    margin-top: 0px;
+    margin-bottom: 10px;
+  }
 }

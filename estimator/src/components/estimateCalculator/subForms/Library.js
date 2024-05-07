@@ -1,15 +1,15 @@
 /**
  * @version 1, Octover 12th, 2023
- * @author Andrew Monroe 
+ * @author Andrew Monroe
  * @author Brady Smith
- * 
+ *
  * This component displays the material library.
  */
 
 import React, { useEffect, useState, useContext } from "react";
-import './Library.css';
+import "./Library.css";
 import AddToLibrary from "./AddToLibrary";
-import axios from 'axios';
+import axios from "axios";
 import Billable from "./Billable";
 import billableList from "../../JSONs/billableList.json";
 import Message from "../../utilComponents/Message.js";
@@ -19,339 +19,355 @@ import Scanner from "./Scanner.js";
 /**
  * This function compares everything in the estimate form to the
  * material library to determine if it is already imported or not.
- * 
+ *
  * @param {billable[]} formData data that is already in the form
  * @param {billable[]} billableData data that is in the library
- * @returns 
+ * @returns
  */
-function trackImported(formData, billableData){
-    //Declare and empty state array
+function trackImported(formData, billableData) {
+  //Declare and empty state array
 
-    //Loop through the library
-    for(var i = 0; i < billableData.length; i++){;
-        var billable = billableData[i].data;
+  //Loop through the library
+  for (var i = 0; i < billableData.length; i++) {
+    var billable = billableData[i].data;
 
-        //Loop through what's currently in the form
-        for(var j = 0; j < formData.length; j++){
-            var data = formData[j];
+    //Loop through what's currently in the form
+    for (var j = 0; j < formData.length; j++) {
+      var data = formData[j];
 
-            //If the billable object is in the form and in the library,
-            //Mark it as imported
-            if(billable.name === data.name
-                && billable.price === data.price){
-                billableData[i].imported = true;
-            }
-
-        }
+      //If the billable object is in the form and in the library,
+      //Mark it as imported
+      if (billable.name === data.name && billable.price === data.price) {
+        billableData[i].imported = true;
+      }
     }
+  }
 }
 
 /**
  * Search a billable's name to see if it matches a given string
- * @param {JSON} billable 
- * @param {String} searchStr 
- * @returns 
+ * @param {JSON} billable
+ * @param {String} searchStr
+ * @returns
  */
-function searchString(billable, searchStr){
-    var contains = false;
-    var billableName = billable.name.toLowerCase();
-    var search = searchStr.toLowerCase();
-    billableName = billableName.replace(/\s/g, '');
-    search = search.replace(/\s/g, '');
+function searchString(billable, searchStr) {
+  var contains = false;
+  var billableName = billable.name.toLowerCase();
+  var search = searchStr.toLowerCase();
+  billableName = billableName.replace(/\s/g, "");
+  search = search.replace(/\s/g, "");
 
-    if(billableName.includes(search)){
-        contains = true;
-    }
+  if (billableName.includes(search)) {
+    contains = true;
+  }
 
-    return contains;
+  return contains;
 }
 
 /**
  * This function returns the library component, which displays all
  * of the billables of a given category and allows you to import them,
  * discard them, or add a new one.
- * 
- * @param {JSON object} props 
+ *
+ * @param {JSON object} props
  *      props.insert the function used to import a material
  *      props.setDisplay used to stop displaying this component
  *      props.data data that is currently in the form
  *      props.name name of the billable
  * @returns JSX object containing all the html for the library
  */
-function Library(props){
+function Library(props) {
+  const { jwt, setJwt } = useContext(AuthContext);
 
-    const {jwt, setJwt} = useContext(AuthContext);
+  axios.defaults.headers.common = {
+    Authorization: jwt,
+  };
 
-    axios.defaults.headers.common = {
-        "Authorization": jwt
-    }
+  //Use state for the library
+  const [library, setLibrary] = useState([]);
+  //Use state for the search string
+  const [searchStr, setSearchStr] = useState("");
+  //Use state to determine if we have recieved the data we need from the server
+  const [loading, setLoading] = useState(true);
+  //error for get request
+  const [getError, setGetError] = useState(false);
+  //error for remove
+  const [removeError, setRemoveError] = useState(false);
+  //error for add
+  const [addError, setAddError] = useState(false);
+  //Current billable that is being price scanned
+  const [scanBillable, setScanBillable] = useState({
+    billable: null,
+    index: 0,
+  });
+  //Display controller
+  const [displays, setDisplays] = useState({
+    addToLibrary: false,
+    scraper: false,
+  });
 
-    //Use state for the library
-    const [library, setLibrary] = useState([]);
-    //Use state for the search string
-    const [searchStr, setSearchStr] = useState("");
-    //Use state to determine if we have recieved the data we need from the server
-    const [loading, setLoading] = useState(true);
-    //error for get request
-    const [getError, setGetError] = useState(false);
-    //error for remove
-    const [removeError, setRemoveError] = useState(false);
-    //error for add
-    const [addError, setAddError] = useState(false);
-    //Current billable that is being price scanned
-    const [scanBillable, setScanBillable] = useState({billable: null, index: 0});
-    //Display controller
-    const [displays, setDisplays] = useState({addToLibrary: false, scraper: false});
+  //Object with methods to control the current displayed popup
+  const displayControls = {
+    /**
+     * This method clears any component being displayed
+     */
+    clearDisplays: () => {
+      var newDisplays = {};
+      for (const key of Object.keys(displays)) {
+        newDisplays[key] = false;
+      }
+      setDisplays(() => newDisplays);
+    },
+    /**
+     * This method changes what component is being displayed
+     * @param {string} type, the type of component being displayed
+     * @param {boolean} bool, the display state of the new component
+     */
+    changeDisplay: (type, bool) => {
+      var newDisplays = { ...displays };
+      for (const key of Object.keys(displays)) {
+        newDisplays[key] = false;
+      }
+      newDisplays[type] = bool;
+      setDisplays(() => newDisplays);
+    },
+  };
 
-    //Object with methods to control the current displayed popup
-    const displayControls = {
-        /**
-         * This method clears any component being displayed
-         */
-        clearDisplays: () =>{
-            var newDisplays = {}
-            for(const key of Object.keys(displays)){
-                newDisplays[key] = false;
-            }
-            setDisplays(() => newDisplays)
-        },
-        /**
-         * This method changes what component is being displayed
-         * @param {string} type, the type of component being displayed 
-         * @param {boolean} bool, the display state of the new component
-         */
-        changeDisplay: (type, bool) => {
-            var newDisplays = {...displays}
-            for(const key of Object.keys(displays)){
-                newDisplays[key] = false;
-            }
-            newDisplays[type] = bool;
-            setDisplays(() => newDisplays);
+  /**
+   * Function for handling search
+   * @param {*} event the input field value
+   */
+  const handleSearch = (event) => {
+    setSearchStr(event.target.value);
+  };
+
+  /**
+   * This method adds a new billable to the library
+   * @param {*} billable the billable to add
+   */
+  const addToLibrary = (billable) => {
+    //Post the billable
+    axios
+      .post("/api/library", billable, { timeout: 3000 })
+      .then((response) => {
+        //Set the id
+        billable._id = { $oid: response.data.insertedId.$oid };
+        //Copy all the local billables
+        const tempBillables = [
+          ...library.billables,
+          { data: billable, imported: false },
+        ];
+        //set the library to the copy
+        setLibrary({ name: library.name, billables: tempBillables });
+      })
+      .catch((error) => {
+        console.log(error.message);
+        setAddError(true);
+      });
+  };
+
+  /**
+   * This method removes a billable from the library
+   * @param {*} index the index to remove
+   */
+  const removeFromLibrary = (index) => {
+    //Create a copy of the library
+    var libCopy = [...library.billables];
+    //Splice out the index we don't want
+    libCopy.splice(index, 1);
+    //Delete it from the database
+    axios
+      .delete(`/api/library?_id=${library.billables[index].data._id.$oid}`, {
+        timeout: 3000,
+      })
+      .then(() => {
+        //On deletion, set the library to the new library.
+        setLibrary({ name: library.name, billables: libCopy });
+      })
+      .catch((error) => {
+        console.log(error.message);
+        setRemoveError(true);
+      });
+  };
+
+  /**
+   * Helper function to modify a billable in the library
+   * @param {*} index index of billable we want to modify
+   * @param {*} billable billable to replace the one we want modified
+   */
+  const modifyLibrary = (index, billable) => {
+    var libCopy = [...library.billables];
+    libCopy[index] = { imported: false, data: billable };
+    setLibrary({ name: library.name, billables: libCopy });
+  };
+
+  /**
+   * Helper functio to insert a billable to the calculator
+   * @param {*} billable the billable to insert
+   */
+  const insertBillable = (billable) => {
+    props.insert(0, billable);
+    billable.imported = true;
+  };
+
+  /**
+   * Helper function to get the entire library
+   * @param {*} name
+   */
+  const getLibrary = (name) => {
+    setLoading(true);
+
+    axios
+      .get(
+        `/api/library?presetID=${props.selectedLib.pID}&stageID=${props.selectedLib.sID}`
+      )
+      .then((response) => {
+        //initialize the state array
+        var vallueArr = [];
+        for (const billable of response.data) {
+          vallueArr.push({ data: billable, imported: false });
         }
-    }
-
-    /**
-     * Function for handling search
-     * @param {*} event the input field value
-     */
-    const handleSearch = (event) =>{
-        setSearchStr(event.target.value);
-    }
-
-    /**
-     * This method adds a new billable to the library
-     * @param {*} billable the billable to add
-     */
-    const addToLibrary = (billable) =>{
-        //Post the billable
-        axios.post('/api/library', billable, {timeout: 3000}).then((response) => {
-            //Set the id
-            billable._id = {"$oid" : response.data.insertedId.$oid};
-            //Copy all the local billables
-            const tempBillables = [...library.billables, {data: billable, imported: false}]
-            //set the library to the copy
-            setLibrary({name: library.name, billables: tempBillables});
-        }).catch((error) => {
-            console.log(error.message);
-            setAddError(true);
+        //Initialize the library
+        if (props.data !== undefined) {
+          trackImported(props.data, vallueArr);
         }
-        );
-    }
+        setLibrary({ name: name, billables: vallueArr });
+        //Set the loading variable to false
+        setLoading(false);
+      })
+      .catch((error) => {
+        setGetError(true);
+      });
+  };
 
-    /**
-     * This method removes a billable from the library
-     * @param {*} index the index to remove
-     */
-    const removeFromLibrary = (index) =>{
-        //Create a copy of the library
-        var libCopy = [...library.billables];
-        //Splice out the index we don't want
-        libCopy.splice(index, 1);
-        //Delete it from the database
-        axios.delete(`/api/library?_id=${library.billables[index].data._id.$oid}`, {timeout: 3000}).then(() => {
-            //On deletion, set the library to the new library.
-            setLibrary({name: library.name, billables: libCopy});
-        }).catch((error) => {
-            console.log(error.message);
-            setRemoveError(true);
-        }
-        );
-    }
+  //Use effect for grabbing all the relavent billables from the library
+  //on the first render
+  useEffect(() => {
+    //Get all billables from the library that have the needed description
+    getLibrary(props.selectedLib.name);
+    setLibrary({ name: props.selectedLib.name, billables: [] });
 
-    /**
-     * Helper function to modify a billable in the library
-     * @param {*} index index of billable we want to modify
-     * @param {*} billable billable to replace the one we want modified
-     */
-    const modifyLibrary = (index, billable) => {
-        var libCopy = [...library.billables];
-        libCopy[index] = {imported: false, data: billable};
-        setLibrary({name: library.name, billables: libCopy});
-    }
+    //Hide the scrollbar on the body while the library is open
+    document.body.style.overflowY = "hidden";
+    return () => {
+      //show the scollbar on the body when the library closes
+      document.body.style.overflowY = "auto";
+    };
+  }, []);
 
-    /**
-     * Helper functio to insert a billable to the calculator
-     * @param {*} billable the billable to insert
-     */
-    const insertBillable = (billable) =>{
-        props.insert(0, billable);
-        billable.imported = true;
-    }
-
-    /**
-     * Helper function to get the entire library
-     * @param {*} name 
-     */
-    const getLibrary = (name) =>{
-        setLoading(true);
-
-        axios.get(`/api/library?presetID=${props.selectedLib.pID}&stageID=${props.selectedLib.sID}`).then((response) => {
-            //initialize the state array
-            var vallueArr = [];
-            for(const billable of response.data){
-                vallueArr.push({data: billable, imported: false});
-            }
-            //Initialize the library
-            if(props.data !== undefined){
-                trackImported(props.data, vallueArr);
-            }
-            setLibrary({name: name, billables: vallueArr});
-            //Set the loading variable to false
-            setLoading(false);
-        }).catch((error) => {
-            setGetError(true);
-        });
-    }
-
-    //Use effect for grabbing all the relavent billables from the library
-    //on the first render
-    useEffect(() => {
-        //Get all billables from the library that have the needed description
-        getLibrary(props.selectedLib.name);
-        setLibrary({name: props.selectedLib.name, billables: []});
-
-        //Hide the scrollbar on the body while the library is open
-        document.body.style.overflowY = 'hidden';
-        return () => {
-            //show the scollbar on the body when the library closes
-            document.body.style.overflowY = 'auto';
-        }
-    }, []);
-
-    return(
-        <div className="pageContainer">
-            <div className="overflowWrapper">
-                <div className="contentContainer">
-                    {/**Titles for each column of the form */}
-                    <h2>{library.name} Library</h2>
-                    <div className="searchWrapper">
-                        <input
-                            className="inputBox search"
-                            name="search"
-                            type="text"
-                            value={searchStr}
-                            onChange={handleSearch}
-                            placeholder="Search..."
-                        >
-                        </input>
-                    </div>
-                    {/**Display a loading message if we haven't recieved the data yet */}
-                    {loading ? 
-                    <Message 
-                    message={"Loading data..."}
-                    errorMessage={"This is taking a while. Still loading..."}
-                    finalErrorMessage={"A network error may have occured. Try again later."}
-                    finalTimeout={20000}
-                    timeout={10000}
-                    errorCondition={getError} />
-                    : null}
-                    {/**If we arent loading, map over the data */}
-                    {!loading &&
-                    library.billables.map((billable, index) => (
-                        //If the billable name batches the search string,
-                        //render it
-                        (searchString(billable.data, searchStr) ? 
-                            (
-                                (props.data !== undefined ? 
-                                    (<Billable 
-                                        billable={billable}
-                                        insertBillable={insertBillable}
-                                        removeFromLibrary={removeFromLibrary}
-                                        modifyLibrary={modifyLibrary}
-                                        index={index}
-                                        key={index}
-                                        displayControls={displayControls}
-                                        setScanBillable={setScanBillable}
-                                    />) 
-                                    : 
-                                    (<Billable 
-                                        billable={billable}
-                                        removeFromLibrary={removeFromLibrary}
-                                        modifyLibrary={modifyLibrary}
-                                        index={index}
-                                        key={index}
-                                        displayControls={displayControls}
-                                        setScanBillable={setScanBillable}
-                                    />)
-                                )
-                            )
-                        : null )
-                    ))}
-                    <button
-                        type="button"
-                        className="btn add"
-                        onClick={() => {
-                            //When this button is clicked, display the
-                            //add to library form
-                            displayControls.changeDisplay('addToLibrary', true);
-                        }}    
-                    >
-                        Add to {library.name}
-                    </button>
-                </div>
-                <button
-                        type="button"
-                        className="closeBtn btn"
-                        onClick={() => {
-                            //When this button is clicked, stop displaying the library
-                            props.setDisplay(false);
-                        }}
-                    >
-                        Close
-                </button>
-                {addError ? 
-                (<Message
-                    timeout={5000}
-                    message={"Network error, could not add to library."}
-                    setDisplay={setAddError}
-                />) 
-                : 
-                null}
-                {removeError ? 
-                (<Message
-                    timeout={5000}
-                    message={"Network error, could not remove from library."}
-                    setDisplay={setRemoveError}
-                />) 
-                : 
-                null}
-            </div>
-            {/**If display has been set to true, display the add to library form */}
-            {displays.addToLibrary ? 
-                <AddToLibrary 
-                    addToLibrary={addToLibrary}
-                    selectedLib={props.selectedLib}
-                    displayControls={displayControls}
-            /> : null}
-            {displays.scanner ? 
-                <Scanner 
-                    displayControls={displayControls} 
-                    scanBillable={scanBillable}
+  return (
+    <div className="pageContainer">
+      <div className="overflowWrapper">
+        <div className="contentContainer">
+          {/**Titles for each column of the form */}
+          <h2>{library.name} Library</h2>
+          <div className="searchWrapper">
+            <input
+              className="inputBox search"
+              name="search"
+              type="text"
+              value={searchStr}
+              onChange={handleSearch}
+              placeholder="Search..."
+            ></input>
+          </div>
+          {/**Display a loading message if we haven't recieved the data yet */}
+          {loading ? (
+            <Message
+              message={"Loading data..."}
+              errorMessage={"This is taking a while. Still loading..."}
+              finalErrorMessage={
+                "A network error may have occured. Try again later."
+              }
+              finalTimeout={20000}
+              timeout={10000}
+              errorCondition={getError}
+            />
+          ) : null}
+          {/**If we arent loading, map over the data */}
+          {!loading &&
+            library.billables.map((billable, index) =>
+              //If the billable name batches the search string,
+              //render it
+              searchString(billable.data, searchStr) ? (
+                props.data !== undefined ? (
+                  <Billable
+                    billable={billable}
+                    insertBillable={insertBillable}
+                    removeFromLibrary={removeFromLibrary}
                     modifyLibrary={modifyLibrary}
-                />
-                : null}
+                    index={index}
+                    key={index}
+                    displayControls={displayControls}
+                    setScanBillable={setScanBillable}
+                  />
+                ) : (
+                  <Billable
+                    billable={billable}
+                    removeFromLibrary={removeFromLibrary}
+                    modifyLibrary={modifyLibrary}
+                    index={index}
+                    key={index}
+                    displayControls={displayControls}
+                    setScanBillable={setScanBillable}
+                  />
+                )
+              ) : null
+            )}
+          <button
+            type="button"
+            className="btn add"
+            onClick={() => {
+              //When this button is clicked, display the
+              //add to library form
+              displayControls.changeDisplay("addToLibrary", true);
+            }}
+          >
+            Add to {library.name}
+          </button>
         </div>
-    );
+        <button
+          type="button"
+          className="closeBtn btn"
+          onClick={() => {
+            //When this button is clicked, stop displaying the library
+            props.setDisplay(false);
+          }}
+        >
+          Close
+        </button>
+        {addError ? (
+          <Message
+            timeout={5000}
+            message={"Network error, could not add to library."}
+            setDisplay={setAddError}
+          />
+        ) : null}
+        {removeError ? (
+          <Message
+            timeout={5000}
+            message={"Network error, could not remove from library."}
+            setDisplay={setRemoveError}
+          />
+        ) : null}
+      </div>
+      {/**If display has been set to true, display the add to library form */}
+      {displays.addToLibrary ? (
+        <AddToLibrary
+          addToLibrary={addToLibrary}
+          selectedLib={props.selectedLib}
+          displayControls={displayControls}
+        />
+      ) : null}
+      {displays.scanner ? (
+        <Scanner
+          displayControls={displayControls}
+          scanBillable={scanBillable}
+          modifyLibrary={modifyLibrary}
+        />
+      ) : null}
+    </div>
+  );
 }
 
 export default Library;

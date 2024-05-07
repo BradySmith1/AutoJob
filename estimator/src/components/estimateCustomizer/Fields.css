@@ -1,109 +1,109 @@
-.FieldsWrapper{
-    background-color: #191D23;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    position: relative;
+.FieldsWrapper {
+  background-color: #191d23;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  position: relative;
 }
 
-.CanonicalNameTitle{
-    max-width: 300px;
-    font-size: 24px;
+.CanonicalNameTitle {
+  max-width: 300px;
+  font-size: 24px;
 }
 
-.Name{
-    width: 140px;
-    font-size: 16px;
+.Name {
+  width: 140px;
+  font-size: 16px;
 }
 
-.FakeField{
-    width: 140px;
-    font-size: 16px;
-    padding: 5px;
+.FakeField {
+  width: 140px;
+  font-size: 16px;
+  padding: 5px;
 }
 
-.AddButtonWrapper{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
+.AddButtonWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.FieldsContainer{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.FieldsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.BinaryContainer{
-    display: flex;
+.BinaryContainer {
+  display: flex;
 }
 
-.Unit{
-    width: 150px;
-    padding: 5px 35px 5px 5px;
-    font-size: 16px;
-    border-radius: 10px;
-    height: 34px;
-    background-color: #0d0f12 !important;
-    border: none;
-    color: white;
-    /* Remove default arrow */
+.Unit {
+  width: 150px;
+  padding: 5px 35px 5px 5px;
+  font-size: 16px;
+  border-radius: 10px;
+  height: 34px;
+  background-color: #0d0f12 !important;
+  border: none;
+  color: white;
+  /* Remove default arrow */
 }
 
-.Unit select{
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-color: #0d0f12 !important;
+.Unit select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #0d0f12 !important;
 }
 
-.RemoveStage{
-    height: 20px;
-    width: 20px;
-    padding: 3px;
-    border-radius: 5px;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+.RemoveStage {
+  height: 20px;
+  width: 20px;
+  padding: 3px;
+  border-radius: 5px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }
 
-.RemoveStage:hover{
-    background-color: rgba(255, 255, 255, .1);
-    cursor: pointer;
+.RemoveStage:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
 }
 
-.RemoveFieldButton{
-    height: 30px;
-    width: 94.48px;
+.RemoveFieldButton {
+  height: 30px;
+  width: 94.48px;
 }
 
-.Up{
-    height: 15px;
-    width: 22px;
-    padding: 3px;
-    position: absolute;
-    top: 7px;
-    right: 10px;
+.Up {
+  height: 15px;
+  width: 22px;
+  padding: 3px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
 }
 
-.Down{
-    height: 15px;
-    width: 22px;
-    padding: 3px;
-    border-radius: 5px;
-    position: absolute;
-    top: 27px;
-    right: 10px;
+.Down {
+  height: 15px;
+  width: 22px;
+  padding: 3px;
+  border-radius: 5px;
+  position: absolute;
+  top: 27px;
+  right: 10px;
 }
 
-.Arrow{
-    border-radius: 5px;
+.Arrow {
+  border-radius: 5px;
 }
 
-.Arrow:hover{
-    background-color: rgba(255, 255, 255, .1);
-    cursor: pointer;
+.Arrow:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
 }

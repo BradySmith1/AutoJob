@@ -1,48 +1,48 @@
-.HistoryWrapper{
-    padding-bottom: 50px;
+.HistoryWrapper {
+  padding-bottom: 50px;
 }
 
-.HistoryInfoWrapper{
-    margin-left: 13%;
-    margin-right: 13%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    color: white;
+.HistoryInfoWrapper {
+  margin-left: 13%;
+  margin-right: 13%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: white;
 }
 
-.HistoryInfo{
-    background-color: #191D23;
-    width: 47.5%;
-    text-align: left;
-    padding: 10px;
-    border-radius: 10px;
+.HistoryInfo {
+  background-color: #191d23;
+  width: 47.5%;
+  text-align: left;
+  padding: 10px;
+  border-radius: 10px;
 }
 
-.historySearchWrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-left: 40%;
-    padding-right: 40%;
+.historySearchWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 40%;
+  padding-right: 40%;
 }
 
-.ButtonWrapper{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.ButtonWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.Centered{
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
+.Centered {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
-.searchInput{
-    margin: 0px !important;
-    width: 400px !important;
+.searchInput {
+  margin: 0px !important;
+  width: 400px !important;
 }
