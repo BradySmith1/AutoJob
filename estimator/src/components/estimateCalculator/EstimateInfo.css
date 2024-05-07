@@ -80,7 +80,7 @@ h2 {
   color: white;
   font-size: 20px;
   height: 30px;
-  width: 100px;
+  min-width: 100px;
   border-style: none;
   transition-duration: 200ms;
   border-width: 1.5px;
